@@ -1,0 +1,6 @@
+.env
+orders.json
+telegram-bot-offset.txt
+telegram-manager-chat.txt
+order-logger.out.txt
+order-logger.err.txt

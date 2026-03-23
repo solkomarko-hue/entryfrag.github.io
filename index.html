@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENTRYFRAG | Магазин</title>
+  <script src="./entryfrag-config.js"></script>
+  <style>
+    :root{
+      --bg:#f4efe8;--card:#ffffffd9;--text:#121212;--muted:#666;--red:#eb2027;--red-dark:#b8141a;--line:#00000012;--shadow:0 18px 40px rgba(0,0,0,.12);--radius:24px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:"Segoe UI",Tahoma,sans-serif;color:var(--text);background:
+      radial-gradient(circle at top left, rgba(235,32,39,.16), transparent 35%),
+      linear-gradient(180deg,#f8f4ef,#eee5db)}
+    a{text-decoration:none;color:inherit}
+    button{font:inherit;border:none;cursor:pointer}
+    img{display:block;max-width:100%}
+    .wrap{width:min(1180px,calc(100% - 28px));margin:0 auto}
+    .header{position:sticky;top:14px;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 18px;margin:16px auto 0;width:min(1180px,calc(100% - 28px));background:#ffffffe8;border:1px solid #ffffffaa;border-radius:999px;box-shadow:0 10px 25px rgba(0,0,0,.08);backdrop-filter:blur(16px)}
+    .brand{display:flex;align-items:center;gap:14px}
+    .brand img{width:56px;height:56px;padding:8px;border-radius:18px;background:#fff}
+    .brand strong{display:block;font-size:1.08rem;letter-spacing:.14em;text-transform:uppercase}
+    .brand span{font-size:.78rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+    nav{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+    nav a{padding:10px 14px;border-radius:999px;font-size:.9rem;font-weight:700;text-transform:uppercase}
+    nav a:hover{background:rgba(235,32,39,.1);color:var(--red)}
+    .cart-btn,.btn,.add-btn,.detail-btn,.product-cart-btn,.product-back{border-radius:999px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+    .cart-btn{padding:12px 18px;background:var(--text);color:#fff;display:flex;align-items:center;gap:12px}
+    .cart-btn:hover,.add-btn:hover,.btn.primary:hover,.product-cart-btn:hover{background:var(--red)}
+    .count{min-width:32px;height:32px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.16)}
+    .hero{padding:74px 0 42px}
+    .hero-grid,.about,.products,.categories{display:grid;gap:22px}
+    .hero-grid{grid-template-columns:1.1fr .9fr}
+    .hero-main,.hero-side,.card,.info,.category{border-radius:var(--radius);box-shadow:var(--shadow)}
+    .hero-main{padding:42px;background:linear-gradient(135deg,rgba(18,18,18,.98),rgba(18,18,18,.75));color:#fff}
+    .eyebrow,.tag{display:inline-block;padding:8px 12px;border-radius:999px;font-size:.78rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    .eyebrow{background:rgba(255,255,255,.08);color:#fff}
+    .hero-main h1{margin-top:18px;font-size:clamp(2.8rem,6vw,5.6rem);line-height:.95;text-transform:uppercase;max-width:8ch}
+    .hero-main p{margin-top:18px;max-width:580px;color:rgba(255,255,255,.8);line-height:1.75}
+    .actions,.stats{display:flex;gap:14px;flex-wrap:wrap}
+    .actions{margin-top:28px}
+    .hero-summary{margin-top:16px;display:inline-grid;gap:4px;padding:16px 18px;border-radius:20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+    .hero-summary strong{font-size:1.8rem;line-height:1}
+    .hero-summary span{font-size:.92rem;color:rgba(255,255,255,.8)}
+    .btn{padding:14px 20px;display:inline-flex;align-items:center;justify-content:center}
+    .btn.primary{background:var(--red);color:#fff}
+    .btn.secondary{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15)}
+    .stats{margin-top:28px}
+    .stats div{flex:1 1 150px;padding:18px;border-radius:18px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}
+    .stats strong{display:block;font-size:1.4rem}
+    .stats span{font-size:.9rem;color:rgba(255,255,255,.76);line-height:1.5}
+    .hero-side{padding:26px;background:linear-gradient(180deg,#fff,#f8f3ec)}
+    .hero-side img{width:min(100%,340px);margin:0 auto;filter:drop-shadow(0 16px 24px rgba(0,0,0,.12))}
+    .hero-note{margin-top:20px;padding:22px;background:#fff;border-radius:20px;border:1px solid var(--line)}
+    .hero-latest{display:grid;gap:12px;margin-top:16px}
+    .hero-latest-item{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center;padding:10px;border-radius:18px;background:#fff7f2;border:1px solid var(--line);cursor:pointer;transition:.2s}
+    .hero-latest-item:hover{transform:translateY(-1px);border-color:rgba(235,32,39,.28)}
+    .hero-latest-shot{height:72px;border-radius:14px;background:#111 center/cover no-repeat}
+    .hero-latest-copy strong{display:block;font-size:.98rem;line-height:1.2}
+    .hero-latest-copy span{display:block;margin-top:4px;color:var(--muted);font-size:.88rem}
+    .tag{background:rgba(235,32,39,.1);color:var(--red)}
+    .hero-note p,.section-head p,.meta p,.info p{margin-top:10px;color:var(--muted);line-height:1.7}
+    section.block{padding:34px 0}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:20px}
+    .section-head h2,.info h2{font-size:clamp(2rem,3vw,3rem);text-transform:uppercase;line-height:1.02}
+    .section-head p{max-width:560px}
+    .categories{grid-template-columns:repeat(4,1fr)}
+    .category{min-height:180px;padding:20px;display:flex;align-items:end;color:#fff;position:relative;overflow:hidden}
+    .category::before{content:"";position:absolute;inset:0;background:var(--bg-art)}
+    .category > div{position:relative;z-index:1;max-width:370px}
+    .category h3{margin:0;font-size:1.5rem;text-transform:uppercase;letter-spacing:.08em}
+    .category p{color:rgba(255,255,255,.78);line-height:1.65}
+    .teams-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .team-card{padding:18px;border-radius:22px;background:var(--card);border:1px solid #ffffffa6;box-shadow:var(--shadow);display:grid;gap:8px;min-height:116px;align-content:end;text-align:left;cursor:pointer;transition:.2s}
+    .team-card:hover{transform:translateY(-2px);border-color:rgba(235,32,39,.22)}
+    .team-card h3{font-size:1.05rem;text-transform:uppercase;line-height:1.05}
+    .team-count{font-size:.82rem;color:var(--muted);font-weight:700}
+    .team-open{font-size:.8rem;color:var(--red);font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .team-modal{position:fixed;inset:20px;width:min(1180px,calc(100% - 24px));height:min(92vh,920px);margin:auto;padding:24px;background:#faf6f0;box-shadow:0 24px 60px rgba(0,0,0,.24);border-radius:32px;display:grid;grid-template-rows:auto 1fr;gap:18px;transform:translateY(20px);opacity:0;visibility:hidden;transition:.3s;z-index:46}
+    body.team-open .product-overlay{opacity:1;visibility:visible}
+    body.team-open .team-modal{opacity:1;visibility:visible;transform:translateY(0)}
+    .team-products{overflow:auto;padding-right:4px}
+    .team-products .products{grid-template-columns:repeat(2,1fr)}
+    .products{grid-template-columns:repeat(2,1fr);align-items:stretch}
+    .card{padding:24px;background:var(--card);border:1px solid #ffffffa6;display:flex;flex-direction:column;height:100%}
+    .visual{min-height:440px;padding:22px;border-radius:20px;display:flex;align-items:end;position:relative;overflow:hidden;background:var(--art)}
+    .visual::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.22))}
+    .visual img{position:absolute;top:18px;right:18px;width:86px;opacity:.16;filter:grayscale(1)}
+    .visual.gallery{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch;padding:14px;background:linear-gradient(145deg,#1a1a1a,#4f4f4f)}
+    .visual.gallery::after{background:linear-gradient(180deg,transparent,rgba(0,0,0,.16))}
+    .visual.gallery .tag{position:absolute;left:14px;bottom:14px;z-index:2}
+    .gallery-shot{border-radius:16px;background-position:center;background-size:cover;min-height:230px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+    .visual.is-clickable,.meta h3.is-link{cursor:pointer}
+    .visual.is-clickable:hover,.meta h3.is-link:hover{opacity:.94}
+    .meta{padding-top:18px;display:flex;flex-direction:column;flex:1}
+    .meta h3{font-size:1.5rem;line-height:1.1}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:14px}
+    .row .actions-group{display:flex;gap:10px;flex-wrap:wrap}
+    .price-block{display:grid;gap:4px}
+    .old-price{font-size:.95rem;color:var(--red);text-decoration:line-through;font-weight:700}
+    .price{font-size:1.5rem;font-weight:900}
+    .add-btn{padding:13px 18px;background:var(--text);color:#fff}
+    .detail-btn,.product-back{padding:13px 18px;background:rgba(0,0,0,.08);color:var(--text)}
+    .detail-btn:hover,.product-back:hover{background:rgba(235,32,39,.12);color:var(--red)}
+    .about{grid-template-columns:.95fr 1.05fr}
+    .info,.list{padding:28px;background:var(--card);border:1px solid #ffffffa6;box-shadow:var(--shadow);border-radius:var(--radius)}
+    .list{display:grid;gap:14px}
+    .list article{padding:18px;border-radius:18px;background:#ffffffb8;border:1px solid var(--line)}
+    .list strong{text-transform:uppercase;letter-spacing:.08em}
+    .footer{padding:34px 0 50px}
+    .footer-bar{display:flex;flex-direction:column;gap:10px;align-items:flex-start;padding:22px 26px;background:#121212;color:#ffffffd2;border-radius:var(--radius);box-shadow:var(--shadow);row-gap:6px}
+    .footer-bar strong{color:#fff;letter-spacing:.12em;text-transform:uppercase}
+    .footer-social{padding:22px 26px;margin-top:12px;background:#0a0a0a;border-radius:var(--radius);box-shadow:0 16px 45px rgba(0,0,0,.35);display:flex;flex-direction:column;gap:8px;}
+    .footer-social span{font-size:.95rem;color:#ccc}
+    .footer-social a{color:#dcdcdc;text-decoration:none;font-size:1rem;border-bottom:2px solid transparent;padding-bottom:4px;transition:.2s}
+    .footer-social a:hover{color:#fff;border-color:#fff}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.44);opacity:0;visibility:hidden;transition:.25s;z-index:30}
+    .drawer{position:fixed;top:0;right:0;width:min(420px,100%);height:100vh;padding:24px;display:grid;grid-template-rows:auto 1fr auto;gap:18px;background:#faf6f0f7;backdrop-filter:blur(10px);box-shadow:-18px 0 40px rgba(0,0,0,.14);transform:translateX(100%);transition:.3s;z-index:40}
+    body.cart-open .overlay{opacity:1;visibility:visible}
+    body.cart-open .drawer{transform:translateX(0)}
+    .drawer-head,.sum{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .drawer h3{font-size:1.45rem;text-transform:uppercase}
+    .close{width:42px;height:42px;border-radius:50%;background:#121212;color:#fff;font-size:1.1rem}
+    .items{display:grid;align-content:start;gap:14px;overflow:auto}
+    .empty,.item,.drawer-foot{background:#ffffffd9;border:1px solid var(--line);border-radius:20px}
+    .empty{padding:22px;color:var(--muted);line-height:1.7}
+    .item{padding:18px;display:grid;gap:10px}
+    .top,.bottom{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .item small{color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+    .qty{display:flex;align-items:center;gap:10px}
+    .qty button{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.08);font-weight:900}
+    .qty button:hover{background:rgba(235,32,39,.12);color:var(--red)}
+    .drawer-foot{padding:20px;display:grid;gap:12px}
+    .drawer-foot button{padding:14px 16px;border-radius:999px;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+    .promo-box{display:grid;gap:10px;padding:16px;border-radius:18px;background:#fff7f2;border:1px solid var(--line)}
+    .promo-row{display:grid;grid-template-columns:1fr auto;gap:10px}
+    .promo-input{width:100%;padding:13px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font:inherit}
+    .promo-note{font-size:.88rem;color:var(--muted);line-height:1.5}
+    .sum-details{display:grid;gap:6px}
+    .sum-details small{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-weight:700}
+    .checkout{background:var(--red);color:#fff}
+    .clear{background:rgba(0,0,0,.08)}
+    .product-overlay{position:fixed;inset:0;background:rgba(0,0,0,.58);opacity:0;visibility:hidden;transition:.25s;z-index:45}
+    .product-modal{position:fixed;inset:20px;width:min(1180px,calc(100% - 24px));height:min(92vh,900px);margin:auto;padding:24px;background:#faf6f0;box-shadow:0 24px 60px rgba(0,0,0,.24);border-radius:32px;display:grid;grid-template-rows:auto 1fr;gap:20px;transform:translateY(20px);opacity:0;visibility:hidden;transition:.3s;z-index:46}
+    body.product-open .product-overlay{opacity:1;visibility:visible}
+    body.product-open .product-modal{opacity:1;visibility:visible;transform:translateY(0)}
+    .sizechart-modal{position:fixed;inset:28px;width:min(1300px,calc(100% - 24px));height:min(94vh,940px);margin:auto;padding:24px;background:#faf6f0;box-shadow:0 24px 60px rgba(0,0,0,.24);border-radius:32px;display:grid;grid-template-rows:auto 1fr;gap:16px;transform:translateY(20px);opacity:0;visibility:hidden;transition:.3s;z-index:47}
+    body.sizechart-open .product-overlay{opacity:1;visibility:visible}
+    body.sizechart-open .sizechart-modal{opacity:1;visibility:visible;transform:translateY(0)}
+    .sizechart-shot{border-radius:24px;background:#fff center/contain no-repeat;border:1px solid var(--line);width:min(980px,calc(100vw - 48px));height:420px;margin:auto;padding:8px}
+    .product-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .product-head h3{font-size:1.7rem;text-transform:uppercase}
+    .product-body{display:grid;grid-template-columns:1.05fr .95fr;gap:22px;min-height:0}
+    .product-media,.product-copy{background:#ffffffd9;border:1px solid var(--line);border-radius:28px;padding:20px}
+    .product-media{display:grid;grid-template-rows:1fr auto;gap:14px;min-height:0}
+    .product-main-shot{border-radius:24px;min-height:420px;background:#111 center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+    .product-thumbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:10px}
+    .product-thumb{border:none;border-radius:18px;min-height:92px;background:#ddd center/cover no-repeat;box-shadow:inset 0 0 0 2px transparent}
+    .product-thumb.active{box-shadow:inset 0 0 0 2px var(--red)}
+    .product-copy{display:grid;align-content:start;gap:18px;overflow:auto}
+    .product-copy p{color:var(--muted);line-height:1.75}
+    .product-meta{display:grid;gap:10px;padding:18px;border-radius:22px;background:#fff7f2;border:1px solid var(--line)}
+    .product-meta-actions{display:flex;justify-content:flex-end}
+    .product-price{font-size:2rem;font-weight:900}
+    .size-grid{display:flex;gap:10px;flex-wrap:wrap}
+    .size-chip{padding:12px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:800}
+    .size-chip.active{background:var(--text);color:#fff;border-color:var(--text)}
+    .option-grid{display:flex;gap:10px;flex-wrap:wrap}
+    .option-chip{padding:12px 16px;border-radius:999px;border:1px solid var(--line);background:#fff;font-weight:800}
+    .option-chip.active{background:var(--text);color:#fff;border-color:var(--text)}
+    .product-cart-btn{padding:14px 20px;background:var(--text);color:#fff}
+    .checkout-modal{position:fixed;inset:20px;width:min(760px,calc(100% - 24px));height:min(90vh,860px);margin:auto;padding:24px;background:#faf6f0;box-shadow:0 24px 60px rgba(0,0,0,.24);border-radius:32px;display:grid;grid-template-rows:auto 1fr;gap:18px;transform:translateY(20px);opacity:0;visibility:hidden;transition:.3s;z-index:47}
+    body.checkout-open .product-overlay{opacity:1;visibility:visible}
+    body.checkout-open .checkout-modal{opacity:1;visibility:visible;transform:translateY(0)}
+    .success-modal{position:fixed;inset:20px;width:min(440px,calc(100% - 24px));margin:auto;padding:28px;background:#faf6f0;box-shadow:0 24px 60px rgba(0,0,0,.24);border-radius:32px;display:grid;gap:18px;text-align:center;transform:translateY(20px);opacity:0;visibility:hidden;transition:.3s;z-index:48}
+    body.success-open .product-overlay{opacity:1;visibility:visible}
+    body.success-open .success-modal{opacity:1;visibility:visible;transform:translateY(0)}
+    .success-copy{display:grid;gap:10px}
+    .success-copy strong{font-size:1.8rem;text-transform:uppercase}
+    .success-copy p{color:var(--muted);line-height:1.6}
+    .success-actions{display:flex;justify-content:center}
+    .checkout-form{display:grid;gap:16px;overflow:auto}
+    .checkout-field{display:grid;gap:8px}
+    .checkout-field label{font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.85rem}
+    .checkout-field input,.checkout-field select{width:100%;padding:14px 16px;border-radius:18px;border:1px solid var(--line);background:#fff;font:inherit}
+    .checkout-field select:disabled{background:#f2f0ec;color:#888}
+    .checkout-confirm{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;border-radius:20px;background:#fff7f2;border:1px solid var(--line)}
+    .checkout-confirm input{margin-top:3px;accent-color:var(--red);transform:scale(1.15)}
+    .checkout-confirm label{font-weight:700;line-height:1.55;text-transform:none;letter-spacing:0;font-size:.98rem}
+    .checkout-order{padding:16px 18px;border-radius:20px;background:#fff7f2;border:1px solid var(--line);display:grid;gap:6px}
+    .checkout-order strong{font-size:1.35rem}
+    .checkout-actions{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .checkout-submit{padding:14px 18px;border-radius:999px;background:var(--red);color:#fff;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+    .order-item{padding:12px 16px;border-radius:16px;background:#fff;border:1px solid var(--line);display:grid;gap:6px;cursor:pointer}
+    .order-item strong{display:block;font-size:1rem;letter-spacing:.04em}
+    .order-item small{color:var(--muted)}
+    .order-detail{margin-top:20px;padding:18px;border-radius:22px;background:#fff;border:1px solid var(--line);box-shadow:0 16px 40px rgba(0,0,0,.06)}
+    .order-detail.hidden{display:none}
+    .order-detail-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+    .order-detail-head span{display:block;font-size:.9rem;color:#555}
+    .order-detail-items{display:grid;gap:10px;margin-bottom:10px}
+    .order-detail-item{padding:10px;border-radius:14px;background:#f4f4f4;display:flex;justify-content:space-between;font-size:.9rem}
+    .order-detail-foot{display:flex;justify-content:space-between;font-weight:700;font-size:1rem;padding-top:8px;border-top:1px solid var(--line)}
+    .toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,16px);opacity:0;transition:.25s;padding:14px 18px;border-radius:999px;background:#121212;color:#fff;font-weight:700;z-index:50;pointer-events:none}
+    .toast.show{opacity:1;transform:translate(-50%,0)}
+    @media (max-width:980px){.header,.hero-grid,.categories,.products,.about,.product-body,.teams-grid,.team-products .products{grid-template-columns:1fr}.header{flex-wrap:wrap;justify-content:center;border-radius:28px}.section-head{flex-direction:column;align-items:start}.product-modal,.sizechart-modal,.team-modal,.checkout-modal{inset:12px;height:auto;max-height:calc(100vh - 24px)}.product-main-shot{min-height:320px}}
+    @media (max-width:640px){.wrap,.header{width:min(100% - 18px,1180px)}.brand,.cart-btn,nav{width:100%;justify-content:center}.brand{justify-content:center}.brand div{text-align:center}.footer-bar{flex-direction:column;align-items:flex-start}.product-modal,.sizechart-modal,.team-modal,.checkout-modal{padding:16px;border-radius:24px}.product-head,.checkout-actions{align-items:flex-start;flex-direction:column}.product-main-shot{min-height:250px}}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="#home" aria-label="ENTRYFRAG">
+      <img src="image.png.png" alt="Лого ENTRYFRAG">
+      <div><strong>ENTRYFRAG</strong><span>CS2 Jersey Shop</span></div>
+    </a>
+    <nav>
+      <a href="#home">Головна</a>
+      <a href="#categories">Категорії</a>
+      <a href="#teams">Команди</a>
+      <a href="#jerseys">Джерсі</a>
+      <a href="#zipups">Зіпки</a>
+      <a href="#pants">Штани</a>
+    </nav>
+    <button class="cart-btn" id="cartBtn" type="button">Кошик <span class="count" id="cartCount">0</span></button>
+  </header>
+
+  <main id="home">
+    <section class="hero wrap">
+      <div class="hero-grid">
+        <div class="hero-main">
+          <span class="eyebrow">ENTRYFRAG Store</span>
+          <h1>ENTRY FIRST. FRAG HARD.</h1>
+          <p>Репліки офіційних джерсі команд CS2. Якісний матеріал, точний дизайн. Для фанатів CS2 та гравців, які цінують стиль. Доставляємо по всій Україні та в Європу.</p>
+          <div class="actions">
+            <a class="btn primary" href="#jerseys">Дивитися джерсі</a>
+            <a class="btn secondary" href="#zipups">Перейти до зіпок</a>
+          </div>
+          <div class="hero-summary">
+            <strong id="heroProductCount">0</strong>
+            <span>загальна кількість товарів у каталозі</span>
+          </div>
+        </div>
+        <aside class="hero-side">
+          <img src="image.png.png" alt="ENTRYFRAG CS2 Jersey Shop">
+          <div class="hero-note">
+            <span class="tag">Новинки</span>
+            <h2>Останні додані товари</h2>
+            <div class="hero-latest" id="heroLatest"></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="block wrap" id="categories">
+      <div class="section-head">
+        <div><span class="tag">Категорії</span><h2>Що є в магазині</h2></div>
+      </div>
+      <div class="categories">
+        <a class="category" href="#jerseys" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9)),linear-gradient(135deg,#ef3a40,#121212)">
+          <div><h3>Джерсі</h3></div>
+        </a>
+        <a class="category" href="#zipups" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9)),linear-gradient(135deg,#121212,#5a5a5a)">
+          <div><h3>Зіпки</h3></div>
+        </a>
+        <a class="category" href="#pants" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9)),linear-gradient(135deg,#2c2c2c,#8c8c8c)">
+          <div><h3>Штани</h3></div>
+        </a>
+        <a class="category" href="#teams" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9)),linear-gradient(135deg,#6a1014,#121212)">
+          <div><h3>Товари по командах</h3></div>
+        </a>
+      </div>
+    </section>
+
+    <section class="block wrap" id="teams">
+      <div class="section-head">
+        <div><span class="tag">Команди</span><h2>Товари по командах</h2></div>
+      </div>
+      <div class="teams-grid" id="teamsGrid"></div>
+    </section>
+
+    <section class="block wrap" id="jerseys">
+      <div class="section-head">
+        <div><span class="tag">Jerseys</span><h2>Джерсі ENTRYFRAG</h2></div>
+      </div>
+      <div class="products">
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.06),rgba(0,0,0,.18)),url('team-falcons.jpg.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Team Falcons Jersey</h3>
+            <p>Під замовлення. Розміри: XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">699 ₴</span><button class="add-btn" data-id="team-falcons-jersey" data-name="Team Falcons Jersey" data-category="Джерсі" data-price="699" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="team-falconsrozmir.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.22)),url('fazeclansimple007.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Faze Clan S1mple Jersey</h3>
+            <p>Під замовлення. Розміри: XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">759 ₴</span><button class="add-btn" data-id="faze-s1mple-jersey" data-name="Faze Clan S1mple Jersey" data-category="Джерсі" data-price="759" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="team-falconsrozmir.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('teamliquid1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Team Liquid Jersey</h3>
+            <p>Розміри: XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">699 ₴</span><button class="add-btn" data-id="team-liquid-jersey" data-name="Team Liquid Jersey" data-category="Джерсі" data-price="699" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="teamliquidrozmir1.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('mongols1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>The MongolZ Jersey</h3>
+            <p>Під замовлення. Розміри: XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">799 ₴</span><button class="add-btn" data-id="the-mongolz-jersey" data-name="The MongolZ Jersey" data-category="Джерсі" data-price="799" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="team-falconsrozmir.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('navi2.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('navi2.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Natus Vincere Jersey</h3>
+            <p>Під замовлення. Розміри: S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">799 ₴</span><button class="add-btn" data-id="navi-jersey" data-name="Natus Vincere Jersey" data-category="Джерсі" data-price="799" data-sizes="S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="navirozmir2.1.png" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('furia1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Furia Jersey</h3>
+            <p>Під замовлення. Розміри: S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">799 ₴</span><button class="add-btn" data-id="furia-jersey" data-name="Furia Jersey" data-category="Джерсі" data-price="799" data-sizes="S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="furiarozmir1.png" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('vitaity1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Vitality Jersey</h3>
+            <p>Під замовлення. Розміри: XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">799 ₴</span><button class="add-btn" data-id="vitality-jersey" data-name="Vitality Jersey" data-category="Джерсі" data-price="799" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="team-falconsrozmir.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('vitality2.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('vitality2.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Team Vitality Jersey</h3>
+            <p>Під замовлення. Розміри: S, M, L, XL, 2XL, 3XL, 4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="team-vitality-jersey" data-name="Team Vitality Jersey" data-category="Джерсі" data-price="899" data-sizes="S,M,L,XL,2XL,3XL,4XL" data-size-chart="vitalityrozmir2.png" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('vitality3.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('vitality3.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Vitality Yellow Jersey</h3>
+            <p>Під замовлення. Розміри: XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="vitality-yellow-jersey" data-name="Vitality Yellow Jersey" data-category="Джерсі" data-price="899" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="team-falconsrozmir.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('vitality4.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('vitality4.2.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('vitality4.3.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Vitality White Jersey</h3>
+            <p>Під замовлення. Розміри: M, L, XL, 2XL, 3XL, 4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="vitality-white-jersey" data-name="Vitality White Jersey" data-category="Джерсі" data-price="899" data-sizes="M,L,XL,2XL,3XL,4XL" data-size-chart="vitalityrozmir4.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('navi3.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('navi3.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>NaVi 2023 Jersey</h3>
+            <p>Під замовлення. Розміри: S, M, L, XL, 2XL, 3XL, 4XL, 5XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">850 ₴</span><button class="add-btn" data-id="navi-2023-jersey" data-name="NaVi 2023 Jersey" data-category="Джерсі" data-price="850" data-sizes="S,M,L,XL,2XL,3XL,4XL,5XL" data-size-chart="navirozmir3.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('navi1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>NaVi 2025 Jersey</h3>
+            <p>Під замовлення. Розміри: XS, S, M, L, XL, 2XL, 3XL, 4XL, 5XL, 6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">799 ₴</span><button class="add-btn" data-id="navi-2025-jersey" data-name="NaVi 2025 Jersey" data-category="Джерсі" data-price="799" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="team-falconsrozmir.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('faze1.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('faze1.2.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('faze1.3.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('faze1.4.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Faze Clan Jersey</h3>
+            <p>Під замовлення. Розміри: M, L, XL, 2XL, 3XL, 4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="faze-clan-jersey" data-name="Faze Clan Jersey" data-category="Джерсі" data-price="899" data-sizes="M,L,XL,2XL,3XL,4XL" data-size-chart="fazerozmir1.jpg" data-options="ROPZ,KARRIGAN,FROZEN" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('faze2.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('faze2.2.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('faze2.3.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Team Faze Clan Jersey</h3>
+            <p>Під замовлення. Розміри: M, L, XL, 2XL, 3XL, 4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="team-faze-clan-jersey" data-name="Team Faze Clan Jersey" data-category="Джерсі" data-price="899" data-sizes="M,L,XL,2XL,3XL,4XL" data-size-chart="fazerozmir2.jpg" data-options="TWISTZZ,БЕЗ ІМЕНІ" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('falcons1.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('falcons1.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Falcons Jersey</h3>
+            <p>Під замовлення. Розміри: M, L, XL, 2XL, 3XL, 4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="falcons-jersey" data-name="Falcons Jersey" data-category="Джерсі" data-price="899" data-sizes="M,L,XL,2XL,3XL,4XL" data-size-chart="fazerozmir2.jpg" data-options="NIKO,m0NESY,без імені" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('falcons2.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('falcons2.2.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('falcons2.3.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('falcons2.4.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('falcons2.5.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Falcons White Jersey</h3>
+            <p>Під замовлення. Розміри: M, L, XL, 2XL, 3XL, 4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">999 ₴</span><button class="add-btn" data-id="falcons-white-jersey" data-name="Falcons White Jersey" data-category="Джерсі" data-price="999" data-sizes="M,L,XL,2XL,3XL,4XL" data-size-chart="fazerozmir2.jpg" data-options="NIKO,m0NESY,KYOUSUKE,без імені" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('gtwo1.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('gtwo1.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>G2 Jersey</h3>
+            <p>Під замовлення. Розміри: L, XL, 2XL, 3XL, 4XL, 5XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="g2-jersey" data-name="G2 Jersey" data-category="Джерсі" data-price="899" data-sizes="L,XL,2XL,3XL,4XL,5XL" data-size-chart="gtworozmir1.jpg" data-options="NIKO,MONESY,без імені" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('spirit1.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('spirit1.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Team Spirit Jersey</h3>
+            <p>Під замовлення. Розміри: S, M, L, XL, 2XL, 3XL, 4XL, 5XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="team-spirit-jersey" data-name="Team Spirit Jersey" data-category="Джерсі" data-price="899" data-sizes="S,M,L,XL,2XL,3XL,4XL,5XL" data-size-chart="spiritrozmir1.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('spirit2.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('spirit2.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Team Spirit Black and White Jersey</h3>
+            <p>Під замовлення. Розміри: S-4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="team-spirit-bw-jersey" data-name="Team Spirit Black and White Jersey" data-category="Джерсі" data-price="899" data-sizes="S,M,L,XL,2XL,3XL,4XL" data-size-chart="spiritrozmir2.jpg" data-options="Чорна,Біла" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('spirit3.1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Spirit Jersey</h3>
+            <p>Під замовлення. Розміри: XS-5XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="spirit-jersey" data-name="Spirit Jersey" data-category="Джерсі" data-price="899" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL" data-size-chart="spiritrozmir2.jpg" data-options="Без імені,donk,sh1ro,magixx,chopper,zont1x" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('efire1.1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Eternal Fire Jersey</h3>
+            <p>Під замовлення. Розміри: 2XS-4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">799 ₴</span><button class="add-btn" data-id="eternal-fire-jersey" data-name="Eternal Fire Jersey" data-category="Джерсі" data-price="799" data-sizes="2XS,XS,S,M,L,XL,2XL,3XL,4XL" data-size-chart="efirerozmir1.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('aurora1.1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Aurora Jersey</h3>
+            <p>Під замовлення. Розміри: S-6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">799 ₴</span><button class="add-btn" data-id="aurora-jersey" data-name="Aurora Jersey" data-category="Джерсі" data-price="799" data-sizes="S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="aurorarozmir1.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('astralis1.1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Astralis Jersey</h3>
+            <p>Під замовлення. Розміри: XS-6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">699 ₴</span><button class="add-btn" data-id="astralis-jersey" data-name="Astralis Jersey" data-category="Джерсі" data-price="699" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="astralisrozmir1.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('astralis2.1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Team Astralis Jersey</h3>
+            <p>Під замовлення. Розміри: XS-6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">699 ₴</span><button class="add-btn" data-id="team-astralis-jersey" data-name="Team Astralis Jersey" data-category="Джерсі" data-price="699" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="astralisrozmir2.jpg" data-options="Без імені,STAVN,DEV1CE,STAEHR,CADIAN,JABBI" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('liquid1.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('liquid1.2.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('liquid1.3.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('liquid1.4.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('liquid1.5.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Liquid Jersey</h3>
+            <p>Під замовлення. Розміри: S-6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">799 ₴</span><button class="add-btn" data-id="liquid-jersey" data-name="Liquid Jersey" data-category="Джерсі" data-price="799" data-sizes="S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="liquidrozmir1.jpg" data-options="ultimate,Twistzz,NAF,Nertz,jks" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('vpro1.1.jpg') center/cover"><span class="tag">Джерсі</span></div>
+          <div class="meta">
+            <h3>Virtus Pro Jersey</h3>
+            <p>Під замовлення. Розміри: XS-6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">699 ₴</span><button class="add-btn" data-id="virtus-pro-jersey" data-name="Virtus Pro Jersey" data-category="Джерсі" data-price="699" data-sizes="XS,S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="astralisrozmir2.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('gtwo2.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('gtwo2.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>G2 Green Jersey</h3>
+            <p>Під замовлення. Розміри: S-4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="g2-green-jersey" data-name="G2 Green Jersey" data-category="Джерсі" data-price="899" data-sizes="S,M,L,XL,2XL,3XL,4XL" data-size-chart="gtworozmir2.png" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('gtwo3.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('gtwo3.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>G2 Red Jersey</h3>
+            <p>Під замовлення. Розміри: S-4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">899 ₴</span><button class="add-btn" data-id="g2-red-jersey" data-name="G2 Red Jersey" data-category="Джерсі" data-price="899" data-sizes="S,M,L,XL,2XL,3XL,4XL" data-size-chart="gtworozmir2.png" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('cloud91.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('cloud91.2.jpg')"></div>
+            <span class="tag">Джерсі</span>
+          </div>
+          <div class="meta">
+            <h3>Cloud9 Jersey</h3>
+            <p>Під замовлення. Розміри: S-4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">999 ₴</span><button class="add-btn" data-id="cloud9-jersey" data-name="Cloud9 Jersey" data-category="Джерсі" data-price="999" data-sizes="S,M,L,XL,2XL,3XL,4XL" data-size-chart="gtworozmir2.png" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="block wrap" id="zipups">
+      <div class="section-head">
+        <div><span class="tag">Zipups</span><h2>Зіпки ENTRYFRAG</h2></div>
+      </div>
+      <div class="products">
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('falconszip1.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('falconszip1.2.jpg')"></div>
+            <span class="tag">Зіпка</span>
+          </div>
+          <div class="meta">
+            <h3>Falcons Zip Hoodie</h3>
+            <p>Під замовлення. Розміри: M-4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">1 499 ₴</span><button class="add-btn" data-id="falcons-zip" data-name="Falcons Zip Hoodie" data-category="Зіпка" data-price="1499" data-sizes="M,L,XL,2XL,3XL,4XL" data-size-chart="falconsziprozmir1.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('fazezip1.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('fazezip1.2.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('fazezip1.3.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('fazezip1.4.jpg')"></div>
+            <span class="tag">Зіпка</span>
+          </div>
+          <div class="meta">
+            <h3>Faze Clan Zip Hoodie</h3>
+            <p>Під замовлення. Розміри: S-6XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">1 399 ₴</span><button class="add-btn" data-id="faze-zip" data-name="Faze Clan Zip Hoodie" data-category="Зіпка" data-price="1399" data-sizes="S,M,L,XL,2XL,3XL,4XL,5XL,6XL" data-size-chart="fazeziprozmir1.png" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual" style="--art:linear-gradient(180deg,rgba(255,255,255,.04),rgba(0,0,0,.18)),url('navizip1.jpg') center/cover"><span class="tag">Зіпка</span></div>
+          <div class="meta">
+            <h3>NaVi Zip Hoodie</h3>
+            <p>Під замовлення. Розміри: 2XS-4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">1 399 ₴</span><button class="add-btn" data-id="navi-zip" data-name="NaVi Zip Hoodie" data-category="Зіпка" data-price="1399" data-sizes="2XS,XS,S,M,L,XL,2XL,3XL,4XL" data-size-chart="naviziprozmir1.png" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('vitalityzip1.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('vitalityzip1.2.jpg')"></div>
+            <span class="tag">Зіпка</span>
+          </div>
+          <div class="meta">
+            <h3>Vitality Zip Hoodie</h3>
+            <p>Під замовлення. Розміри: 2XS-4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">1 600 ₴</span><button class="add-btn" data-id="vitality-zip" data-name="Vitality Zip Hoodie" data-category="Зіпка" data-price="1600" data-sizes="2XS,XS,S,M,L,XL,2XL,3XL,4XL" data-size-chart="naviziprozmir1.png" data-options="Фото 1,Фото 2" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="block wrap" id="pants">
+      <div class="section-head">
+        <div><span class="tag">Pants</span><h2>Штани ENTRYFRAG</h2></div>
+      </div>
+      <div class="products">
+        <article class="card">
+          <div class="visual gallery">
+            <div class="gallery-shot" style="background-image:url('falconspants1.1.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('falconspants1.2.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('falconspants1.3.jpg')"></div>
+            <div class="gallery-shot" style="background-image:url('falconspants1.4.jpg')"></div>
+            <span class="tag">Штани</span>
+          </div>
+          <div class="meta">
+            <h3>Falcons Pants</h3>
+            <p>Під замовлення. Розміри: M-4XL. Якість: 1:1 (преміум). Доставка: 9-18 днів.</p>
+            <div class="row"><span class="price">1 600 ₴</span><button class="add-btn" data-id="falcons-pants" data-name="Falcons Pants" data-category="Штани" data-price="1600" data-sizes="M,L,XL,2XL,3XL,4XL" data-size-chart="falconspantsrozmir1.jpg" type="button">Додати в кошик</button></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="block wrap">
+      <div class="about">
+        <article class="info">
+          <span class="tag">Про магазин</span>
+          <h2>ENTRYFRAG — твій дроп у світ CS2 стилю 🎯</h2>
+          <p>Ми продаємо якісні репліки джерсі топових кіберспортивних команд із CS2. Той самий стиль, який ти бачиш на про-сцені — тепер доступний кожному.</p>
+          <p>🔥 Стиль як у про-гравців<br>🔥 Комфортні матеріали<br>🔥 Доступна ціна<br>🔥 Репліки легендарних команд</p>
+          <p>Ідеально для гри, стрімів або щоденного стилю. Виглядай як про — навіть поза сервером.</p>
+          <p>⚡ ENTRYFRAG — заходь у гру зі стилем MVP</p>
+        </article>
+        <div class="list">
+          <article><strong>Топові команди</strong><p>У каталозі вже є джерсі, зіпки та штани у стилі Falcons, NaVi, Vitality, Spirit, G2, Faze Clan та інших команд CS2.</p></article>
+          <article><strong>Якість і комфорт</strong><p>Репліки 1:1 з приємних матеріалів, точним дизайном і розмірами S, M, L для щоденного стилю, гри та стрімів.</p></article>
+          <article><strong>Доставка</strong><p>Працюємо під замовлення та доставляємо по всій Україні й у Європу, щоб твій новий дроп приїхав швидко та без зайвого клопоту.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer wrap">
+    <div class="footer-bar"><strong>ENTRYFRAG</strong><span>ENTRY FIRST. FRAG HARD.</span></div>
+    <div class="footer-social">
+      <span>Будь на зв’язку з нами у Telegram та Instagram</span>
+      <a href="https://t.me/+WfE-faiUIrhkOGUy" target="_blank" rel="noopener noreferrer">Telegram • вступити</a>
+      <a href="https://www.instagram.com/entryfrag.jersey?igsh=ZmRwbHVsdzQyMjJv" target="_blank" rel="noopener noreferrer">Instagram • стежити</a>
+    </div>
+  </footer>
+
+  <div class="overlay" id="overlay"></div>
+  <aside class="drawer" id="drawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div><span class="tag">Shopping Cart</span><h3>Ваш кошик</h3></div>
+      <button class="close" id="closeCart" type="button">×</button>
+    </div>
+    <div class="items" id="cartItems"><div class="empty">Кошик поки порожній. Додайте джерсі або зіпку, і вони з'являться тут.</div></div>
+    <div class="drawer-foot">
+      <div class="promo-box">
+        <span class="tag">Промокод</span>
+        <div class="promo-row">
+          <input class="promo-input" id="promoInput" type="text" placeholder="Введіть промокод" autocomplete="off">
+          <button class="clear" id="applyPromo" type="button">Застосувати</button>
+        </div>
+        <div class="promo-note" id="promoNote"></div>
+      </div>
+      <div class="sum-details" id="cartSummaryDetails"></div>
+      <div class="sum"><span>Разом</span><strong id="cartTotal">0 ₴</strong></div>
+      <button class="checkout" id="checkout" type="button">Оформити замовлення</button>
+      <button class="clear" id="clearCart" type="button">Очистити весь кошик</button>
+    </div>
+  </aside>
+  <div class="product-overlay" id="productOverlay"></div>
+  <aside class="product-modal" id="productModal" aria-hidden="true">
+    <div class="product-head">
+      <div><span class="tag" id="productCategory">Товар</span><h3 id="productTitle">Картка товару</h3></div>
+      <button class="close" id="closeProduct" type="button">×</button>
+    </div>
+    <div class="product-body">
+      <div class="product-media">
+        <div class="product-main-shot" id="productMainShot"></div>
+        <div class="product-thumbs" id="productThumbs"></div>
+      </div>
+      <div class="product-copy">
+        <div class="product-meta">
+          <span class="tag">Деталі товару</span>
+          <div class="product-price" id="productPrice">0 ₴</div>
+          <p id="productDescription">Опис товару з'явиться тут.</p>
+          <div class="product-meta-actions">
+            <button class="detail-btn" id="productSizeChart" type="button" hidden>Розмірна сітка</button>
+          </div>
+        </div>
+        <div class="product-meta">
+          <span class="tag">Оберіть розмір</span>
+          <div class="size-grid" id="productSizes"></div>
+        </div>
+        <div class="product-meta" id="productOptionsWrap" hidden>
+          <span class="tag">Опції</span>
+          <div class="option-grid" id="productOptions"></div>
+        </div>
+        <div class="row">
+          <button class="product-back" id="productBack" type="button">Назад до каталогу</button>
+          <button class="product-cart-btn" id="productAddToCart" type="button">Додати в кошик</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+  <aside class="sizechart-modal" id="sizeChartModal" aria-hidden="true">
+    <div class="product-head">
+      <div><span class="tag">Розмірна сітка</span><h3 id="sizeChartTitle">Розмірна сітка</h3></div>
+      <button class="close" id="closeSizeChart" type="button">×</button>
+    </div>
+    <div class="sizechart-shot" id="sizeChartShot"></div>
+  </aside>
+  <aside class="team-modal" id="teamModal" aria-hidden="true">
+    <div class="product-head">
+      <div><span class="tag">Команда</span><h3 id="teamModalTitle">Товари команди</h3></div>
+      <button class="close" id="closeTeamModal" type="button">×</button>
+    </div>
+    <div class="team-products" id="teamProducts"></div>
+  </aside>
+  <aside class="checkout-modal" id="checkoutModal" aria-hidden="true">
+    <div class="product-head">
+      <div><span class="tag">Замовлення</span><h3>Оформлення замовлення</h3></div>
+      <button class="close" id="closeCheckoutModal" type="button">×</button>
+    </div>
+    <form class="checkout-form" id="checkoutForm">
+      <div class="checkout-order">
+        <span>Номер замовлення</span>
+        <strong id="checkoutOrderNumber">EF-000000</strong>
+      </div>
+      <div class="checkout-field">
+        <label for="customerName">ПІБ</label>
+        <input id="customerName" name="customerName" type="text" placeholder="Введіть ПІБ" required>
+      </div>
+      <div class="checkout-field">
+        <label for="customerPhone">Номер телефону</label>
+        <input id="customerPhone" name="customerPhone" type="tel" placeholder="+380..." required>
+      </div>
+      <div class="checkout-field">
+        <label for="customerTelegram">Нік у Telegram</label>
+        <input id="customerTelegram" name="customerTelegram" type="text" placeholder="@вашнік" required>
+      </div>
+      <div class="checkout-field">
+        <label for="novaPoshtaCity">Місто</label>
+        <input id="novaPoshtaCity" name="novaPoshtaCityLabel" type="text" placeholder="Почніть вводити місто" list="novaPoshtaCityList" autocomplete="off" required>
+        <datalist id="novaPoshtaCityList"></datalist>
+        <input id="novaPoshtaCityRef" name="novaPoshtaCity" type="hidden" required>
+      </div>
+      <div class="checkout-field">
+        <label for="novaPoshtaBranch">Відділення Нової пошти</label>
+        <select id="novaPoshtaBranch" name="novaPoshtaBranch" required disabled>
+          <option value="">Спочатку оберіть місто</option>
+        </select>
+      </div>
+      <div class="checkout-confirm">
+        <input id="confirmOrderDetails" name="confirmOrderDetails" type="checkbox" required>
+        <label for="confirmOrderDetails">Підтверджую, що всі дані замовлення заповнені правильно, і я хочу оформити це замовлення.</label>
+      </div>
+      <div class="checkout-actions">
+        <button class="product-back" id="checkoutBack" type="button">Назад до кошика</button>
+        <button class="checkout-submit" type="submit">Підтвердити замовлення</button>
+      </div>
+    </form>
+  </aside>
+  <aside class="success-modal" id="successModal" aria-hidden="true">
+    <div class="success-copy">
+      <span class="tag">ENTRYFRAG</span>
+      <strong>Замовлення оформлено</strong>
+      <p id="successMessage">Ваше замовлення успішно оформлено.</p>
+    </div>
+    <div class="success-actions">
+      <button class="checkout-submit" id="closeSuccessModal" type="button">Закрити</button>
+    </div>
+  </aside>
+  <div class="toast" id="toast">Товар додано в кошик</div>
+
+  <script>
+    const cart = new Map();
+    const products = new Map();
+    const body = document.body;
+    try {
+      localStorage.removeItem("entryfrag-current-account");
+      localStorage.removeItem("entryfrag-users");
+      Object.keys(localStorage)
+        .filter((key) => key.startsWith("entryfrag-orders-"))
+        .forEach((key) => localStorage.removeItem(key));
+    } catch {}
+    const cartBtn = document.getElementById("cartBtn");
+    const closeCart = document.getElementById("closeCart");
+    const overlay = document.getElementById("overlay");
+    const drawer = document.getElementById("drawer");
+    const cartItems = document.getElementById("cartItems");
+    const cartTotal = document.getElementById("cartTotal");
+    const cartCount = document.getElementById("cartCount");
+    const clearCart = document.getElementById("clearCart");
+    const checkout = document.getElementById("checkout");
+    const promoInput = document.getElementById("promoInput");
+    const applyPromo = document.getElementById("applyPromo");
+    const promoNote = document.getElementById("promoNote");
+    const cartSummaryDetails = document.getElementById("cartSummaryDetails");
+    const toast = document.getElementById("toast");
+    const productOverlay = document.getElementById("productOverlay");
+    const productModal = document.getElementById("productModal");
+    const closeProduct = document.getElementById("closeProduct");
+    const productBack = document.getElementById("productBack");
+    const productAddToCart = document.getElementById("productAddToCart");
+    const productCategory = document.getElementById("productCategory");
+    const productTitle = document.getElementById("productTitle");
+    const productPrice = document.getElementById("productPrice");
+    const productDescription = document.getElementById("productDescription");
+    const productSizeChart = document.getElementById("productSizeChart");
+    const productMainShot = document.getElementById("productMainShot");
+    const productThumbs = document.getElementById("productThumbs");
+    const productSizes = document.getElementById("productSizes");
+    const productOptionsWrap = document.getElementById("productOptionsWrap");
+    const productOptions = document.getElementById("productOptions");
+    const heroLatest = document.getElementById("heroLatest");
+    const heroProductCount = document.getElementById("heroProductCount");
+    const teamsGrid = document.getElementById("teamsGrid");
+    const sizeChartModal = document.getElementById("sizeChartModal");
+    const sizeChartTitle = document.getElementById("sizeChartTitle");
+    const sizeChartShot = document.getElementById("sizeChartShot");
+    const closeSizeChart = document.getElementById("closeSizeChart");
+    const teamModal = document.getElementById("teamModal");
+    const teamModalTitle = document.getElementById("teamModalTitle");
+    const teamProducts = document.getElementById("teamProducts");
+    const closeTeamModal = document.getElementById("closeTeamModal");
+    const checkoutModal = document.getElementById("checkoutModal");
+    const closeCheckoutModal = document.getElementById("closeCheckoutModal");
+    const successModal = document.getElementById("successModal");
+    const closeSuccessModal = document.getElementById("closeSuccessModal");
+    const successMessage = document.getElementById("successMessage");
+    const checkoutForm = document.getElementById("checkoutForm");
+    const checkoutOrderNumber = document.getElementById("checkoutOrderNumber");
+    const checkoutBack = document.getElementById("checkoutBack");
+    const customerName = document.getElementById("customerName");
+    const customerPhone = document.getElementById("customerPhone");
+    const customerTelegram = document.getElementById("customerTelegram");
+    const novaPoshtaCity = document.getElementById("novaPoshtaCity");
+    const novaPoshtaCityList = document.getElementById("novaPoshtaCityList");
+    const novaPoshtaCityRef = document.getElementById("novaPoshtaCityRef");
+    const novaPoshtaBranch = document.getElementById("novaPoshtaBranch");
+    const confirmOrderDetails = document.getElementById("confirmOrderDetails");
+
+    const defaultSizes = ["S", "M", "L"];
+    const promoDiscountPercent = 0.05;
+    let activeProductId = null;
+    let activeProductImage = 0;
+    let previousHash = "#home";
+    let promoApplied = false;
+    let currentOrderNumber = "";
+    let cachedCities = [];
+
+    const money = (value) => new Intl.NumberFormat("uk-UA").format(value) + " ₴";
+    const showToast = (text) => {
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    };
+    const createOrderNumber = () => {
+      const now = new Date();
+      const stamp = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`;
+      const random = Math.floor(1000 + Math.random() * 9000);
+      return `EF-${stamp}-${random}`;
+    };
+    const apiBaseUrl = (window.ENTRYFRAG_API_URL || "").trim().replace(/\/$/, "");
+    const isHostedSite = location.protocol.startsWith("http") && !["localhost", "127.0.0.1"].includes(location.hostname);
+    const orderLoggerUrl = apiBaseUrl ? `${apiBaseUrl}/api/orders` : "/api/orders";
+    const submitOrderToServer = async (orderPayload, telegramPayload) => {
+      if (isHostedSite && !apiBaseUrl) {
+        throw new Error("backend_not_configured");
+      }
+      const response = await fetch(orderLoggerUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          order: orderPayload,
+          telegram: telegramPayload
+        })
+      });
+      let result = {};
+      try {
+        result = await response.json();
+      } catch {}
+      if (!response.ok) {
+        let message = "Failed to submit order";
+        if (result?.error) message = result.error;
+        throw new Error(message);
+      }
+      return result;
+    };
+    const novaPoshtaRequest = async (calledMethod, methodProperties = {}) => {
+      const response = await fetch("https://api.novaposhta.ua/v2.0/json/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          apiKey: "",
+          modelName: "Address",
+          calledMethod,
+          methodProperties
+        })
+      });
+      if (!response.ok) throw new Error("Nova Poshta request failed");
+      const result = await response.json();
+      if (!result.success) throw new Error("Nova Poshta API returned error");
+      return result.data || [];
+    };
+    const fillCityOptions = (cities) => {
+      novaPoshtaCityList.innerHTML = cities.map((city) => `<option value="${city.Description}"></option>`).join("");
+    };
+    const fillBranchOptions = (branches) => {
+      novaPoshtaBranch.disabled = false;
+      novaPoshtaBranch.innerHTML = `<option value="">Оберіть відділення</option>${branches.map((branch) => `<option value="${branch.Description}">${branch.Description}</option>`).join("")}`;
+    };
+    const resetBranches = (placeholder = "Спочатку оберіть місто") => {
+      novaPoshtaBranch.disabled = true;
+      novaPoshtaBranch.innerHTML = `<option value="">${placeholder}</option>`;
+    };
+    const loadNovaPoshtaCities = async () => {
+      if (cachedCities.length) return;
+      novaPoshtaCity.placeholder = "Завантаження міст...";
+      try {
+        const cities = await novaPoshtaRequest("getCities");
+        cachedCities = cities
+          .map((city) => ({ Ref: city.Ref, Description: city.Description }))
+          .filter((city) => city.Ref && city.Description)
+          .sort((a, b) => a.Description.localeCompare(b.Description, "uk"));
+        fillCityOptions(cachedCities);
+        novaPoshtaCity.placeholder = "Почніть вводити місто";
+      } catch (error) {
+        novaPoshtaCity.placeholder = "Не вдалося завантажити міста";
+        showToast("Не вдалося завантажити міста Нової пошти");
+      }
+    };
+    const loadNovaPoshtaBranches = async (cityRef) => {
+      if (!cityRef) {
+        resetBranches();
+        return;
+      }
+      resetBranches("Завантаження відділень...");
+      try {
+        const branches = await novaPoshtaRequest("getWarehouses", { CityRef: cityRef });
+        const validBranches = branches.filter((branch) => branch.Description);
+        if (!validBranches.length) {
+          resetBranches("Відділення недоступні");
+          return;
+        }
+        fillBranchOptions(validBranches);
+      } catch (error) {
+        resetBranches("Не вдалося завантажити відділення");
+        showToast("Не вдалося завантажити відділення Нової пошти");
+      }
+    };
+
+    const lastOrderKey = "entryfrag-last-order";
+    const saveLastOrder = () => {
+      const payload = {
+        customerName: customerName.value,
+        customerPhone: customerPhone.value,
+        customerTelegram: customerTelegram.value,
+        city: novaPoshtaCity.value,
+        branch: novaPoshtaBranch.value
+      };
+      localStorage.setItem(lastOrderKey, JSON.stringify(payload));
+    };
+    const loadLastOrder = () => {
+      try {
+        const raw = localStorage.getItem(lastOrderKey);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+        if (saved.customerName) customerName.value = saved.customerName;
+        if (saved.customerPhone) customerPhone.value = saved.customerPhone;
+        if (saved.customerTelegram) customerTelegram.value = saved.customerTelegram;
+        if (saved.city) {
+          novaPoshtaCity.value = saved.city;
+          novaPoshtaCityRef.value = "";
+          loadNovaPoshtaBranches("");
+        }
+        if (saved.branch) {
+          novaPoshtaBranch.value = saved.branch;
+        }
+      } catch {
+        localStorage.removeItem(lastOrderKey);
+      }
+    };
+
+    const extractUrls = (text) => [...text.matchAll(/url\((['"]?)(.*?)\1\)/g)].map((match) => match[2]);
+    const parseSizes = (button, description) => button.dataset.sizes ? button.dataset.sizes.split(",").map((size) => size.trim()).filter(Boolean) : description.includes("S-M-L") || description.includes("S-М-L") ? [...defaultSizes] : [...defaultSizes];
+    const parseOptions = (button) => button.dataset.options ? button.dataset.options.split(",").map((option) => option.trim()).filter(Boolean) : [];
+    const getActiveSize = () => productSizes.querySelector(".size-chip.active")?.dataset.size || "";
+    const getActiveOption = () => productOptions.querySelector(".option-chip.active")?.dataset.option || "";
+    const inferTeam = (name) => {
+      const normalized = name.toLowerCase();
+      if (normalized.includes("natus vincere") || normalized.includes("navi")) return "NaVi";
+      if (normalized.includes("falcons")) return "Falcons";
+      if (normalized.includes("faze")) return "Faze Clan";
+      if (normalized.includes("liquid")) return "Team Liquid";
+      if (normalized.includes("mongolz")) return "The MongolZ";
+      if (normalized.includes("furia")) return "Furia";
+      if (normalized.includes("vitality")) return "Vitality";
+      if (normalized.includes("spirit")) return "Team Spirit";
+      if (normalized.includes("g2")) return "G2";
+      if (normalized.includes("eternal fire")) return "Eternal Fire";
+      if (normalized.includes("aurora")) return "Aurora";
+      if (normalized.includes("astralis")) return "Astralis";
+      if (normalized.includes("virtus")) return "Virtus Pro";
+      if (normalized.includes("cloud9")) return "Cloud9";
+      return "Інше";
+    };
+
+    const openCart = () => {
+      body.classList.remove("product-open");
+      productModal.setAttribute("aria-hidden", "true");
+      body.classList.add("cart-open");
+      drawer.setAttribute("aria-hidden", "false");
+    };
+
+    const hideCart = () => {
+      body.classList.remove("cart-open");
+      drawer.setAttribute("aria-hidden", "true");
+    };
+
+    const openSizeChart = (product) => {
+      if (!product?.sizeChart) return;
+      sizeChartTitle.textContent = `${product.name} — розмірна сітка`;
+      sizeChartShot.style.backgroundImage = `url('${product.sizeChart}')`;
+      body.classList.add("sizechart-open");
+      sizeChartModal.setAttribute("aria-hidden", "false");
+    };
+
+    const hideSizeChart = () => {
+      body.classList.remove("sizechart-open");
+      sizeChartModal.setAttribute("aria-hidden", "true");
+    };
+
+    const openTeamModal = (team) => {
+      const items = [...products.values()].filter((product) => inferTeam(product.name) === team);
+      if (!items.length) return;
+      teamModalTitle.textContent = team;
+      teamProducts.innerHTML = `
+        <div class="products">
+          ${items.map((item) => `
+            <article class="card">
+              <div class="visual" style="background-color:#f4f0ea;background-image:linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.08)),url('${item.images[0] || "image.png.png"}');background-position:center;background-size:contain;background-repeat:no-repeat"><span class="tag">${item.category}</span></div>
+              <div class="meta">
+                <h3>${item.name}</h3>
+                <p>${item.description}</p>
+                <div class="row">
+                  <div class="price-block"><span class="old-price">${money(item.price + 200)}</span><span class="price">${money(item.price)}</span></div>
+                  <div class="actions-group">
+                    <button class="detail-btn" data-product-id="${item.id}" type="button">Переглянути</button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          `).join("")}
+        </div>
+      `;
+      body.classList.add("team-open");
+      teamModal.setAttribute("aria-hidden", "false");
+    };
+
+    const hideTeamModal = () => {
+      body.classList.remove("team-open");
+      teamModal.setAttribute("aria-hidden", "true");
+    };
+
+    const openCheckoutModal = () => {
+      if (!cart.size) {
+        showToast("Спочатку додайте товари в кошик");
+        return;
+      }
+      hideCart();
+      hideSuccessModal();
+      currentOrderNumber = createOrderNumber();
+      checkoutOrderNumber.textContent = currentOrderNumber;
+      if (!cachedCities.length) loadNovaPoshtaCities();
+      body.classList.add("checkout-open");
+      checkoutModal.setAttribute("aria-hidden", "false");
+    };
+
+    const hideCheckoutModal = () => {
+      body.classList.remove("checkout-open");
+      checkoutModal.setAttribute("aria-hidden", "true");
+    };
+
+    const showSuccessModal = (message) => {
+      successMessage.textContent = message;
+      body.classList.add("success-open");
+      successModal.setAttribute("aria-hidden", "false");
+      successModal.style.visibility = "visible";
+      successModal.style.opacity = "1";
+      successModal.style.transform = "translateY(0)";
+      requestAnimationFrame(() => {
+        const style = window.getComputedStyle(successModal);
+        if (style.visibility === "hidden" || style.opacity === "0") {
+          window.alert(message);
+        }
+      });
+    };
+
+    const hideSuccessModal = () => {
+      body.classList.remove("success-open");
+      successModal.setAttribute("aria-hidden", "true");
+      successModal.style.visibility = "";
+      successModal.style.opacity = "";
+      successModal.style.transform = "";
+    };
+
+    const finalizeOrderSuccess = (message) => {
+      cart.clear();
+      renderCart();
+      checkoutForm.reset();
+      currentOrderNumber = "";
+      loadLastOrder();
+      novaPoshtaCityRef.value = "";
+      resetBranches();
+      hideSizeChart();
+      hideSuccessModal();
+      hideCheckoutModal();
+      hideCart();
+      hideProduct(false);
+      hideTeamModal();
+      overlay.setAttribute("aria-hidden", "true");
+      productOverlay.setAttribute("aria-hidden", "true");
+      showSuccessModal(message);
+    };
+
+    const setProductImage = (index) => {
+      const product = products.get(activeProductId);
+      if (!product || !product.images.length) return;
+      activeProductImage = index;
+      productMainShot.style.backgroundImage = `url('${product.images[index]}')`;
+      productThumbs.querySelectorAll(".product-thumb").forEach((thumb, thumbIndex) => {
+        thumb.classList.toggle("active", thumbIndex === index);
+      });
+    };
+
+    function renderProduct(productId) {
+      const product = products.get(productId);
+      if (!product) return;
+      activeProductId = productId;
+      productCategory.textContent = product.category;
+      productTitle.textContent = product.name;
+      productPrice.textContent = money(product.price);
+      productDescription.textContent = product.description;
+      productSizeChart.hidden = !product.sizeChart;
+      productThumbs.innerHTML = product.images.map((image, index) => `
+        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" style="background-image:url('${image}')" type="button" aria-label="Фото ${index + 1}"></button>
+      `).join("");
+      productSizes.innerHTML = product.sizes.map((size) => `
+        <button class="size-chip" data-size="${size}" type="button">${size}</button>
+      `).join("");
+      productOptionsWrap.hidden = !product.options.length;
+      productOptions.innerHTML = product.options.map((option) => `
+        <button class="option-chip" data-option="${option}" type="button">${option}</button>
+      `).join("");
+      setProductImage(0);
+    }
+
+    function openProduct(productId, pushHash = true) {
+      if (!products.has(productId)) return;
+      hideCart();
+      if (!location.hash.startsWith("#product-")) previousHash = location.hash || "#home";
+      renderProduct(productId);
+      body.classList.add("product-open");
+      productModal.setAttribute("aria-hidden", "false");
+      if (pushHash) history.pushState(null, "", `#product-${productId}`);
+    }
+
+    function hideProduct(restoreHash = true) {
+      body.classList.remove("product-open");
+      productModal.setAttribute("aria-hidden", "true");
+      activeProductId = null;
+      if (restoreHash && location.hash.startsWith("#product-")) history.pushState(null, "", previousHash || "#home");
+    }
+
+    function addToCart(product, size, option = "") {
+      const optionSuffix = option ? `::${option}` : "";
+      const cartId = `${product.id}::${size}${optionSuffix}`;
+      const optionLabel = option ? ` • ${option}` : "";
+      const item = cart.get(cartId);
+      if (item) item.qty += 1;
+      else cart.set(cartId, {
+        id: cartId,
+        productId: product.id,
+        name: product.name,
+        category: product.category,
+        size,
+        option,
+        price: product.price,
+        qty: 1
+      });
+      renderCart();
+      showToast(`${product.name} (${size}${optionLabel}) додано в кошик`);
+    }
+
+    function renderCart() {
+      const items = [...cart.values()];
+      const totalCount = items.reduce((sum, item) => sum + item.qty, 0);
+      const subtotal = items.reduce((sum, item) => sum + item.qty * item.price, 0);
+      const discount = promoApplied ? Math.round(subtotal * promoDiscountPercent) : 0;
+      const totalPrice = subtotal - discount;
+      cartCount.textContent = totalCount;
+      cartTotal.textContent = money(totalPrice);
+      cartSummaryDetails.innerHTML = subtotal ? `
+        <small><span>Сума товарів</span><span>${money(subtotal)}</span></small>
+        <small><span>Промокод</span><span>${promoApplied ? "SIGNA (-5%)" : "Не застосовано"}</span></small>
+        ${promoApplied ? `<small><span>Знижка</span><span>-${money(discount)}</span></small>` : ""}
+      ` : "";
+      promoNote.textContent = promoApplied ? "Промокод SIGNA активний. Знижка -5% уже застосована." : "";
+
+      if (!items.length) {
+        cartItems.innerHTML = "<div class='empty'>Кошик поки порожній. Додайте товар і він з'явиться тут.</div>";
+        return;
+      }
+
+      cartItems.innerHTML = items.map((item) => `
+        <article class="item">
+          <div class="top">
+            <div><small>${item.category} • Розмір ${item.size}${item.option ? ` • ${item.option}` : ""}</small><strong>${item.name}</strong></div>
+            <span>${money(item.price)}</span>
+          </div>
+          <div class="bottom">
+            <div class="qty">
+              <button type="button" data-id="${item.id}" data-step="-1">−</button>
+              <span>${item.qty}</span>
+              <button type="button" data-id="${item.id}" data-step="1">+</button>
+            </div>
+            <strong>${money(item.qty * item.price)}</strong>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderHeroLatest() {
+      const allProducts = [...products.values()];
+      const featured = allProducts.find((product) => product.id === "navi-2025-jersey");
+      const latestProducts = [
+        ...(featured ? [featured] : []),
+        ...allProducts.slice().reverse().filter((product) => product.id !== "navi-2025-jersey").slice(0, featured ? 2 : 3)
+      ];
+      heroProductCount.textContent = String(allProducts.length);
+      heroLatest.innerHTML = latestProducts.map((product) => `
+        <button class="hero-latest-item" data-product-id="${product.id}" type="button">
+          <div class="hero-latest-shot" style="background-image:url('${product.images[0] || "image.png.png"}')"></div>
+          <div class="hero-latest-copy">
+            <strong>${product.name}</strong>
+            <span>${product.category} • ${money(product.price)}</span>
+          </div>
+        </button>
+      `).join("");
+    }
+
+    function renderTeams() {
+      const grouped = new Map();
+      [...products.values()].forEach((product) => {
+        const team = inferTeam(product.name);
+        if (!grouped.has(team)) grouped.set(team, []);
+        grouped.get(team).push(product);
+      });
+
+      teamsGrid.innerHTML = [...grouped.entries()].sort((a, b) => a[0].localeCompare(b[0], "uk")).map(([team, items]) => `
+        <button class="team-card" data-team="${team}" type="button">
+          <div>
+            <h3>${team}</h3>
+            <div class="team-count">${items.length} товар(ів)</div>
+          </div>
+          <div class="team-open">Відкрити</div>
+        </button>
+      `).join("");
+    }
+
+    document.querySelectorAll(".products .card").forEach((card) => {
+      const button = card.querySelector(".add-btn");
+      const title = card.querySelector(".meta h3");
+      const description = card.querySelector(".meta p")?.textContent?.trim() || "";
+      const visual = card.querySelector(".visual");
+      const row = card.querySelector(".row");
+      const price = card.querySelector(".price");
+      if (!button || !title || !visual || !row) return;
+
+      const galleryImages = [...card.querySelectorAll(".gallery-shot")].map((shot) => extractUrls(shot.getAttribute("style") || "")[0]).filter(Boolean);
+      const visualImages = galleryImages.length ? galleryImages : extractUrls(visual.getAttribute("style") || "").slice(-1);
+      const product = {
+        id: button.dataset.id,
+        name: button.dataset.name,
+        category: button.dataset.category,
+        price: Number(button.dataset.price),
+        description,
+        images: visualImages,
+        sizes: parseSizes(button, description),
+        sizeChart: button.dataset.sizeChart || "",
+        options: parseOptions(button)
+      };
+
+      products.set(product.id, product);
+      card.dataset.productId = product.id;
+      if (price && !row.querySelector(".price-block")) {
+        const priceBlock = document.createElement("div");
+        priceBlock.className = "price-block";
+        const oldPrice = document.createElement("span");
+        oldPrice.className = "old-price";
+        oldPrice.textContent = money(product.price + 200);
+        price.before(priceBlock);
+        priceBlock.append(oldPrice, price);
+      }
+      if (product.images.length) {
+        visual.classList.remove("gallery");
+        visual.innerHTML = `<span class="tag">${product.category}</span>`;
+        visual.style.backgroundColor = "#f4f0ea";
+        visual.style.backgroundImage = `linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.08)),url('${product.images[0]}')`;
+        visual.style.backgroundPosition = "center";
+        visual.style.backgroundSize = "contain";
+        visual.style.backgroundRepeat = "no-repeat";
+      }
+      visual.classList.add("is-clickable");
+      title.classList.add("is-link");
+      visual.tabIndex = 0;
+      title.tabIndex = 0;
+      visual.setAttribute("role", "button");
+      title.setAttribute("role", "button");
+      visual.setAttribute("aria-label", `Відкрити товар ${product.name}`);
+      title.setAttribute("aria-label", `Відкрити товар ${product.name}`);
+
+      const openProductFromCard = () => openProduct(product.id);
+      [visual, title].forEach((node) => {
+        node.addEventListener("click", openProductFromCard);
+        node.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openProductFromCard();
+          }
+        });
+      });
+
+      const actionsGroup = document.createElement("div");
+      actionsGroup.className = "actions-group";
+      const detailButton = document.createElement("button");
+      detailButton.className = "detail-btn";
+      detailButton.type = "button";
+      detailButton.textContent = "Переглянути";
+      detailButton.addEventListener("click", () => openProduct(product.id));
+      row.append(actionsGroup);
+      actionsGroup.append(detailButton, button);
+
+      button.addEventListener("click", () => openProduct(product.id));
+    });
+
+    heroLatest.addEventListener("click", (event) => {
+      const item = event.target.closest("[data-product-id]");
+      if (!item) return;
+      openProduct(item.dataset.productId);
+    });
+    teamsGrid.addEventListener("click", (event) => {
+      const item = event.target.closest("[data-team]");
+      if (!item) return;
+      openTeamModal(item.dataset.team);
+    });
+    teamProducts.addEventListener("click", (event) => {
+      const item = event.target.closest("[data-product-id]");
+      if (!item) return;
+      hideTeamModal();
+      openProduct(item.dataset.productId);
+    });
+
+    productThumbs.addEventListener("click", (event) => {
+      const thumb = event.target.closest(".product-thumb");
+      if (!thumb) return;
+      setProductImage(Number(thumb.dataset.imageIndex));
+    });
+
+    productSizes.addEventListener("click", (event) => {
+      const sizeButton = event.target.closest(".size-chip");
+      if (!sizeButton) return;
+      productSizes.querySelectorAll(".size-chip").forEach((button) => button.classList.remove("active"));
+      sizeButton.classList.add("active");
+    });
+    productOptions.addEventListener("click", (event) => {
+      const optionButton = event.target.closest(".option-chip");
+      if (!optionButton) return;
+      productOptions.querySelectorAll(".option-chip").forEach((button) => button.classList.remove("active"));
+      optionButton.classList.add("active");
+    });
+
+    productAddToCart.addEventListener("click", () => {
+      const product = products.get(activeProductId);
+      if (!product) return;
+      const selectedSize = getActiveSize();
+      const selectedOption = getActiveOption();
+      if (!selectedSize) {
+        showToast("Спочатку виберіть розмір");
+        return;
+      }
+      if (product.options.length && !selectedOption) {
+        showToast("Спочатку виберіть опцію");
+        return;
+      }
+      addToCart(product, selectedSize, selectedOption);
+    });
+    productSizeChart.addEventListener("click", () => {
+      const product = products.get(activeProductId);
+      openSizeChart(product);
+    });
+
+    cartItems.addEventListener("click", (event) => {
+      const target = event.target.closest("button[data-id]");
+      if (!target) return;
+      const item = cart.get(target.dataset.id);
+      if (!item) return;
+      item.qty += Number(target.dataset.step);
+      if (item.qty <= 0) cart.delete(target.dataset.id);
+      renderCart();
+    });
+
+    cartBtn.addEventListener("click", openCart);
+    closeCart.addEventListener("click", hideCart);
+    overlay.addEventListener("click", hideCart);
+    closeProduct.addEventListener("click", () => hideProduct());
+    closeSizeChart.addEventListener("click", hideSizeChart);
+    closeTeamModal.addEventListener("click", hideTeamModal);
+    productBack.addEventListener("click", () => hideProduct());
+    productOverlay.addEventListener("click", () => {
+      hideSizeChart();
+      hideSuccessModal();
+      hideCheckoutModal();
+      hideTeamModal();
+      hideProduct();
+    });
+    clearCart.addEventListener("click", () => { cart.clear(); renderCart(); showToast("Кошик очищено"); });
+    applyPromo.addEventListener("click", () => {
+      promoApplied = promoInput.value.trim().toUpperCase() === "SIGNA";
+      renderCart();
+      showToast(promoApplied ? "Промокод SIGNA застосовано" : "Промокод не знайдено");
+    });
+    promoInput.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      applyPromo.click();
+    });
+    checkout.addEventListener("click", openCheckoutModal);
+    closeCheckoutModal.addEventListener("click", hideCheckoutModal);
+    closeSuccessModal.addEventListener("click", hideSuccessModal);
+    checkoutBack.addEventListener("click", () => {
+      hideCheckoutModal();
+      openCart();
+    });
+    const persistInputs = [customerName, customerPhone, customerTelegram, novaPoshtaCity, novaPoshtaBranch];
+    persistInputs.forEach((input) => input?.addEventListener("input", saveLastOrder));
+    novaPoshtaBranch.addEventListener("change", saveLastOrder);
+    loadLastOrder();
+
+    novaPoshtaCity.addEventListener("input", () => {
+      const selectedCity = cachedCities.find((city) => city.Description.toLowerCase() === novaPoshtaCity.value.trim().toLowerCase());
+      novaPoshtaCityRef.value = selectedCity?.Ref || "";
+      novaPoshtaBranch.value = "";
+      loadNovaPoshtaBranches(novaPoshtaCityRef.value);
+      saveLastOrder();
+    });
+    checkoutForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const form = new FormData(checkoutForm);
+      if (!form.get("customerName") || !form.get("customerPhone") || !form.get("customerTelegram") || !form.get("novaPoshtaCity") || !form.get("novaPoshtaBranch")) {
+        showToast("Заповніть усі поля замовлення");
+        return;
+      }
+      const subtotal = [...cart.values()].reduce((sum, item) => sum + item.qty * item.price, 0);
+      const discount = promoApplied ? Math.round(subtotal * promoDiscountPercent) : 0;
+      const total = subtotal - discount;
+      if (!confirmOrderDetails.checked) {
+        showToast("Підтвердіть замовлення галочкою");
+        return;
+      }
+      const confirmMessage = `Підтвердити замовлення ${currentOrderNumber || "ENTRYFRAG"} на суму ${money(total)}?`;
+      if (!window.confirm(confirmMessage)) {
+        showToast("Підтвердження замовлення скасовано");
+        return;
+      }
+      const completedOrder = currentOrderNumber || createOrderNumber();
+      const orderItems = [...cart.values()].map((item, index) => `${index + 1}. ${item.name} | Розмір: ${item.size}${item.option ? ` | Опція: ${item.option}` : ""} | К-сть: ${item.qty} | Сума: ${money(item.qty * item.price)}`).join("\n");
+      const telegramMessage = [
+        `Нове замовлення ${completedOrder}`,
+        ``,
+        `ПІБ: ${form.get("customerName")}`,
+        `Телефон: ${form.get("customerPhone")}`,
+        `Telegram: ${form.get("customerTelegram")}`,
+        `Місто: ${novaPoshtaCity.value}`,
+        `Відділення НП: ${form.get("novaPoshtaBranch")}`,
+        ``,
+        `Товари:`,
+        `${orderItems}`,
+        ``,
+        `Промокод: ${promoApplied ? "SIGNA (-5%)" : "немає"}`,
+        `Разом: ${money(total)}`
+      ].join("\n");
+      saveLastOrder();
+      const payload = {
+        orderNumber: completedOrder,
+        customerName: form.get("customerName"),
+        phone: form.get("customerPhone"),
+        city: novaPoshtaCity.value,
+        branch: form.get("novaPoshtaBranch"),
+        telegramNick: form.get("customerTelegram"),
+        items: [...cart.values()].map((item) => ({
+          name: item.name,
+          size: item.size,
+          option: item.option || null,
+          qty: item.qty,
+          unitPrice: item.price
+        })),
+        subtotal,
+        discount,
+        total,
+        promo: promoApplied ? "SIGNA (-5%)" : "none",
+        status: "sent"
+      };
+      const telegramPayload = {
+        message: telegramMessage,
+        orderNumber: completedOrder,
+        replyMarkup: {
+          inline_keyboard: [[
+            {
+              text: "Відправлено",
+              callback_data: `done:${completedOrder}`
+            }
+          ]]
+        }
+      };
+      try {
+        const result = await submitOrderToServer(payload, telegramPayload);
+        if (result?.warning === "telegram_unreachable") {
+          finalizeOrderSuccess("Замовлення збережено, але Telegram зараз недоступний");
+          return;
+        }
+      } catch (error) {
+        console.error("order submit failed", error);
+        if (String(error.message).includes("backend_not_configured")) {
+          showToast("Backend не підключений. Заповни ENTRYFRAG_API_URL у config")
+        } else if (String(error.message).includes("telegram_send_failed") || String(error.message).includes("telegram_not_configured")) {
+          showToast("Бот не прив'язаний до Telegram. Напишіть /start або /bindmanager у бот")
+        } else if (String(error.message).includes("missing_bot_token") || String(error.message).includes("missing_chat_id")) {
+          showToast("На сервері не заповнений Telegram token або chat id")
+        } else {
+          showToast("Не вдалося надіслати замовлення")
+        }
+        return;
+      }
+      finalizeOrderSuccess(`Замовлення ${completedOrder} оформлено`);
+    });
+    window.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      if (body.classList.contains("sizechart-open")) hideSizeChart();
+      else if (body.classList.contains("success-open")) hideSuccessModal();
+      else if (body.classList.contains("checkout-open")) hideCheckoutModal();
+      else if (body.classList.contains("team-open")) hideTeamModal();
+      else if (body.classList.contains("product-open")) hideProduct();
+      else hideCart();
+    });
+    window.addEventListener("hashchange", () => {
+      if (!location.hash.startsWith("#product-") && body.classList.contains("product-open")) {
+        hideProduct(false);
+        return;
+      }
+      if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
+    });
+
+    renderHeroLatest();
+    renderTeams();
+    if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
+    renderCart();
+  </script>
+</body>
+</html>
