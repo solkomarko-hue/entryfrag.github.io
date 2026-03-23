@@ -174,13 +174,14 @@
     .checkout-modal{position:fixed;inset:20px;width:min(760px,calc(100% - 24px));height:min(90vh,860px);margin:auto;padding:24px;background:#faf6f0;box-shadow:0 24px 60px rgba(0,0,0,.24);border-radius:32px;display:grid;grid-template-rows:auto 1fr;gap:18px;transform:translateY(20px);opacity:0;visibility:hidden;transition:.3s;z-index:47}
     body.checkout-open .product-overlay{opacity:1;visibility:visible}
     body.checkout-open .checkout-modal{opacity:1;visibility:visible;transform:translateY(0)}
-    .success-modal{position:fixed;inset:20px;width:min(440px,calc(100% - 24px));margin:auto;padding:28px;background:#faf6f0;box-shadow:0 24px 60px rgba(0,0,0,.24);border-radius:32px;display:grid;gap:18px;text-align:center;transform:translateY(20px);opacity:0;visibility:hidden;transition:.3s;z-index:48}
+    .success-modal{position:fixed;top:50%;left:50%;width:min(440px,calc(100% - 24px));max-height:calc(100vh - 40px);overflow:auto;padding:28px;background:#faf6f0;box-shadow:0 24px 60px rgba(0,0,0,.24);border-radius:32px;display:grid;gap:18px;text-align:center;transform:translate(-50%,calc(-50% + 20px));opacity:0;visibility:hidden;transition:.3s;z-index:48}
     body.success-open .product-overlay{opacity:1;visibility:visible}
-    body.success-open .success-modal{opacity:1;visibility:visible;transform:translateY(0)}
+    body.success-open .success-modal{opacity:1;visibility:visible;transform:translate(-50%,-50%)}
     .success-copy{display:grid;gap:10px}
     .success-copy strong{font-size:1.8rem;text-transform:uppercase}
     .success-copy p{color:var(--muted);line-height:1.6}
-    .success-actions{display:flex;justify-content:center}
+    .success-actions{display:flex;justify-content:center;align-items:center}
+    .success-actions .checkout-submit{flex:none}
     .checkout-form{display:grid;gap:16px;overflow:auto}
     .checkout-field{display:grid;gap:8px}
     .checkout-field label{font-weight:800;text-transform:uppercase;letter-spacing:.08em;font-size:.85rem}
@@ -205,8 +206,8 @@
     .order-detail-foot{display:flex;justify-content:space-between;font-weight:700;font-size:1rem;padding-top:8px;border-top:1px solid var(--line)}
     .toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,16px);opacity:0;transition:.25s;padding:14px 18px;border-radius:999px;background:#121212;color:#fff;font-weight:700;z-index:50;pointer-events:none}
     .toast.show{opacity:1;transform:translate(-50%,0)}
-    @media (max-width:980px){.header,.hero-grid,.categories,.products,.about,.product-body,.teams-grid,.team-products .products{grid-template-columns:1fr}.header{flex-wrap:wrap;justify-content:center;border-radius:28px}.section-head{flex-direction:column;align-items:start}.product-modal,.sizechart-modal,.team-modal,.checkout-modal{inset:12px;height:auto;max-height:calc(100vh - 24px)}.product-main-shot{min-height:320px}}
-    @media (max-width:640px){.wrap,.header{width:min(100% - 18px,1180px)}.brand,.cart-btn,nav{width:100%;justify-content:center}.brand{justify-content:center}.brand div{text-align:center}.footer-bar{flex-direction:column;align-items:flex-start}.product-modal,.sizechart-modal,.team-modal,.checkout-modal{padding:16px;border-radius:24px}.product-head,.checkout-actions{align-items:flex-start;flex-direction:column}.product-main-shot{min-height:250px}}
+    @media (max-width:980px){.header,.hero-grid,.categories,.products,.about,.product-body,.teams-grid,.team-products .products{grid-template-columns:1fr}.header{flex-wrap:wrap;justify-content:center;border-radius:28px}.section-head{flex-direction:column;align-items:start}.product-modal,.sizechart-modal,.team-modal,.checkout-modal{inset:12px;height:auto;max-height:calc(100vh - 24px)}.success-modal{width:min(440px,calc(100% - 24px));max-height:calc(100vh - 24px)}.product-main-shot{min-height:320px}}
+    @media (max-width:640px){.wrap,.header{width:min(100% - 18px,1180px)}.brand,.cart-btn,nav{width:100%;justify-content:center}.brand{justify-content:center}.brand div{text-align:center}.footer-bar{flex-direction:column;align-items:flex-start}.product-modal,.sizechart-modal,.team-modal,.checkout-modal,.success-modal{padding:16px;border-radius:24px}.product-head,.checkout-actions{align-items:flex-start;flex-direction:column}.product-main-shot{min-height:250px}}
   </style>
 </head>
 <body>
@@ -1140,9 +1141,6 @@
       successMessage.textContent = message;
       body.classList.add("success-open");
       successModal.setAttribute("aria-hidden", "false");
-      successModal.style.visibility = "visible";
-      successModal.style.opacity = "1";
-      successModal.style.transform = "translateY(0)";
       requestAnimationFrame(() => {
         const style = window.getComputedStyle(successModal);
         if (style.visibility === "hidden" || style.opacity === "0") {
@@ -1154,9 +1152,6 @@
     const hideSuccessModal = () => {
       body.classList.remove("success-open");
       successModal.setAttribute("aria-hidden", "true");
-      successModal.style.visibility = "";
-      successModal.style.opacity = "";
-      successModal.style.transform = "";
     };
 
     const finalizeOrderSuccess = (message) => {
