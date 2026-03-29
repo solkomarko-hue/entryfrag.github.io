@@ -17,6 +17,7 @@
     const closeCart = document.getElementById("closeCart");
     const overlay = document.getElementById("overlay");
     const drawer = document.getElementById("drawer");
+    const cartItemsWrap = document.getElementById("cartItems");
     const cartItems = document.getElementById("cartItems");
     const cartTotal = document.getElementById("cartTotal");
     const cartCount = document.getElementById("cartCount");
@@ -53,6 +54,7 @@
     const teamModal = document.getElementById("teamModal");
     const teamModalTitle = document.getElementById("teamModalTitle");
     const teamProducts = document.getElementById("teamProducts");
+    const teamModalBody = teamModal.querySelector(".team-products");
     const closeTeamModal = document.getElementById("closeTeamModal");
     const checkoutModal = document.getElementById("checkoutModal");
     const closeCheckoutModal = document.getElementById("closeCheckoutModal");
@@ -60,6 +62,7 @@
     const closeSuccessModal = document.getElementById("closeSuccessModal");
     const successMessage = document.getElementById("successMessage");
     const checkoutForm = document.getElementById("checkoutForm");
+    const checkoutScroll = checkoutForm.querySelector(".checkout-scroll");
     const checkoutOrderNumber = document.getElementById("checkoutOrderNumber");
     const checkoutBack = document.getElementById("checkoutBack");
     const customerName = document.getElementById("customerName");
@@ -79,6 +82,120 @@
     let promoApplied = false;
     let currentOrderNumber = "";
     let cachedCities = [];
+    const surfaceRootIds = new Set(["overlay", "drawer", "productOverlay", "productModal", "sizeChartModal", "teamModal", "checkoutModal", "successModal", "toast"]);
+    const backgroundRoots = [...body.children].filter((node) => node instanceof HTMLElement && !surfaceRootIds.has(node.id) && node.tagName !== "SCRIPT");
+    const surfaceReturnFocus = new Map();
+    const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    let lockedScrollY = 0;
+
+    const isVisibleElement = (element) => element instanceof HTMLElement
+      && !element.hidden
+      && window.getComputedStyle(element).display !== "none"
+      && window.getComputedStyle(element).visibility !== "hidden";
+    const getFocusableElements = (root) => root ? [...root.querySelectorAll(focusableSelector)].filter(isVisibleElement) : [];
+    const rememberSurfaceFocus = (name, fallback = document.activeElement) => {
+      if (fallback instanceof HTMLElement) surfaceReturnFocus.set(name, fallback);
+      else surfaceReturnFocus.delete(name);
+    };
+    const focusSurface = (root, preferred) => {
+      requestAnimationFrame(() => {
+        const candidates = [preferred, ...getFocusableElements(root), root];
+        const target = candidates.find((candidate) => candidate instanceof HTMLElement && (candidate === root || isVisibleElement(candidate)));
+        if (target instanceof HTMLElement) target.focus({ preventScroll: true });
+      });
+    };
+    const lockBodyScroll = () => {
+      if (body.classList.contains("scroll-locked")) return;
+      lockedScrollY = window.scrollY;
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+      body.style.top = `-${lockedScrollY}px`;
+      body.style.paddingRight = scrollbarWidth > 0 ? `${scrollbarWidth}px` : "";
+      body.classList.add("scroll-locked");
+    };
+    const unlockBodyScroll = () => {
+      if (!body.classList.contains("scroll-locked")) return;
+      body.classList.remove("scroll-locked");
+      body.style.top = "";
+      body.style.paddingRight = "";
+      window.scrollTo(0, lockedScrollY);
+    };
+    const setBackgroundInteractivity = (isBlocked) => {
+      backgroundRoots.forEach((node) => {
+        if ("inert" in node) node.inert = isBlocked;
+        if (isBlocked) node.setAttribute("aria-hidden", "true");
+        else node.removeAttribute("aria-hidden");
+      });
+    };
+    const getActiveSurface = () => {
+      if (body.classList.contains("success-open")) return { key: "success", root: successModal, focusTarget: closeSuccessModal };
+      if (body.classList.contains("sizechart-open")) return { key: "sizechart", root: sizeChartModal, focusTarget: closeSizeChart };
+      if (body.classList.contains("checkout-open")) return { key: "checkout", root: checkoutModal, focusTarget: closeCheckoutModal };
+      if (body.classList.contains("team-open")) return { key: "team", root: teamModal, focusTarget: closeTeamModal };
+      if (body.classList.contains("product-open")) return { key: "product", root: productModal, focusTarget: closeProduct };
+      if (body.classList.contains("cart-open")) return { key: "cart", root: drawer, focusTarget: closeCart };
+      return null;
+    };
+    const restoreSurfaceFocus = (name) => {
+      const target = surfaceReturnFocus.get(name);
+      surfaceReturnFocus.delete(name);
+      if (target instanceof HTMLElement && target.isConnected && !target.hasAttribute("disabled") && isVisibleElement(target)) {
+        requestAnimationFrame(() => target.focus({ preventScroll: true }));
+        return;
+      }
+      const activeSurface = getActiveSurface();
+      if (activeSurface) focusSurface(activeSurface.root, activeSurface.focusTarget);
+    };
+    const syncSurfaceState = () => {
+      const cartOpen = body.classList.contains("cart-open");
+      const productSurfaceOpen = ["product-open", "sizechart-open", "team-open", "checkout-open", "success-open"].some((surfaceClass) => body.classList.contains(surfaceClass));
+      overlay.setAttribute("aria-hidden", String(!cartOpen));
+      productOverlay.setAttribute("aria-hidden", String(!productSurfaceOpen));
+      drawer.setAttribute("aria-hidden", String(!cartOpen));
+      productModal.setAttribute("aria-hidden", String(!body.classList.contains("product-open")));
+      sizeChartModal.setAttribute("aria-hidden", String(!body.classList.contains("sizechart-open")));
+      teamModal.setAttribute("aria-hidden", String(!body.classList.contains("team-open")));
+      checkoutModal.setAttribute("aria-hidden", String(!body.classList.contains("checkout-open")));
+      successModal.setAttribute("aria-hidden", String(!body.classList.contains("success-open")));
+      const hasActiveSurface = cartOpen || productSurfaceOpen;
+      if (hasActiveSurface) lockBodyScroll();
+      else unlockBodyScroll();
+      setBackgroundInteractivity(hasActiveSurface);
+    };
+    const returnToCartFromCheckout = () => {
+      hideCheckoutModal(false);
+      surfaceReturnFocus.delete("checkout");
+      openCart(cartBtn);
+    };
+    const closeActiveSurface = () => {
+      const activeSurface = getActiveSurface();
+      if (!activeSurface) {
+        closeHeaderMenu();
+        return;
+      }
+      if (activeSurface.key === "success") hideSuccessModal();
+      else if (activeSurface.key === "sizechart") hideSizeChart();
+      else if (activeSurface.key === "checkout") {
+        if (desktopHeaderMedia.matches) hideCheckoutModal();
+        else returnToCartFromCheckout();
+      }
+      else if (activeSurface.key === "team") hideTeamModal();
+      else if (activeSurface.key === "product") hideProduct();
+      else if (activeSurface.key === "cart") hideCart();
+    };
+
+    [
+      [drawer, "Shopping cart"],
+      [productModal, "Product details"],
+      [sizeChartModal, "Size chart"],
+      [teamModal, "Team products"],
+      [checkoutModal, "Checkout"],
+      [successModal, "Order status"]
+    ].forEach(([root, label]) => {
+      root.setAttribute("role", "dialog");
+      root.setAttribute("aria-modal", "true");
+      root.setAttribute("aria-label", label);
+      root.tabIndex = -1;
+    });
 
     const money = (value) => new Intl.NumberFormat("uk-UA").format(value) + " ₴";
     const syncHeaderMenu = () => {
@@ -239,6 +356,63 @@
     };
 
     const extractUrls = (text) => [...text.matchAll(/url\((['"]?)(.*?)\1\)/g)].map((match) => match[2]);
+    const previewImageKey = (src) => ((src || "").split("?")[0].split("/").pop() || "").replace(/(\.(png|jpe?g|webp|gif))+$/i, "");
+    const isSizeChartAsset = (src) => /rozmir/i.test(src || "");
+    const toPreviewSrc = (src) => {
+      const key = previewImageKey(src);
+      return key ? `mobile-previews/${key}.jpg` : src;
+    };
+    const resolveCatalogImage = (src) => {
+      if (!src || isSizeChartAsset(src)) return src;
+      return toPreviewSrc(src);
+    };
+    const resolveDetailImage = (src) => {
+      if (!src || isSizeChartAsset(src)) return src;
+      return phoneHeroMedia.matches ? resolveCatalogImage(src) : src;
+    };
+    const applyVisualPreview = (element, src) => {
+      if (!element || !src) return;
+      element.style.backgroundColor = "#f4f0ea";
+      element.style.backgroundImage = `linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.08)),url('${src}')`;
+      element.style.backgroundPosition = "center";
+      element.style.backgroundSize = "contain";
+      element.style.backgroundRepeat = "no-repeat";
+    };
+    const applyCoverPreview = (element, src) => {
+      if (!element || !src) return;
+      element.style.backgroundImage = `url('${src}')`;
+      element.style.backgroundPosition = "center";
+      element.style.backgroundSize = "cover";
+      element.style.backgroundRepeat = "no-repeat";
+    };
+    const lazyImageObserver = "IntersectionObserver" in window ? new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const element = entry.target;
+        const source = element.dataset.lazyBg;
+        const mode = element.dataset.lazyMode || "cover";
+        if (source) {
+          if (mode === "visual") applyVisualPreview(element, source);
+          else applyCoverPreview(element, source);
+        }
+        element.removeAttribute("data-lazy-bg");
+        element.removeAttribute("data-lazy-mode");
+        observer.unobserve(element);
+      });
+    }, { rootMargin: "320px 0px" }) : null;
+    const queueDeferredBackground = (element, src, mode = "cover", eager = false) => {
+      if (!element || !src) return;
+      const rect = element.getBoundingClientRect();
+      const isNearViewport = rect.top < (window.innerHeight + 320) && rect.bottom > -320;
+      if (eager || !lazyImageObserver || isNearViewport) {
+        if (mode === "visual") applyVisualPreview(element, src);
+        else applyCoverPreview(element, src);
+        return;
+      }
+      element.dataset.lazyBg = src;
+      element.dataset.lazyMode = mode;
+      lazyImageObserver.observe(element);
+    };
     const parseSizes = (button, description) => button.dataset.sizes ? button.dataset.sizes.split(",").map((size) => size.trim()).filter(Boolean) : description.includes("S-M-L") || description.includes("S-М-L") ? [...defaultSizes] : [...defaultSizes];
     const parseOptions = (button) => button.dataset.options ? button.dataset.options.split(",").map((option) => option.trim()).filter(Boolean) : [];
     const getActiveSize = () => productSizes.querySelector(".size-chip.active")?.dataset.size || "";
@@ -262,33 +436,42 @@
       return "Інше";
     };
 
-    const openCart = () => {
+    const openCart = (returnFocus = document.activeElement) => {
+      rememberSurfaceFocus("cart", returnFocus);
+      drawer.scrollTop = 0;
+      cartItemsWrap.scrollTop = 0;
       closeHeaderMenu();
-      body.classList.remove("product-open");
-      productModal.setAttribute("aria-hidden", "true");
+      if (body.classList.contains("product-open")) hideProduct(false, false);
       body.classList.add("cart-open");
-      drawer.setAttribute("aria-hidden", "false");
+      syncSurfaceState();
+      focusSurface(drawer, closeCart);
     };
 
-    const hideCart = () => {
+    const hideCart = (restoreFocus = true) => {
       body.classList.remove("cart-open");
-      drawer.setAttribute("aria-hidden", "true");
+      syncSurfaceState();
+      if (restoreFocus) restoreSurfaceFocus("cart");
     };
 
-    const openSizeChart = (product) => {
+    const openSizeChart = (product, returnFocus = document.activeElement) => {
       if (!product?.sizeChart) return;
+      rememberSurfaceFocus("sizechart", returnFocus);
       sizeChartTitle.textContent = `${product.name} — розмірна сітка`;
       sizeChartShot.style.backgroundImage = `url('${product.sizeChart}')`;
+      sizeChartModal.scrollTop = 0;
       body.classList.add("sizechart-open");
-      sizeChartModal.setAttribute("aria-hidden", "false");
+      syncSurfaceState();
+      focusSurface(sizeChartModal, closeSizeChart);
     };
 
-    const hideSizeChart = () => {
+    const hideSizeChart = (restoreFocus = true) => {
       body.classList.remove("sizechart-open");
-      sizeChartModal.setAttribute("aria-hidden", "true");
+      syncSurfaceState();
+      if (restoreFocus) restoreSurfaceFocus("sizechart");
     };
 
-    const openTeamModal = (team) => {
+    const openTeamModal = (team, returnFocus = document.activeElement) => {
+      rememberSurfaceFocus("team", returnFocus);
       closeHeaderMenu();
       const items = [...products.values()].filter((product) => inferTeam(product.name) === team);
       if (!items.length) return;
@@ -297,7 +480,7 @@
         <div class="products">
           ${items.map((item) => `
             <article class="card">
-              <div class="visual" style="background-color:#f4f0ea;background-image:linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.08)),url('${item.images[0] || "image.png.png"}');background-position:center;background-size:contain;background-repeat:no-repeat"><span class="tag">${item.category}</span></div>
+              <div class="visual" style="background-color:#f4f0ea;background-image:linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.08)),url('${resolveCatalogImage(item.images[0] || "image.png.png")}');background-position:center;background-size:contain;background-repeat:no-repeat"><span class="tag">${item.category}</span></div>
               <div class="meta">
                 <h3>${item.name}</h3>
                 <p>${item.description}</p>
@@ -312,39 +495,50 @@
           `).join("")}
         </div>
       `;
+      teamModal.scrollTop = 0;
+      teamModalBody.scrollTop = 0;
       body.classList.add("team-open");
-      teamModal.setAttribute("aria-hidden", "false");
+      syncSurfaceState();
+      focusSurface(teamModal, closeTeamModal);
     };
 
-    const hideTeamModal = () => {
+    const hideTeamModal = (restoreFocus = true) => {
       body.classList.remove("team-open");
-      teamModal.setAttribute("aria-hidden", "true");
+      syncSurfaceState();
+      if (restoreFocus) restoreSurfaceFocus("team");
     };
 
-    const openCheckoutModal = () => {
+    const openCheckoutModal = (returnFocus = document.activeElement) => {
       closeHeaderMenu();
       if (!cart.size) {
         showToast("Спочатку додайте товари в кошик");
         return;
       }
-      hideCart();
-      hideSuccessModal();
+      rememberSurfaceFocus("checkout", returnFocus);
+      hideCart(false);
+      hideSuccessModal(false);
       currentOrderNumber = createOrderNumber();
       checkoutOrderNumber.textContent = currentOrderNumber;
+      checkoutModal.scrollTop = 0;
+      checkoutScroll.scrollTop = 0;
       if (!cachedCities.length) loadNovaPoshtaCities();
       body.classList.add("checkout-open");
-      checkoutModal.setAttribute("aria-hidden", "false");
+      syncSurfaceState();
+      focusSurface(checkoutModal, closeCheckoutModal);
     };
 
-    const hideCheckoutModal = () => {
+    const hideCheckoutModal = (restoreFocus = true) => {
       body.classList.remove("checkout-open");
-      checkoutModal.setAttribute("aria-hidden", "true");
+      syncSurfaceState();
+      if (restoreFocus) restoreSurfaceFocus("checkout");
     };
 
-    const showSuccessModal = (message) => {
+    const showSuccessModal = (message, returnFocus = document.activeElement) => {
+      rememberSurfaceFocus("success", returnFocus);
       successMessage.textContent = message;
       body.classList.add("success-open");
-      successModal.setAttribute("aria-hidden", "false");
+      syncSurfaceState();
+      focusSurface(successModal, closeSuccessModal);
       requestAnimationFrame(() => {
         const style = window.getComputedStyle(successModal);
         if (style.visibility === "hidden" || style.opacity === "0") {
@@ -353,9 +547,10 @@
       });
     };
 
-    const hideSuccessModal = () => {
+    const hideSuccessModal = (restoreFocus = true) => {
       body.classList.remove("success-open");
-      successModal.setAttribute("aria-hidden", "true");
+      syncSurfaceState();
+      if (restoreFocus) restoreSurfaceFocus("success");
     };
 
     const finalizeOrderSuccess = (message) => {
@@ -366,22 +561,19 @@
       loadLastOrder();
       novaPoshtaCityRef.value = "";
       resetBranches();
-      hideSizeChart();
-      hideSuccessModal();
-      hideCheckoutModal();
-      hideCart();
-      hideProduct(false);
-      hideTeamModal();
-      overlay.setAttribute("aria-hidden", "true");
-      productOverlay.setAttribute("aria-hidden", "true");
-      showSuccessModal(message);
+      hideSizeChart(false);
+      hideSuccessModal(false);
+      hideCheckoutModal(false);
+      hideCart(false);
+      hideProduct(false, false);
+      hideTeamModal(false);
+      showSuccessModal(message, cartBtn);
     };
-
     const setProductImage = (index) => {
       const product = products.get(activeProductId);
       if (!product || !product.images.length) return;
       activeProductImage = index;
-      productMainShot.style.backgroundImage = `url('${product.images[index]}')`;
+      productMainShot.style.backgroundImage = `url('${resolveDetailImage(product.images[index])}')`;
       productThumbs.querySelectorAll(".product-thumb").forEach((thumb, thumbIndex) => {
         thumb.classList.toggle("active", thumbIndex === index);
       });
@@ -397,7 +589,7 @@
       productDescription.textContent = product.description;
       productSizeChart.hidden = !product.sizeChart;
       productThumbs.innerHTML = product.images.map((image, index) => `
-        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" style="background-image:url('${image}')" type="button" aria-label="Фото ${index + 1}"></button>
+        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" style="background-image:url('${resolveDetailImage(image)}')" type="button" aria-label="Фото ${index + 1}"></button>
       `).join("");
       productSizes.innerHTML = product.sizes.map((size) => `
         <button class="size-chip" data-size="${size}" type="button">${size}</button>
@@ -409,26 +601,31 @@
       setProductImage(0);
     }
 
-    function openProduct(productId, pushHash = true) {
+    function openProduct(productId, pushHash = true, returnFocus = document.activeElement) {
       if (!products.has(productId)) return;
+      rememberSurfaceFocus("product", returnFocus);
       closeHeaderMenu();
-      hideCart();
+      hideCart(false);
+      hideSizeChart(false);
+      hideTeamModal(false);
+      hideCheckoutModal(false);
+      hideSuccessModal(false);
       if (!location.hash.startsWith("#product-")) previousHash = location.hash || "#home";
       renderProduct(productId);
       productModal.scrollTop = 0;
       productBody.scrollTop = 0;
       body.classList.add("product-open");
-      productModal.setAttribute("aria-hidden", "false");
+      syncSurfaceState();
+      focusSurface(productModal, closeProduct);
       if (pushHash) history.pushState(null, "", `#product-${productId}`);
     }
-
-    function hideProduct(restoreHash = true) {
+    function hideProduct(restoreHash = true, restoreFocus = true) {
       body.classList.remove("product-open");
-      productModal.setAttribute("aria-hidden", "true");
       activeProductId = null;
       if (restoreHash && location.hash.startsWith("#product-")) history.pushState(null, "", previousHash || "#home");
+      syncSurfaceState();
+      if (restoreFocus) restoreSurfaceFocus("product");
     }
-
     function addToCart(product, size, option = "") {
       const optionSuffix = option ? `::${option}` : "";
       const cartId = `${product.id}::${size}${optionSuffix}`;
@@ -498,13 +695,16 @@
       heroProductCount.textContent = String(allProducts.length);
       heroLatest.innerHTML = latestProducts.map((product) => `
         <button class="hero-latest-item" data-product-id="${product.id}" type="button">
-          <div class="hero-latest-shot" style="background-image:url('${product.images[0] || "image.png.png"}')"></div>
+          <div class="hero-latest-shot" data-bg="${resolveCatalogImage(product.images[0] || "image.png.png")}"></div>
           <div class="hero-latest-copy">
             <strong>${product.name}</strong>
             <span>${product.category} • ${money(product.price)}</span>
           </div>
         </button>
       `).join("");
+      heroLatest.querySelectorAll(".hero-latest-shot").forEach((shot) => {
+        applyCoverPreview(shot, shot.dataset.bg || "");
+      });
     }
 
     function renderTeams() {
@@ -535,8 +735,8 @@
       const price = card.querySelector(".price");
       if (!button || !title || !visual || !row) return;
 
-      const galleryImages = [...card.querySelectorAll(".gallery-shot")].map((shot) => extractUrls(shot.getAttribute("style") || "")[0]).filter(Boolean);
-      const visualImages = galleryImages.length ? galleryImages : extractUrls(visual.getAttribute("style") || "").slice(-1);
+      const galleryImages = [...card.querySelectorAll(".gallery-shot")].map((shot) => shot.dataset.bg || extractUrls(shot.getAttribute("style") || "")[0]).filter(Boolean);
+      const visualImages = galleryImages.length ? galleryImages : [visual.dataset.bg || extractUrls(visual.getAttribute("style") || "").slice(-1)[0]].filter(Boolean);
       const product = {
         id: button.dataset.id,
         name: button.dataset.name,
@@ -564,10 +764,8 @@
         visual.classList.remove("gallery");
         visual.innerHTML = `<span class="tag">${product.category}</span>`;
         visual.style.backgroundColor = "#f4f0ea";
-        visual.style.backgroundImage = `linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.08)),url('${product.images[0]}')`;
-        visual.style.backgroundPosition = "center";
-        visual.style.backgroundSize = "contain";
-        visual.style.backgroundRepeat = "no-repeat";
+        visual.style.backgroundImage = "";
+        queueDeferredBackground(visual, resolveCatalogImage(product.images[0]), "visual");
       }
       visual.classList.add("is-clickable");
       title.classList.add("is-link");
@@ -668,20 +866,21 @@
       renderCart();
     });
 
-    cartBtn.addEventListener("click", openCart);
-    closeCart.addEventListener("click", hideCart);
-    overlay.addEventListener("click", hideCart);
+    cartBtn.addEventListener("click", () => openCart(cartBtn));
+    closeCart.addEventListener("click", () => hideCart());
+    overlay.addEventListener("click", closeActiveSurface);
     closeProduct.addEventListener("click", () => hideProduct());
-    closeSizeChart.addEventListener("click", hideSizeChart);
-    closeTeamModal.addEventListener("click", hideTeamModal);
+    closeSizeChart.addEventListener("click", () => hideSizeChart());
+    closeTeamModal.addEventListener("click", () => hideTeamModal());
     productBack.addEventListener("click", () => hideProduct());
-    productOverlay.addEventListener("click", () => {
-      hideSizeChart();
-      hideSuccessModal();
-      hideCheckoutModal();
-      hideTeamModal();
-      hideProduct();
+    productOverlay.addEventListener("click", closeActiveSurface);
+    closeCheckoutModal.addEventListener("click", () => {
+      if (desktopHeaderMedia.matches) hideCheckoutModal();
+      else returnToCartFromCheckout();
     });
+    closeSuccessModal.addEventListener("click", () => hideSuccessModal());
+    checkoutBack.addEventListener("click", returnToCartFromCheckout);
+    checkout.addEventListener("click", () => openCheckoutModal(checkout));
     menuToggle.addEventListener("click", toggleHeaderMenu);
     headerLinks.forEach((link) => link.addEventListener("click", closeHeaderMenu));
     document.addEventListener("click", (event) => {
@@ -690,7 +889,15 @@
       closeHeaderMenu();
     });
     desktopHeaderMedia.addEventListener("change", syncHeaderMenu);
-    phoneHeroMedia.addEventListener("change", renderHeroLatest);
+    phoneHeroMedia.addEventListener("change", () => {
+      renderHeroLatest();
+      const product = activeProductId ? products.get(activeProductId) : null;
+      if (!product) return;
+      productThumbs.querySelectorAll(".product-thumb").forEach((thumb, index) => {
+        thumb.style.backgroundImage = `url('${resolveDetailImage(product.images[index])}')`;
+      });
+      setProductImage(activeProductImage);
+    });
     clearCart.addEventListener("click", () => { cart.clear(); renderCart(); showToast("Кошик очищено"); });
     applyPromo.addEventListener("click", () => {
       promoApplied = promoInput.value.trim().toUpperCase() === "SIGNA";
@@ -701,13 +908,6 @@
       if (event.key !== "Enter") return;
       event.preventDefault();
       applyPromo.click();
-    });
-    checkout.addEventListener("click", openCheckoutModal);
-    closeCheckoutModal.addEventListener("click", hideCheckoutModal);
-    closeSuccessModal.addEventListener("click", hideSuccessModal);
-    checkoutBack.addEventListener("click", () => {
-      hideCheckoutModal();
-      openCart();
     });
     const persistInputs = [customerName, customerPhone, customerTelegram, novaPoshtaCity, novaPoshtaBranch];
     persistInputs.forEach((input) => input?.addEventListener("input", saveLastOrder));
@@ -811,28 +1011,53 @@
       }
       finalizeOrderSuccess(`Замовлення ${completedOrder} оформлено`);
     });
-    window.addEventListener("keydown", (event) => {
-      if (event.key !== "Escape") return;
-      if (body.classList.contains("sizechart-open")) hideSizeChart();
-      else if (body.classList.contains("success-open")) hideSuccessModal();
-      else if (body.classList.contains("checkout-open")) hideCheckoutModal();
-      else if (body.classList.contains("team-open")) hideTeamModal();
-      else if (body.classList.contains("product-open")) hideProduct();
-      else if (body.classList.contains("cart-open")) hideCart();
-      else closeHeaderMenu();
+    document.addEventListener("focusin", (event) => {
+      const activeSurface = getActiveSurface();
+      if (!activeSurface) return;
+      if (activeSurface.root.contains(event.target)) return;
+      focusSurface(activeSurface.root, activeSurface.focusTarget);
     });
-    window.addEventListener("hashchange", () => {
-      if (!location.hash.startsWith("#product-") && body.classList.contains("product-open")) {
-        hideProduct(false);
+    window.addEventListener("keydown", (event) => {
+      const activeSurface = getActiveSurface();
+      if (event.key === "Tab" && activeSurface) {
+        const focusable = getFocusableElements(activeSurface.root);
+        if (!focusable.length) {
+          event.preventDefault();
+          focusSurface(activeSurface.root, activeSurface.focusTarget);
+          return;
+        }
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (!activeSurface.root.contains(document.activeElement)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus({ preventScroll: true });
+          return;
+        }
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus({ preventScroll: true });
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus({ preventScroll: true });
+        }
         return;
       }
-      if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
+      if (event.key !== "Escape") return;
+      closeActiveSurface();
+    });
+    window.addEventListener("hashchange", () => {
+      if (!location.hash.startsWith("#product-")) {
+        if (body.classList.contains("sizechart-open")) hideSizeChart(false);
+        if (body.classList.contains("product-open")) hideProduct(false, false);
+        return;
+      }
+      openProduct(location.hash.replace("#product-", ""), false);
     });
 
+    syncSurfaceState();
     syncHeaderMenu();
 
     renderHeroLatest();
     renderTeams();
     if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
     renderCart();
-  
