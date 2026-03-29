@@ -13,6 +13,7 @@
     const headerPanel = document.getElementById("headerPanel");
     const headerLinks = [...document.querySelectorAll(".site-nav a")];
     const desktopHeaderMedia = window.matchMedia("(min-width: 1024px)");
+    const phoneHeroMedia = window.matchMedia("(max-width: 767px)");
     const closeCart = document.getElementById("closeCart");
     const overlay = document.getElementById("overlay");
     const drawer = document.getElementById("drawer");
@@ -28,6 +29,7 @@
     const toast = document.getElementById("toast");
     const productOverlay = document.getElementById("productOverlay");
     const productModal = document.getElementById("productModal");
+    const productBody = productModal.querySelector(".product-body");
     const closeProduct = document.getElementById("closeProduct");
     const productBack = document.getElementById("productBack");
     const productAddToCart = document.getElementById("productAddToCart");
@@ -413,6 +415,8 @@
       hideCart();
       if (!location.hash.startsWith("#product-")) previousHash = location.hash || "#home";
       renderProduct(productId);
+      productModal.scrollTop = 0;
+      productBody.scrollTop = 0;
       body.classList.add("product-open");
       productModal.setAttribute("aria-hidden", "false");
       if (pushHash) history.pushState(null, "", `#product-${productId}`);
@@ -486,9 +490,10 @@
     function renderHeroLatest() {
       const allProducts = [...products.values()];
       const featured = allProducts.find((product) => product.id === "navi-2025-jersey");
+      const latestLimit = phoneHeroMedia.matches ? 2 : 3;
       const latestProducts = [
         ...(featured ? [featured] : []),
-        ...allProducts.slice().reverse().filter((product) => product.id !== "navi-2025-jersey").slice(0, featured ? 2 : 3)
+        ...allProducts.slice().reverse().filter((product) => product.id !== "navi-2025-jersey").slice(0, featured ? latestLimit - 1 : latestLimit)
       ];
       heroProductCount.textContent = String(allProducts.length);
       heroLatest.innerHTML = latestProducts.map((product) => `
@@ -685,6 +690,7 @@
       closeHeaderMenu();
     });
     desktopHeaderMedia.addEventListener("change", syncHeaderMenu);
+    phoneHeroMedia.addEventListener("change", renderHeroLatest);
     clearCart.addEventListener("click", () => { cart.clear(); renderCart(); showToast("Кошик очищено"); });
     applyPromo.addEventListener("click", () => {
       promoApplied = promoInput.value.trim().toUpperCase() === "SIGNA";
