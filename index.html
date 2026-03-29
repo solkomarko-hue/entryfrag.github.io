@@ -13,14 +13,19 @@
       <img src="image.png.png" alt="Лого ENTRYFRAG">
       <div><strong>ENTRYFRAG</strong><span>CS2 Jersey Shop</span></div>
     </a>
-    <nav>
-      <a href="#home">Головна</a>
-      <a href="#categories">Категорії</a>
-      <a href="#teams">Команди</a>
-      <a href="#jerseys">Джерсі</a>
-      <a href="#zipups">Зіпки</a>
-      <a href="#pants">Штани</a>
-    </nav>
+    <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="headerPanel" aria-label="Відкрити меню">
+      <span class="menu-toggle-box" aria-hidden="true"><span></span><span></span><span></span></span>
+    </button>
+    <div class="header-panel" id="headerPanel" aria-hidden="true">
+      <nav class="site-nav" aria-label="Розділи сайту">
+        <a href="#home">Головна</a>
+        <a href="#categories">Категорії</a>
+        <a href="#teams">Команди</a>
+        <a href="#jerseys">Джерсі</a>
+        <a href="#zipups">Зіпки</a>
+        <a href="#pants">Штани</a>
+      </nav>
+    </div>
     <button class="cart-btn" id="cartBtn" type="button">Кошик <span class="count" id="cartCount">0</span></button>
   </header>
 

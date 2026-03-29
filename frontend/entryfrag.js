@@ -9,6 +9,10 @@
         .forEach((key) => localStorage.removeItem(key));
     } catch {}
     const cartBtn = document.getElementById("cartBtn");
+    const menuToggle = document.getElementById("menuToggle");
+    const headerPanel = document.getElementById("headerPanel");
+    const headerLinks = [...document.querySelectorAll(".site-nav a")];
+    const desktopHeaderMedia = window.matchMedia("(min-width: 1024px)");
     const closeCart = document.getElementById("closeCart");
     const overlay = document.getElementById("overlay");
     const drawer = document.getElementById("drawer");
@@ -75,6 +79,30 @@
     let cachedCities = [];
 
     const money = (value) => new Intl.NumberFormat("uk-UA").format(value) + " ₴";
+    const syncHeaderMenu = () => {
+      const isDesktop = desktopHeaderMedia.matches;
+      const isMenuOpen = body.classList.contains("menu-open");
+      headerPanel.setAttribute("aria-hidden", String(!isDesktop && !isMenuOpen));
+      menuToggle.setAttribute("aria-expanded", String(!isDesktop && isMenuOpen));
+      menuToggle.setAttribute("aria-label", isMenuOpen && !isDesktop ? "Close menu" : "Open menu");
+    };
+
+    const openHeaderMenu = () => {
+      if (desktopHeaderMedia.matches) return;
+      body.classList.add("menu-open");
+      syncHeaderMenu();
+    };
+
+    const closeHeaderMenu = () => {
+      body.classList.remove("menu-open");
+      syncHeaderMenu();
+    };
+
+    const toggleHeaderMenu = () => {
+      if (body.classList.contains("menu-open")) closeHeaderMenu();
+      else openHeaderMenu();
+    };
+
     const showToast = (text) => {
       toast.textContent = text;
       toast.classList.add("show");
@@ -233,6 +261,7 @@
     };
 
     const openCart = () => {
+      closeHeaderMenu();
       body.classList.remove("product-open");
       productModal.setAttribute("aria-hidden", "true");
       body.classList.add("cart-open");
@@ -258,6 +287,7 @@
     };
 
     const openTeamModal = (team) => {
+      closeHeaderMenu();
       const items = [...products.values()].filter((product) => inferTeam(product.name) === team);
       if (!items.length) return;
       teamModalTitle.textContent = team;
@@ -290,6 +320,7 @@
     };
 
     const openCheckoutModal = () => {
+      closeHeaderMenu();
       if (!cart.size) {
         showToast("Спочатку додайте товари в кошик");
         return;
@@ -378,6 +409,7 @@
 
     function openProduct(productId, pushHash = true) {
       if (!products.has(productId)) return;
+      closeHeaderMenu();
       hideCart();
       if (!location.hash.startsWith("#product-")) previousHash = location.hash || "#home";
       renderProduct(productId);
@@ -645,6 +677,14 @@
       hideTeamModal();
       hideProduct();
     });
+    menuToggle.addEventListener("click", toggleHeaderMenu);
+    headerLinks.forEach((link) => link.addEventListener("click", closeHeaderMenu));
+    document.addEventListener("click", (event) => {
+      if (!body.classList.contains("menu-open")) return;
+      if (event.target.closest(".header")) return;
+      closeHeaderMenu();
+    });
+    desktopHeaderMedia.addEventListener("change", syncHeaderMenu);
     clearCart.addEventListener("click", () => { cart.clear(); renderCart(); showToast("Кошик очищено"); });
     applyPromo.addEventListener("click", () => {
       promoApplied = promoInput.value.trim().toUpperCase() === "SIGNA";
@@ -772,7 +812,8 @@
       else if (body.classList.contains("checkout-open")) hideCheckoutModal();
       else if (body.classList.contains("team-open")) hideTeamModal();
       else if (body.classList.contains("product-open")) hideProduct();
-      else hideCart();
+      else if (body.classList.contains("cart-open")) hideCart();
+      else closeHeaderMenu();
     });
     window.addEventListener("hashchange", () => {
       if (!location.hash.startsWith("#product-") && body.classList.contains("product-open")) {
@@ -781,6 +822,8 @@
       }
       if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
     });
+
+    syncHeaderMenu();
 
     renderHeroLatest();
     renderTeams();
