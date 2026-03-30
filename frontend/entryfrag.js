@@ -1,4 +1,4 @@
-﻿    const cart = new Map();
+    const cart = new Map();
     const products = new Map();
     const body = document.body;
     try {
@@ -118,6 +118,8 @@
       body.style.top = "";
       body.style.paddingRight = "";
       window.scrollTo(0, lockedScrollY);
+      document.documentElement.scrollLeft = 0;
+      document.body.scrollLeft = 0;
     };
     const setBackgroundInteractivity = (isBlocked) => {
       backgroundRoots.forEach((node) => {
@@ -197,7 +199,7 @@
       root.tabIndex = -1;
     });
 
-    const money = (value) => new Intl.NumberFormat("uk-UA").format(value) + " ₴";
+    const money = (value) => new Intl.NumberFormat("uk-UA").format(value) + " Р В Р вЂ Р Р†Р вЂљРЎв„ўР СћРІР‚В";
     const syncHeaderMenu = () => {
       const isDesktop = desktopHeaderMedia.matches;
       const isMenuOpen = body.classList.contains("menu-open");
@@ -281,15 +283,15 @@
     };
     const fillBranchOptions = (branches) => {
       novaPoshtaBranch.disabled = false;
-      novaPoshtaBranch.innerHTML = `<option value="">Оберіть відділення</option>${branches.map((branch) => `<option value="${branch.Description}">${branch.Description}</option>`).join("")}`;
+      novaPoshtaBranch.innerHTML = `<option value="">Р В Р’В Р РЋРІР‚С”Р В Р’В Р вЂ™Р’В±Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ° Р В Р’В Р В РІР‚В Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ</option>${branches.map((branch) => `<option value="${branch.Description}">${branch.Description}</option>`).join("")}`;
     };
-    const resetBranches = (placeholder = "Спочатку оберіть місто") => {
+    const resetBranches = (placeholder = "Р В Р’В Р В Р вЂ№Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљР Р‹Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СњР В Р Р‹Р РЋРІР‚Сљ Р В Р’В Р РЋРІР‚СћР В Р’В Р вЂ™Р’В±Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ° Р В Р’В Р РЋР’ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚Сћ") => {
       novaPoshtaBranch.disabled = true;
       novaPoshtaBranch.innerHTML = `<option value="">${placeholder}</option>`;
     };
     const loadNovaPoshtaCities = async () => {
       if (cachedCities.length) return;
-      novaPoshtaCity.placeholder = "Завантаження міст...";
+      novaPoshtaCity.placeholder = "Р В Р’В Р Р†Р вЂљРІР‚СњР В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В¶Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ Р В Р’В Р РЋР’ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ў...";
       try {
         const cities = await novaPoshtaRequest("getCities");
         cachedCities = cities
@@ -297,10 +299,10 @@
           .filter((city) => city.Ref && city.Description)
           .sort((a, b) => a.Description.localeCompare(b.Description, "uk"));
         fillCityOptions(cachedCities);
-        novaPoshtaCity.placeholder = "Почніть вводити місто";
+        novaPoshtaCity.placeholder = "Р В Р’В Р РЋРЎСџР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљР Р‹Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ° Р В Р’В Р В РІР‚В Р В Р’В Р В РІР‚В Р В Р’В Р РЋРІР‚СћР В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В Р В Р’В Р РЋР’ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚Сћ";
       } catch (error) {
-        novaPoshtaCity.placeholder = "Не вдалося завантажити міста";
-        showToast("Не вдалося завантажити міста Нової пошти");
+        novaPoshtaCity.placeholder = "Р В Р’В Р РЋРЎС™Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р В РІР‚В Р В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В»Р В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р Р‹Р В Р РЏ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В¶Р В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В Р В Р’В Р РЋР’ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В°";
+        showToast("Р В Р’В Р РЋРЎС™Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р В РІР‚В Р В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В»Р В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р Р‹Р В Р РЏ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В¶Р В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В Р В Р’В Р РЋР’ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В° Р В Р’В Р РЋРЎС™Р В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљРІР‚Сњ Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†РІР‚С™Р’В¬Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В");
       }
     };
     const loadNovaPoshtaBranches = async (cityRef) => {
@@ -308,18 +310,18 @@
         resetBranches();
         return;
       }
-      resetBranches("Завантаження відділень...");
+      resetBranches("Р В Р’В Р Р†Р вЂљРІР‚СњР В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В¶Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ Р В Р’В Р В РІР‚В Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р вЂ°...");
       try {
         const branches = await novaPoshtaRequest("getWarehouses", { CityRef: cityRef });
         const validBranches = branches.filter((branch) => branch.Description);
         if (!validBranches.length) {
-          resetBranches("Відділення недоступні");
+          resetBranches("Р В Р’В Р Р†Р вЂљРІвЂћСћР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’ВµР В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р РЋРІР‚СљР В Р’В Р РЋРІР‚вЂќР В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРІР‚Сљ");
           return;
         }
         fillBranchOptions(validBranches);
       } catch (error) {
-        resetBranches("Не вдалося завантажити відділення");
-        showToast("Не вдалося завантажити відділення Нової пошти");
+        resetBranches("Р В Р’В Р РЋРЎС™Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р В РІР‚В Р В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В»Р В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р Р‹Р В Р РЏ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В¶Р В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В Р В Р’В Р В РІР‚В Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ");
+        showToast("Р В Р’В Р РЋРЎС™Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р В РІР‚В Р В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В»Р В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р Р‹Р В Р РЏ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В¶Р В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В Р В Р’В Р В РІР‚В Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ Р В Р’В Р РЋРЎС™Р В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљРІР‚Сњ Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†РІР‚С™Р’В¬Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В");
       }
     };
 
@@ -413,7 +415,7 @@
       element.dataset.lazyMode = mode;
       lazyImageObserver.observe(element);
     };
-    const parseSizes = (button, description) => button.dataset.sizes ? button.dataset.sizes.split(",").map((size) => size.trim()).filter(Boolean) : description.includes("S-M-L") || description.includes("S-М-L") ? [...defaultSizes] : [...defaultSizes];
+    const parseSizes = (button, description) => button.dataset.sizes ? button.dataset.sizes.split(",").map((size) => size.trim()).filter(Boolean) : description.includes("S-M-L") || description.includes("S-Р В Р’В Р РЋРЎв„ў-L") ? [...defaultSizes] : [...defaultSizes];
     const parseOptions = (button) => button.dataset.options ? button.dataset.options.split(",").map((option) => option.trim()).filter(Boolean) : [];
     const getActiveSize = () => productSizes.querySelector(".size-chip.active")?.dataset.size || "";
     const getActiveOption = () => productOptions.querySelector(".option-chip.active")?.dataset.option || "";
@@ -433,7 +435,7 @@
       if (normalized.includes("astralis")) return "Astralis";
       if (normalized.includes("virtus")) return "Virtus Pro";
       if (normalized.includes("cloud9")) return "Cloud9";
-      return "Інше";
+      return "Р В Р’В Р Р†Р вЂљР’В Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†РІР‚С™Р’В¬Р В Р’В Р вЂ™Р’Вµ";
     };
 
     const openCart = (returnFocus = document.activeElement) => {
@@ -456,7 +458,7 @@
     const openSizeChart = (product, returnFocus = document.activeElement) => {
       if (!product?.sizeChart) return;
       rememberSurfaceFocus("sizechart", returnFocus);
-      sizeChartTitle.textContent = `${product.name} — розмірна сітка`;
+      sizeChartTitle.textContent = `${product.name} Р В Р вЂ Р В РІР‚С™Р Р†Р вЂљРЎСљ Р В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚СћР В Р’В Р вЂ™Р’В·Р В Р’В Р РЋР’ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РІР‚С™Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’В° Р В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СњР В Р’В Р вЂ™Р’В°`;
       sizeChartShot.style.backgroundImage = `url('${product.sizeChart}')`;
       sizeChartModal.scrollTop = 0;
       body.classList.add("sizechart-open");
@@ -490,7 +492,7 @@
                 <div class="row">
                   <div class="price-block"><span class="old-price">${money(item.price + 200)}</span><span class="price">${money(item.price)}</span></div>
                   <div class="actions-group">
-                    <button class="detail-btn" data-product-id="${item.id}" type="button">Переглянути</button>
+                    <button class="detail-btn" data-product-id="${item.id}" type="button">Р В Р’В Р РЋРЎСџР В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р’В Р вЂ™Р’ВµР В Р’В Р РЋРІР‚вЂњР В Р’В Р вЂ™Р’В»Р В Р Р‹Р В Р РЏР В Р’В Р В РІР‚В¦Р В Р Р‹Р РЋРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В</button>
                   </div>
                 </div>
               </div>
@@ -514,7 +516,7 @@
     const openCheckoutModal = (returnFocus = document.activeElement) => {
       closeHeaderMenu();
       if (!cart.size) {
-        showToast("Спочатку додайте товари в кошик");
+        showToast("Р В Р’В Р В Р вЂ№Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљР Р‹Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СњР В Р Р‹Р РЋРІР‚Сљ Р В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚СћР В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’В°Р В Р’В Р Р†РІР‚С›РІР‚вЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’Вµ Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚В Р В Р’В Р В РІР‚В  Р В Р’В Р РЋРІР‚СњР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†РІР‚С™Р’В¬Р В Р’В Р РЋРІР‚ВР В Р’В Р РЋРІР‚Сњ");
         return;
       }
       rememberSurfaceFocus("checkout", returnFocus);
@@ -572,15 +574,20 @@
       hideTeamModal(false);
       showSuccessModal(message, cartBtn);
     };
+    const setFrameImage = (frame, src, alt = "") => {
+      if (!frame) return;
+      frame.style.backgroundImage = src ? `url("${src}")` : "";
+      const frameImage = frame.querySelector("img");
+      if (!frameImage) return;
+      frameImage.src = src || "";
+      frameImage.alt = alt;
+    };
     const setProductImage = (index) => {
       const product = products.get(activeProductId);
       if (!product || !product.images.length) return;
       activeProductImage = index;
-      const mainImage = productMainShot.querySelector("img");
-      if (mainImage) {
-        mainImage.src = resolveDetailImage(product.images[index]);
-        mainImage.alt = product.name;
-      }
+      const source = resolveDetailImage(product.images[index]);
+      setFrameImage(productMainShot, source, product.name);
       productThumbs.querySelectorAll(".product-thumb").forEach((thumb, thumbIndex) => {
         thumb.classList.toggle("active", thumbIndex === index);
       });
@@ -595,12 +602,19 @@
       productPrice.textContent = money(product.price);
       productDescription.textContent = product.description;
       productSizeChart.hidden = !product.sizeChart;
-      productMainShot.innerHTML = `<img src="" alt="" decoding="async">`;
-      productThumbs.innerHTML = product.images.map((image, index) => `
-        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" type="button" aria-label="Image ${index + 1}">
-          <img src="${resolveDetailImage(image)}" alt="" decoding="async">
+      productMainShot.innerHTML = `<img src="" alt="" decoding="async" loading="eager">`;
+      productMainShot.style.backgroundImage = "";
+      productThumbs.innerHTML = product.images.map((image, index) => {
+        const resolvedImage = resolveDetailImage(image);
+        return `
+        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" data-image-src="${resolvedImage}" type="button" aria-label="Image ${index + 1}">
+          <img src="${resolvedImage}" alt="" decoding="async" loading="eager">
         </button>
-      `).join("");
+      `;
+      }).join("");
+      productThumbs.querySelectorAll(".product-thumb").forEach((thumb) => {
+        thumb.style.backgroundImage = thumb.dataset.imageSrc ? `url("${thumb.dataset.imageSrc}")` : "";
+      });
       productSizes.innerHTML = product.sizes.map((size) => `
         <button class="size-chip" data-size="${size}" type="button">${size}</button>
       `).join("");
@@ -639,7 +653,7 @@
     function addToCart(product, size, option = "") {
       const optionSuffix = option ? `::${option}` : "";
       const cartId = `${product.id}::${size}${optionSuffix}`;
-      const optionLabel = option ? ` • ${option}` : "";
+      const optionLabel = option ? ` Р В Р вЂ Р В РІР‚С™Р РЋРЎвЂє ${option}` : "";
       const item = cart.get(cartId);
       if (item) item.qty += 1;
       else cart.set(cartId, {
@@ -653,7 +667,7 @@
         qty: 1
       });
       renderCart();
-      showToast(`${product.name} (${size}${optionLabel}) додано в кошик`);
+      showToast(`${product.name} (${size}${optionLabel}) Р В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚СћР В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚Сћ Р В Р’В Р В РІР‚В  Р В Р’В Р РЋРІР‚СњР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†РІР‚С™Р’В¬Р В Р’В Р РЋРІР‚ВР В Р’В Р РЋРІР‚Сњ`);
     }
 
     function renderCart() {
@@ -665,26 +679,26 @@
       cartCount.textContent = totalCount;
       cartTotal.textContent = money(totalPrice);
       cartSummaryDetails.innerHTML = subtotal ? `
-        <small><span>Сума товарів</span><span>${money(subtotal)}</span></small>
-        <small><span>Промокод</span><span>${promoApplied ? "SIGNA (-5%)" : "Не застосовано"}</span></small>
-        ${promoApplied ? `<small><span>Знижка</span><span>-${money(discount)}</span></small>` : ""}
+        <small><span>Р В Р’В Р В Р вЂ№Р В Р Р‹Р РЋРІР‚СљР В Р’В Р РЋР’ВР В Р’В Р вЂ™Р’В° Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РІР‚С™Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р В РІР‚В </span><span>${money(subtotal)}</span></small>
+        <small><span>Р В Р’В Р РЋРЎСџР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚СћР В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р РЋРІР‚СњР В Р’В Р РЋРІР‚СћР В Р’В Р СћРІР‚В</span><span>${promoApplied ? "SIGNA (-5%)" : "Р В Р’В Р РЋРЎС™Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚Сћ"}</span></small>
+        ${promoApplied ? `<small><span>Р В Р’В Р Р†Р вЂљРІР‚СњР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚ВР В Р’В Р вЂ™Р’В¶Р В Р’В Р РЋРІР‚СњР В Р’В Р вЂ™Р’В°</span><span>-${money(discount)}</span></small>` : ""}
       ` : "";
-      promoNote.textContent = promoApplied ? "Промокод SIGNA активний. Знижка -5% уже застосована." : "";
+      promoNote.textContent = promoApplied ? "Р В Р’В Р РЋРЎСџР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚СћР В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р РЋРІР‚СњР В Р’В Р РЋРІР‚СћР В Р’В Р СћРІР‚В SIGNA Р В Р’В Р вЂ™Р’В°Р В Р’В Р РЋРІР‚СњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚ВР В Р’В Р В РІР‚В Р В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚ВР В Р’В Р Р†РІР‚С›РІР‚вЂњ. Р В Р’В Р Р†Р вЂљРІР‚СњР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚ВР В Р’В Р вЂ™Р’В¶Р В Р’В Р РЋРІР‚СњР В Р’В Р вЂ™Р’В° -5% Р В Р Р‹Р РЋРІР‚СљР В Р’В Р вЂ™Р’В¶Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’В°." : "";
 
       if (!items.length) {
-        cartItems.innerHTML = "<div class='empty'>Кошик поки порожній. Додайте товар і він з'явиться тут.</div>";
+        cartItems.innerHTML = "<div class='empty'>Р В Р’В Р РЋРІвЂћСћР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†РІР‚С™Р’В¬Р В Р’В Р РЋРІР‚ВР В Р’В Р РЋРІР‚Сњ Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р’В Р РЋРІР‚СњР В Р’В Р РЋРІР‚В Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚СћР В Р’В Р вЂ™Р’В¶Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р Р†РІР‚С›РІР‚вЂњ. Р В Р’В Р Р†Р вЂљРЎСљР В Р’В Р РЋРІР‚СћР В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’В°Р В Р’В Р Р†РІР‚С›РІР‚вЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р вЂ™Р’Вµ Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РІР‚С™ Р В Р Р‹Р Р†Р вЂљРІР‚Сљ Р В Р’В Р В РІР‚В Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р В РІР‚В¦ Р В Р’В Р вЂ™Р’В·'Р В Р Р‹Р В Р РЏР В Р’В Р В РІР‚В Р В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ°Р В Р Р‹Р В РЎвЂњР В Р Р‹Р В Р РЏ Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р РЋРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ў.</div>";
         return;
       }
 
       cartItems.innerHTML = items.map((item) => `
         <article class="item">
           <div class="top">
-            <div><small>${item.category} • Розмір ${item.size}${item.option ? ` • ${item.option}` : ""}</small><strong>${item.name}</strong></div>
+            <div><small>${item.category} Р В Р вЂ Р В РІР‚С™Р РЋРЎвЂє Р В Р’В Р вЂ™Р’В Р В Р’В Р РЋРІР‚СћР В Р’В Р вЂ™Р’В·Р В Р’В Р РЋР’ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РІР‚С™ ${item.size}${item.option ? ` Р В Р вЂ Р В РІР‚С™Р РЋРЎвЂє ${item.option}` : ""}</small><strong>${item.name}</strong></div>
             <span>${money(item.price)}</span>
           </div>
           <div class="bottom">
             <div class="qty">
-              <button type="button" data-id="${item.id}" data-step="-1">−</button>
+              <button type="button" data-id="${item.id}" data-step="-1">Р В Р вЂ Р Р†РІР‚С™Р’В¬Р Р†Р вЂљРІвЂћСћ</button>
               <span>${item.qty}</span>
               <button type="button" data-id="${item.id}" data-step="1">+</button>
             </div>
@@ -708,7 +722,7 @@
           <div class="hero-latest-shot" data-bg="${resolveCatalogImage(product.images[0] || "image.png.png")}"></div>
           <div class="hero-latest-copy">
             <strong>${product.name}</strong>
-            <span>${product.category} • ${money(product.price)}</span>
+            <span>${product.category} Р В Р вЂ Р В РІР‚С™Р РЋРЎвЂє ${money(product.price)}</span>
           </div>
         </button>
       `).join("");
@@ -729,9 +743,9 @@
         <button class="team-card" data-team="${team}" type="button">
           <div>
             <h3>${team}</h3>
-            <div class="team-count">${items.length} товар(ів)</div>
+            <div class="team-count">${items.length} Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РІР‚С™(Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р В РІР‚В )</div>
           </div>
-          <div class="team-open">Відкрити</div>
+          <div class="team-open">Р В Р’В Р Р†Р вЂљРІвЂћСћР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚СњР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В</div>
         </button>
       `).join("");
     }
@@ -784,8 +798,8 @@
       title.tabIndex = 0;
       visual.setAttribute("role", "button");
       title.setAttribute("role", "button");
-      visual.setAttribute("aria-label", `Відкрити товар ${product.name}`);
-      title.setAttribute("aria-label", `Відкрити товар ${product.name}`);
+      visual.setAttribute("aria-label", `Р В Р’В Р Р†Р вЂљРІвЂћСћР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚СњР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РІР‚С™ ${product.name}`);
+      title.setAttribute("aria-label", `Р В Р’В Р Р†Р вЂљРІвЂћСћР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚СњР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РІР‚С™ ${product.name}`);
 
       const openProductFromCard = () => openProduct(product.id);
       [visual, title].forEach((node) => {
@@ -803,7 +817,7 @@
       const detailButton = document.createElement("button");
       detailButton.className = "detail-btn";
       detailButton.type = "button";
-      detailButton.textContent = "Переглянути";
+      detailButton.textContent = "Р В Р’В Р РЋРЎСџР В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р’В Р вЂ™Р’ВµР В Р’В Р РЋРІР‚вЂњР В Р’В Р вЂ™Р’В»Р В Р Р‹Р В Р РЏР В Р’В Р В РІР‚В¦Р В Р Р‹Р РЋРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В";
       detailButton.addEventListener("click", () => openProduct(product.id));
       row.append(actionsGroup);
       actionsGroup.append(detailButton, button);
@@ -853,11 +867,11 @@
       const selectedSize = getActiveSize();
       const selectedOption = getActiveOption();
       if (!selectedSize) {
-        showToast("Спочатку виберіть розмір");
+        showToast("Р В Р’В Р В Р вЂ№Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљР Р‹Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СњР В Р Р‹Р РЋРІР‚Сљ Р В Р’В Р В РІР‚В Р В Р’В Р РЋРІР‚ВР В Р’В Р вЂ™Р’В±Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ° Р В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚СћР В Р’В Р вЂ™Р’В·Р В Р’В Р РЋР’ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РІР‚С™");
         return;
       }
       if (product.options.length && !selectedOption) {
-        showToast("Спочатку виберіть опцію");
+        showToast("Р В Р’В Р В Р вЂ№Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљР Р‹Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СњР В Р Р‹Р РЋРІР‚Сљ Р В Р’В Р В РІР‚В Р В Р’В Р РЋРІР‚ВР В Р’В Р вЂ™Р’В±Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ° Р В Р’В Р РЋРІР‚СћР В Р’В Р РЋРІР‚вЂќР В Р Р‹Р Р†Р вЂљР’В Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РІР‚в„–");
         return;
       }
       addToCart(product, selectedSize, selectedOption);
@@ -902,19 +916,22 @@
     desktopHeaderMedia.addEventListener("change", syncHeaderMenu);
     phoneHeroMedia.addEventListener("change", () => {
       renderHeroLatest();
+      document.documentElement.scrollLeft = 0;
+      document.body.scrollLeft = 0;
       const product = activeProductId ? products.get(activeProductId) : null;
       if (!product) return;
       productThumbs.querySelectorAll(".product-thumb").forEach((thumb, index) => {
         const thumbImage = thumb.querySelector("img");
         if (thumbImage) thumbImage.src = resolveDetailImage(product.images[index]);
+        thumb.style.backgroundImage = `url("${resolveDetailImage(product.images[index])}")`;
       });
       setProductImage(activeProductImage);
     });
-    clearCart.addEventListener("click", () => { cart.clear(); renderCart(); showToast("Кошик очищено"); });
+    clearCart.addEventListener("click", () => { cart.clear(); renderCart(); showToast("Р В Р’В Р РЋРІвЂћСћР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†РІР‚С™Р’В¬Р В Р’В Р РЋРІР‚ВР В Р’В Р РЋРІР‚Сњ Р В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљР Р‹Р В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљР’В°Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚Сћ"); });
     applyPromo.addEventListener("click", () => {
       promoApplied = promoInput.value.trim().toUpperCase() === "SIGNA";
       renderCart();
-      showToast(promoApplied ? "Промокод SIGNA застосовано" : "Промокод не знайдено");
+      showToast(promoApplied ? "Р В Р’В Р РЋРЎСџР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚СћР В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р РЋРІР‚СњР В Р’В Р РЋРІР‚СћР В Р’В Р СћРІР‚В SIGNA Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚Сћ" : "Р В Р’В Р РЋРЎСџР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚СћР В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р РЋРІР‚СњР В Р’В Р РЋРІР‚СћР В Р’В Р СћРІР‚В Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р вЂ™Р’В·Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’В°Р В Р’В Р Р†РІР‚С›РІР‚вЂњР В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚Сћ");
     });
     promoInput.addEventListener("keydown", (event) => {
       if (event.key !== "Enter") return;
@@ -937,37 +954,37 @@
       event.preventDefault();
       const form = new FormData(checkoutForm);
       if (!form.get("customerName") || !form.get("customerPhone") || !form.get("customerTelegram") || !form.get("novaPoshtaCity") || !form.get("novaPoshtaBranch")) {
-        showToast("Заповніть усі поля замовлення");
+        showToast("Р В Р’В Р Р†Р вЂљРІР‚СњР В Р’В Р вЂ™Р’В°Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р В РІР‚В¦Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ° Р В Р Р‹Р РЋРІР‚СљР В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРІР‚Сљ Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р’В Р вЂ™Р’В»Р В Р Р‹Р В Р РЏ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ");
         return;
       }
       const subtotal = [...cart.values()].reduce((sum, item) => sum + item.qty * item.price, 0);
       const discount = promoApplied ? Math.round(subtotal * promoDiscountPercent) : 0;
       const total = subtotal - discount;
       if (!confirmOrderDetails.checked) {
-        showToast("Підтвердіть замовлення галочкою");
+        showToast("Р В Р’В Р РЋРЎСџР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ° Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ Р В Р’В Р РЋРІР‚вЂњР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В»Р В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљР Р‹Р В Р’В Р РЋРІР‚СњР В Р’В Р РЋРІР‚СћР В Р Р‹Р В РІР‚в„–");
         return;
       }
-      const confirmMessage = `Підтвердити замовлення ${currentOrderNumber || "ENTRYFRAG"} на суму ${money(total)}?`;
+      const confirmMessage = `Р В Р’В Р РЋРЎСџР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ ${currentOrderNumber || "ENTRYFRAG"} Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’В° Р В Р Р‹Р В РЎвЂњР В Р Р‹Р РЋРІР‚СљР В Р’В Р РЋР’ВР В Р Р‹Р РЋРІР‚Сљ ${money(total)}?`;
       if (!window.confirm(confirmMessage)) {
-        showToast("Підтвердження замовлення скасовано");
+        showToast("Р В Р’В Р РЋРЎСџР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’В¶Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ Р В Р Р‹Р В РЎвЂњР В Р’В Р РЋРІР‚СњР В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РЎвЂњР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚Сћ");
         return;
       }
       const completedOrder = currentOrderNumber || createOrderNumber();
-      const orderItems = [...cart.values()].map((item, index) => `${index + 1}. ${item.name} | Розмір: ${item.size}${item.option ? ` | Опція: ${item.option}` : ""} | К-сть: ${item.qty} | Сума: ${money(item.qty * item.price)}`).join("\n");
+      const orderItems = [...cart.values()].map((item, index) => `${index + 1}. ${item.name} | Р В Р’В Р вЂ™Р’В Р В Р’В Р РЋРІР‚СћР В Р’В Р вЂ™Р’В·Р В Р’В Р РЋР’ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РІР‚С™: ${item.size}${item.option ? ` | Р В Р’В Р РЋРІР‚С”Р В Р’В Р РЋРІР‚вЂќР В Р Р‹Р Р†Р вЂљР’В Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В Р РЏ: ${item.option}` : ""} | Р В Р’В Р РЋРІвЂћСћ-Р В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ°: ${item.qty} | Р В Р’В Р В Р вЂ№Р В Р Р‹Р РЋРІР‚СљР В Р’В Р РЋР’ВР В Р’В Р вЂ™Р’В°: ${money(item.qty * item.price)}`).join("\n");
       const telegramMessage = [
-        `Нове замовлення ${completedOrder}`,
+        `Р В Р’В Р РЋРЎС™Р В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ ${completedOrder}`,
         ``,
-        `ПІБ: ${form.get("customerName")}`,
-        `Телефон: ${form.get("customerPhone")}`,
+        `Р В Р’В Р РЋРЎСџР В Р’В Р Р†Р вЂљР’В Р В Р’В Р Р†Р вЂљР’В: ${form.get("customerName")}`,
+        `Р В Р’В Р РЋРЎвЂєР В Р’В Р вЂ™Р’ВµР В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р Р†Р вЂљРЎвЂєР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В¦: ${form.get("customerPhone")}`,
         `Telegram: ${form.get("customerTelegram")}`,
-        `Місто: ${novaPoshtaCity.value}`,
-        `Відділення НП: ${form.get("novaPoshtaBranch")}`,
+        `Р В Р’В Р РЋРЎв„ўР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚Сћ: ${novaPoshtaCity.value}`,
+        `Р В Р’В Р Р†Р вЂљРІвЂћСћР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ Р В Р’В Р РЋРЎС™Р В Р’В Р РЋРЎСџ: ${form.get("novaPoshtaBranch")}`,
         ``,
-        `Товари:`,
+        `Р В Р’В Р РЋРЎвЂєР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚В:`,
         `${orderItems}`,
         ``,
-        `Промокод: ${promoApplied ? "SIGNA (-5%)" : "немає"}`,
-        `Разом: ${money(total)}`
+        `Р В Р’В Р РЋРЎСџР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚СћР В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р РЋРІР‚СњР В Р’В Р РЋРІР‚СћР В Р’В Р СћРІР‚В: ${promoApplied ? "SIGNA (-5%)" : "Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’ВµР В Р’В Р РЋР’ВР В Р’В Р вЂ™Р’В°Р В Р Р‹Р Р†Р вЂљРЎСљ"}`,
+        `Р В Р’В Р вЂ™Р’В Р В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В·Р В Р’В Р РЋРІР‚СћР В Р’В Р РЋР’В: ${money(total)}`
       ].join("\n");
       saveLastOrder();
       const payload = {
@@ -996,7 +1013,7 @@
         replyMarkup: {
           inline_keyboard: [[
             {
-              text: "Відправлено",
+              text: "Р В Р’В Р Р†Р вЂљРІвЂћСћР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚вЂќР В Р Р‹Р В РІР‚С™Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚Сћ",
               callback_data: `done:${completedOrder}`
             }
           ]]
@@ -1005,23 +1022,23 @@
       try {
         const result = await submitOrderToServer(payload, telegramPayload);
         if (result?.warning === "telegram_unreachable") {
-          finalizeOrderSuccess("Замовлення збережено, але Telegram зараз недоступний");
+          finalizeOrderSuccess("Р В Р’В Р Р†Р вЂљРІР‚СњР В Р’В Р вЂ™Р’В°Р В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В±Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р’В Р вЂ™Р’ВµР В Р’В Р вЂ™Р’В¶Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚Сћ, Р В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’Вµ Telegram Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р В РІР‚С™Р В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В· Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’ВµР В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р РЋРІР‚СљР В Р’В Р РЋРІР‚вЂќР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚ВР В Р’В Р Р†РІР‚С›РІР‚вЂњ");
           return;
         }
       } catch (error) {
         console.error("order submit failed", error);
         if (String(error.message).includes("backend_not_configured")) {
-          showToast("Backend не підключений. Заповни ENTRYFRAG_API_URL у config")
+          showToast("Backend Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р РЋРІР‚вЂќР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚СњР В Р’В Р вЂ™Р’В»Р В Р Р‹Р В РІР‚в„–Р В Р Р‹Р Р†Р вЂљР Р‹Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚ВР В Р’В Р Р†РІР‚С›РІР‚вЂњ. Р В Р’В Р Р†Р вЂљРІР‚СњР В Р’В Р вЂ™Р’В°Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚В ENTRYFRAG_API_URL Р В Р Р‹Р РЋРІР‚Сљ config")
         } else if (String(error.message).includes("telegram_send_failed") || String(error.message).includes("telegram_not_configured")) {
-          showToast("Бот не прив'язаний до Telegram. Напишіть /start або /bindmanager у бот")
+          showToast("Р В Р’В Р Р†Р вЂљР’ВР В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљРЎв„ў Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р РЋРІР‚вЂќР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋРІР‚ВР В Р’В Р В РІР‚В 'Р В Р Р‹Р В Р РЏР В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚ВР В Р’В Р Р†РІР‚С›РІР‚вЂњ Р В Р’В Р СћРІР‚ВР В Р’В Р РЋРІР‚Сћ Telegram. Р В Р’В Р РЋРЎС™Р В Р’В Р вЂ™Р’В°Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚ВР В Р Р‹Р Р†РІР‚С™Р’В¬Р В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р Р†Р вЂљРЎв„ўР В Р Р‹Р В Р вЂ° /start Р В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В±Р В Р’В Р РЋРІР‚Сћ /bindmanager Р В Р Р‹Р РЋРІР‚Сљ Р В Р’В Р вЂ™Р’В±Р В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљРЎв„ў")
         } else if (String(error.message).includes("missing_bot_token") || String(error.message).includes("missing_chat_id")) {
-          showToast("На сервері не заповнений Telegram token або chat id")
+          showToast("Р В Р’В Р РЋРЎС™Р В Р’В Р вЂ™Р’В° Р В Р Р‹Р В РЎвЂњР В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’ВµР В Р Р‹Р В РІР‚С™Р В Р Р‹Р Р†Р вЂљРІР‚Сљ Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р РЋРІР‚вЂќР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚ВР В Р’В Р Р†РІР‚С›РІР‚вЂњ Telegram token Р В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В±Р В Р’В Р РЋРІР‚Сћ chat id")
         } else {
-          showToast("Не вдалося надіслати замовлення")
+          showToast("Р В Р’В Р РЋРЎС™Р В Р’В Р вЂ™Р’Вµ Р В Р’В Р В РІР‚В Р В Р’В Р СћРІР‚ВР В Р’В Р вЂ™Р’В°Р В Р’В Р вЂ™Р’В»Р В Р’В Р РЋРІР‚СћР В Р Р‹Р В РЎвЂњР В Р Р‹Р В Р РЏ Р В Р’В Р В РІР‚В¦Р В Р’В Р вЂ™Р’В°Р В Р’В Р СћРІР‚ВР В Р Р‹Р Р†Р вЂљРІР‚СљР В Р Р‹Р В РЎвЂњР В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’В°Р В Р Р‹Р Р†Р вЂљРЎв„ўР В Р’В Р РЋРІР‚В Р В Р’В Р вЂ™Р’В·Р В Р’В Р вЂ™Р’В°Р В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ")
         }
         return;
       }
-      finalizeOrderSuccess(`Замовлення ${completedOrder} оформлено`);
+      finalizeOrderSuccess(`Р В Р’В Р Р†Р вЂљРІР‚СњР В Р’В Р вЂ™Р’В°Р В Р’В Р РЋР’ВР В Р’В Р РЋРІР‚СћР В Р’В Р В РІР‚В Р В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р В РІР‚В¦Р В Р Р‹Р В Р РЏ ${completedOrder} Р В Р’В Р РЋРІР‚СћР В Р Р‹Р Р†Р вЂљРЎвЂєР В Р’В Р РЋРІР‚СћР В Р Р‹Р В РІР‚С™Р В Р’В Р РЋР’ВР В Р’В Р вЂ™Р’В»Р В Р’В Р вЂ™Р’ВµР В Р’В Р В РІР‚В¦Р В Р’В Р РЋРІР‚Сћ`);
     });
     document.addEventListener("focusin", (event) => {
       const activeSurface = getActiveSurface();
@@ -1071,8 +1088,12 @@
 
     renderHeroLatest();
     renderTeams();
+    document.documentElement.scrollLeft = 0;
+    document.body.scrollLeft = 0;
     if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
     renderCart();
+
+
 
 
 

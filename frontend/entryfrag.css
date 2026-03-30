@@ -1,4 +1,4 @@
-﻿:root{
+:root{
   --bg:#f4efe8;
   --card:#ffffffd9;
   --text:#121212;
@@ -37,10 +37,8 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;max-width:100%;overflow-x:hidden}
+html{scroll-behavior:smooth;overflow-x:clip}
 body{
-  max-width:100%;
-  overflow-x:hidden;
   font-family:"Segoe UI",Tahoma,sans-serif;
   font-size:var(--font-body);
   line-height:1.5;
@@ -50,6 +48,9 @@ body{
     linear-gradient(180deg,#f8f4ef,#eee5db);
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
+  width:100%;
+  max-width:100%;
+  overflow-x:clip;
 }
 
 body.scroll-locked{
@@ -78,8 +79,11 @@ img{display:block;max-width:100%}
 
 .wrap{
   width:min(var(--content-max),calc(100% - (var(--page-gutter) * 2)));
+  max-width:calc(100dvw - (var(--page-gutter) * 2));
   margin:0 auto;
 }
+
+main,section,.wrap,.hero-grid,.about,.products,.categories,.teams-grid,.team-products .products,.card,.meta,.row,.actions-group,.product-body,.product-media,.product-copy{min-width:0}
 
 .header{
   position:sticky;
@@ -92,6 +96,7 @@ img{display:block;max-width:100%}
   padding:10px 12px;
   margin:12px auto 0;
   width:min(var(--content-max),calc(100% - (var(--page-gutter) * 2)));
+  max-width:calc(100dvw - (var(--page-gutter) * 2));
   background:#ffffffe8;
   border:1px solid #ffffffaa;
   border-radius:var(--radius-lg);
@@ -257,9 +262,7 @@ body.menu-open .header-panel{
 
 .hero{padding:20px 0 18px}
 .hero-grid,.about,.products,.categories,.teams-grid{display:grid;gap:var(--section-gap)}
-.hero-grid,.categories,.products,.about,.teams-grid,.team-products .products,.product-body{
-  max-width:100%;
-  overflow-x:hidden;grid-template-columns:1fr}
+.hero-grid,.categories,.products,.about,.teams-grid,.team-products .products,.product-body{grid-template-columns:1fr}
 .hero-main,.hero-side,.card,.info,.category{border-radius:var(--radius-lg);box-shadow:var(--shadow)}
 
 .hero-main{
@@ -852,8 +855,6 @@ body.sizechart-open .sizechart-modal{opacity:1;visibility:visible;transform:tran
 .product-head > div{min-width:0}
 .product-head h3{font-size:1.15rem;text-transform:uppercase;line-height:1.05}
 .product-body{
-  max-width:100%;
-  overflow-x:hidden;
   display:grid;
   gap:12px;
   overflow:auto;
@@ -862,7 +863,7 @@ body.sizechart-open .sizechart-modal{opacity:1;visibility:visible;transform:tran
   padding-bottom:2px;
 }
 
-.product-media,.product-copy{
+ .product-media,.product-copy{
   background:#ffffffd9;
   border:1px solid var(--line);
   border-radius:var(--radius-lg);
@@ -870,7 +871,7 @@ body.sizechart-open .sizechart-modal{opacity:1;visibility:visible;transform:tran
 }
 
 .product-media{display:grid;grid-template-rows:auto auto;gap:12px;min-height:0}
-.product-main-shot{border-radius:var(--radius-md);min-height:280px;padding:14px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.product-main-shot{border-radius:var(--radius-md);min-height:280px;padding:14px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;background:#fff center/contain no-repeat;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);aspect-ratio:1 / 1}
 .product-thumbs{
   display:grid;
   grid-auto-flow:column;
@@ -880,10 +881,10 @@ body.sizechart-open .sizechart-modal{opacity:1;visibility:visible;transform:tran
   overscroll-behavior-x:contain;
   padding-bottom:2px;
 }
-.product-thumb{border:1px solid var(--line);border-radius:var(--radius-sm);min-height:72px;padding:8px;display:grid;place-items:center;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 2px transparent}
+.product-thumb{border:1px solid var(--line);border-radius:var(--radius-sm);min-height:72px;padding:8px;display:grid;place-items:center;overflow:hidden;background:#fff center/contain no-repeat;box-shadow:inset 0 0 0 2px transparent;aspect-ratio:1 / 1}
 .product-thumb.active{box-shadow:inset 0 0 0 2px var(--red)}
-.product-main-shot img,.product-thumb img{width:100%;height:100%;object-fit:contain;object-position:center;pointer-events:none}
-.product-copy{display:grid;align-content:start;gap:14px;overflow:visible}
+.product-main-shot img,.product-thumb img{display:block;width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;object-position:center;pointer-events:none}
+.product-copy{display:grid;align-content:start;gap:14px;overflow:visible;min-width:0}
 .product-copy p{color:var(--muted);line-height:1.6}
 .product-meta{display:grid;gap:10px;padding:14px;border-radius:var(--radius-md);background:#fff7f2;border:1px solid var(--line)}
 .product-meta-actions{display:flex;justify-content:flex-end}
@@ -1246,9 +1247,7 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .products{grid-template-columns:repeat(2,minmax(0,1fr))}
   .about{grid-template-columns:.95fr 1.05fr}
   .team-products .products{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .product-body{
-  max-width:100%;
-  overflow-x:hidden;grid-template-columns:1.05fr .95fr}
+  .product-body{grid-template-columns:1.05fr .95fr}
 
   .hero-main{padding:42px}
   .hero-side{padding:26px}
@@ -1308,10 +1307,8 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .promo-row{grid-template-columns:1fr auto}
   .product-head{position:static;flex-direction:row;align-items:center;justify-content:space-between;padding:0;background:transparent}
   .product-head h3{font-size:1.7rem}
-  .product-body{
-  max-width:100%;
-  overflow-x:hidden;grid-template-columns:1.05fr .95fr;overflow:hidden;padding-bottom:0}
-  .product-media,.product-copy{padding:20px}
+  .product-body{grid-template-columns:1.05fr .95fr;overflow:hidden;padding-bottom:0}
+   .product-media,.product-copy{padding:20px}
   .product-main-shot{min-height:420px;padding:20px}
   .product-thumbs{display:grid;grid-auto-flow:row;grid-auto-columns:auto;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));overflow:visible;padding-bottom:0}
   .product-thumb{min-height:92px}
@@ -1330,4 +1327,6 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .drawer{padding:24px;gap:18px}
   .drawer h3{font-size:1.45rem}
 }
+
+
 
