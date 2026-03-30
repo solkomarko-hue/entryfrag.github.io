@@ -576,7 +576,11 @@
       const product = products.get(activeProductId);
       if (!product || !product.images.length) return;
       activeProductImage = index;
-      productMainShot.style.backgroundImage = `url('${resolveDetailImage(product.images[index])}')`;
+      const mainImage = productMainShot.querySelector("img");
+      if (mainImage) {
+        mainImage.src = resolveDetailImage(product.images[index]);
+        mainImage.alt = product.name;
+      }
       productThumbs.querySelectorAll(".product-thumb").forEach((thumb, thumbIndex) => {
         thumb.classList.toggle("active", thumbIndex === index);
       });
@@ -591,8 +595,11 @@
       productPrice.textContent = money(product.price);
       productDescription.textContent = product.description;
       productSizeChart.hidden = !product.sizeChart;
+      productMainShot.innerHTML = `<img src="" alt="" decoding="async">`;
       productThumbs.innerHTML = product.images.map((image, index) => `
-        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" style="background-image:url('${resolveDetailImage(image)}')" type="button" aria-label="Фото ${index + 1}"></button>
+        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" type="button" aria-label="Image ${index + 1}">
+          <img src="${resolveDetailImage(image)}" alt="" decoding="async">
+        </button>
       `).join("");
       productSizes.innerHTML = product.sizes.map((size) => `
         <button class="size-chip" data-size="${size}" type="button">${size}</button>
@@ -898,7 +905,8 @@
       const product = activeProductId ? products.get(activeProductId) : null;
       if (!product) return;
       productThumbs.querySelectorAll(".product-thumb").forEach((thumb, index) => {
-        thumb.style.backgroundImage = `url('${resolveDetailImage(product.images[index])}')`;
+        const thumbImage = thumb.querySelector("img");
+        if (thumbImage) thumbImage.src = resolveDetailImage(product.images[index]);
       });
       setProductImage(activeProductImage);
     });
@@ -1065,4 +1073,6 @@
     renderTeams();
     if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
     renderCart();
+
+
 
