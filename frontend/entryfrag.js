@@ -1,4 +1,4 @@
-    const cart = new Map();
+﻿    const cart = new Map();
     const products = new Map();
     const body = document.body;
     try {
@@ -480,7 +480,10 @@
         <div class="products">
           ${items.map((item) => `
             <article class="card">
-              <div class="visual" style="background-color:#f4f0ea;background-image:linear-gradient(180deg,rgba(255,255,255,.02),rgba(0,0,0,.08)),url('${resolveCatalogImage(item.images[0] || "image.png.png")}');background-position:center;background-size:contain;background-repeat:no-repeat"><span class="tag">${item.category}</span></div>
+              <div class="visual">
+                <img class="visual-preview" src="${resolveCatalogImage(item.images[0] || "image.png.png")}" alt="" loading="eager" decoding="sync">
+                <span class="tag">${item.category}</span>
+              </div>
               <div class="meta">
                 <h3>${item.name}</h3>
                 <p>${item.description}</p>
@@ -726,7 +729,7 @@
       `).join("");
     }
 
-    document.querySelectorAll(".products .card").forEach((card) => {
+    document.querySelectorAll(".products .card").forEach((card, cardIndex) => {
       const button = card.querySelector(".add-btn");
       const title = card.querySelector(".meta h3");
       const description = card.querySelector(".meta p")?.textContent?.trim() || "";
@@ -765,7 +768,8 @@
         visual.innerHTML = `<span class="tag">${product.category}</span>`;
         visual.style.backgroundColor = "#f4f0ea";
         visual.style.backgroundImage = "";
-        queueDeferredBackground(visual, resolveCatalogImage(product.images[0]), "visual");
+        const eagerCardLimit = phoneHeroMedia.matches ? 2 : desktopHeaderMedia.matches ? 6 : 4;
+        queueDeferredBackground(visual, resolveCatalogImage(product.images[0]), "visual", cardIndex < eagerCardLimit);
       }
       visual.classList.add("is-clickable");
       title.classList.add("is-link");
@@ -1061,3 +1065,4 @@
     renderTeams();
     if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
     renderCart();
+

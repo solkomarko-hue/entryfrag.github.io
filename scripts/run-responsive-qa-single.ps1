@@ -559,6 +559,13 @@ function Run-QaScenario {
   $deepLinkPath = Join-Path $ScenarioDir '06-deeplink.png'
   $teamPath = Join-Path $ScenarioDir '07-team.png'
 
+  Open-Page -Url "$baseUrl#product-$productId"
+  Wait-ForCondition -Expression "document.body.classList.contains('product-open') && location.hash === '#product-$productId'" -Description 'product deep link open'
+  Save-Screenshot -Path $deepLinkPath
+  $checks.Add([ordered]@{ name = 'Product deep link'; pass = $true; note = "Direct hash navigation opened product detail for $productId." })
+  Open-Page -Url $baseUrl
+  Wait-ForCondition -Expression "document.querySelectorAll('.products .card').length > 0" -Description 'catalog after deep link return'
+
   $menuSupported = Invoke-Js -Expression "window.getComputedStyle(document.getElementById('menuToggle')).display !== 'none'"
   if ($menuSupported) {
     Invoke-Js -Expression "document.getElementById('menuToggle').click(); true;" | Out-Null
@@ -601,6 +608,7 @@ function Run-QaScenario {
 })()
 "@ | Out-Null
   Wait-ForCondition -Expression "document.body.classList.contains('team-open') && document.querySelectorAll('#teamProducts .card').length > 0" -Description 'team modal open'
+  Wait-ForCondition -Expression "Array.from(document.querySelectorAll('#teamProducts .visual img')).every((img) => img.complete && img.naturalWidth > 0)" -Description 'team modal images'
   Save-Screenshot -Path $teamPath
   Invoke-Js -Expression "document.getElementById('closeTeamModal').click(); true;" | Out-Null
   Wait-ForCondition -Expression "!document.body.classList.contains('team-open')" -Description 'team modal close'
@@ -653,6 +661,7 @@ function Run-QaScenario {
   $checks.Add([ordered]@{ name = 'Invalid form submission'; pass = $true; note = 'Submitting an empty checkout form showed a validation toast and kept checkout open.' })
 
   Prepare-CheckoutForm -ViewportName $ViewportName
+  Invoke-Js -Expression "document.getElementById('toast').classList.remove('show'); document.getElementById('toast').textContent = ''; true;" | Out-Null
   Click-CheckoutSubmit
   Start-Sleep -Seconds 2
   $actualSubmitState = Invoke-Js -Expression @"
@@ -665,6 +674,7 @@ function Run-QaScenario {
   return 'closed-without-success';
 })()
 "@
+  Set-Content -Path (Join-Path $ScenarioDir 'actual-submit.txt') -Value $actualSubmitState -Encoding utf8
   $checks.Add([ordered]@{ name = 'Actual submit flow'; pass = $true; note = "Observed real submit result: $actualSubmitState" })
 
   if (-not (Invoke-Js -Expression "document.body.classList.contains('success-open')")) {
@@ -677,13 +687,11 @@ function Run-QaScenario {
       Disable-SuccessSubmitStub
     }
   }
-  Set-Content -Path (Join-Path $ScenarioDir '_checkpoint.txt') -Value 'before-success-shot' -Encoding utf8
   Save-Screenshot -Path $successPath
   $checks.Add([ordered]@{ name = 'Success modal'; pass = $true; note = 'Frontend success state opened and focus moved into the success modal.' })
   Invoke-Js -Expression "document.getElementById('closeSuccessModal').click(); true;" | Out-Null
   Wait-ForCondition -Expression "!document.body.classList.contains('success-open')" -Description 'success modal close'
 
-  Set-Content -Path (Join-Path $ScenarioDir '_checkpoint.txt') -Value 'before-deeplink' -Encoding utf8
   Invoke-Js -Expression @"
 (() => {
   location.hash = '#product-$productId';
@@ -691,18 +699,14 @@ function Run-QaScenario {
 })()
 "@ | Out-Null
   Wait-ForCondition -Expression "document.body.classList.contains('product-open') && location.hash === '#product-$productId'" -Description 'product deep link open'
-  Set-Content -Path (Join-Path $ScenarioDir '_checkpoint.txt') -Value 'deeplink-open' -Encoding utf8
   Save-Screenshot -Path $deepLinkPath
-  Set-Content -Path (Join-Path $ScenarioDir '_checkpoint.txt') -Value 'after-deeplink-shot' -Encoding utf8
-  $deepLinkTitle = Invoke-Js -Expression "document.getElementById('productTitle').textContent.trim()"
-  Set-Content -Path (Join-Path $ScenarioDir '_checkpoint.txt') -Value 'after-deeplink-title' -Encoding utf8
-  $checks.Add([ordered]@{ name = 'Product deep link'; pass = $true; note = "Direct hash navigation opened product detail for $deepLinkTitle." })
+  $checks.Add([ordered]@{ name = 'Product deep link'; pass = $true; note = "Direct hash navigation opened product detail for $productId." })
 
-  return [ordered]@{
+  $scenarioResult = [ordered]@{
     viewport = $ViewportName
     width = $Width
     height = $Height
-    checks = $checks
+    checks = @($checks)
     screens = [ordered]@{
       catalog = $catalogPath
       product = $productPath
@@ -713,6 +717,8 @@ function Run-QaScenario {
       team = $teamPath
     }
   }
+  $scenarioResult | ConvertTo-Json -Depth 12 | Set-Content -Path (Join-Path $ScenarioDir 'qa-results.json') -Encoding utf8
+  return $scenarioResult
 }
 
 try {
@@ -724,8 +730,12 @@ try {
   Start-EntryfragServer
   Start-ChromeSession -ChromePath $chromePath -Port 9222
 
+  $scenarioName = if ($env:ENTRYFRAG_QA_NAME) { $env:ENTRYFRAG_QA_NAME } else { 'phone-360x800' }
+  $scenarioWidth = if ($env:ENTRYFRAG_QA_WIDTH) { [int]$env:ENTRYFRAG_QA_WIDTH } else { 360 }
+  $scenarioHeight = if ($env:ENTRYFRAG_QA_HEIGHT) { [int]$env:ENTRYFRAG_QA_HEIGHT } else { 800 }
+  $scenarioMobile = if ($env:ENTRYFRAG_QA_MOBILE) { [System.Convert]::ToBoolean($env:ENTRYFRAG_QA_MOBILE) } else { $true }
   $scenarios = @(
-    (Run-QaScenario -ViewportName 'phone-360x800' -Width 360 -Height 800 -Mobile $true -ScenarioDir (Join-Path $outputPath 'phone-360x800'))
+    (Run-QaScenario -ViewportName $scenarioName -Width $scenarioWidth -Height $scenarioHeight -Mobile $scenarioMobile -ScenarioDir (Join-Path $outputPath $scenarioName))
   )
 
   $summary = [ordered]@{

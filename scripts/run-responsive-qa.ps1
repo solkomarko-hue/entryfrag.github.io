@@ -559,6 +559,13 @@ function Run-QaScenario {
   $deepLinkPath = Join-Path $ScenarioDir '06-deeplink.png'
   $teamPath = Join-Path $ScenarioDir '07-team.png'
 
+  Open-Page -Url "$baseUrl#product-$productId"
+  Wait-ForCondition -Expression "document.body.classList.contains('product-open') && location.hash === '#product-$productId'" -Description 'product deep link open'
+  Save-Screenshot -Path $deepLinkPath
+  $checks.Add([ordered]@{ name = 'Product deep link'; pass = $true; note = "Direct hash navigation opened product detail for $productId." })
+  Open-Page -Url $baseUrl
+  Wait-ForCondition -Expression "document.querySelectorAll('.products .card').length > 0" -Description 'catalog after deep link return'
+
   $menuSupported = Invoke-Js -Expression "window.getComputedStyle(document.getElementById('menuToggle')).display !== 'none'"
   if ($menuSupported) {
     Invoke-Js -Expression "document.getElementById('menuToggle').click(); true;" | Out-Null
@@ -690,14 +697,13 @@ function Run-QaScenario {
 "@ | Out-Null
   Wait-ForCondition -Expression "document.body.classList.contains('product-open') && location.hash === '#product-$productId'" -Description 'product deep link open'
   Save-Screenshot -Path $deepLinkPath
-  $deepLinkTitle = Invoke-Js -Expression "document.getElementById('productTitle').textContent.trim()"
-  $checks.Add([ordered]@{ name = 'Product deep link'; pass = $true; note = "Direct hash navigation opened product detail for $deepLinkTitle." })
+  $checks.Add([ordered]@{ name = 'Product deep link'; pass = $true; note = "Direct hash navigation opened product detail for $productId." })
 
   return [ordered]@{
     viewport = $ViewportName
     width = $Width
     height = $Height
-    checks = $checks
+    checks = @($checks)
     screens = [ordered]@{
       catalog = $catalogPath
       product = $productPath
