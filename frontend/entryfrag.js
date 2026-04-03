@@ -576,7 +576,7 @@
     };
     const setFrameImage = (frame, src, alt = "") => {
       if (!frame) return;
-      frame.style.backgroundImage = src ? `url("${src}")` : "";
+      frame.style.backgroundImage = "";
       const frameImage = frame.querySelector("img");
       if (!frameImage) return;
       frameImage.src = src || "";
@@ -612,9 +612,6 @@
         </button>
       `;
       }).join("");
-      productThumbs.querySelectorAll(".product-thumb").forEach((thumb) => {
-        thumb.style.backgroundImage = thumb.dataset.imageSrc ? `url("${thumb.dataset.imageSrc}")` : "";
-      });
       productSizes.innerHTML = product.sizes.map((size) => `
         <button class="size-chip" data-size="${size}" type="button">${size}</button>
       `).join("");
