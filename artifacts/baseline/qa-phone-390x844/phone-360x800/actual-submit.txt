@@ -1,1 +1,1 @@
-﻿checkout-open
+﻿checkout-open:Не вдалося надіслати замовлення
