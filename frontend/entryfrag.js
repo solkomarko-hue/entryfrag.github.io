@@ -380,6 +380,14 @@
       element.style.backgroundSize = "contain";
       element.style.backgroundRepeat = "no-repeat";
     };
+    const applyContainedPreview = (element, src) => {
+      if (!element || !src) return;
+      element.style.backgroundColor = "#fbf7f2";
+      element.style.backgroundImage = `url('${src}')`;
+      element.style.backgroundPosition = "center";
+      element.style.backgroundSize = "contain";
+      element.style.backgroundRepeat = "no-repeat";
+    };
     const applyCoverPreview = (element, src) => {
       if (!element || !src) return;
       element.style.backgroundImage = `url('${src}')`;
@@ -395,6 +403,7 @@
         const mode = element.dataset.lazyMode || "cover";
         if (source) {
           if (mode === "visual") applyVisualPreview(element, source);
+          else if (mode === "contain") applyContainedPreview(element, source);
           else applyCoverPreview(element, source);
         }
         element.removeAttribute("data-lazy-bg");
@@ -408,12 +417,50 @@
       const isNearViewport = rect.top < (window.innerHeight + 320) && rect.bottom > -320;
       if (eager || !lazyImageObserver || isNearViewport) {
         if (mode === "visual") applyVisualPreview(element, src);
+        else if (mode === "contain") applyContainedPreview(element, src);
         else applyCoverPreview(element, src);
         return;
       }
       element.dataset.lazyBg = src;
       element.dataset.lazyMode = mode;
       lazyImageObserver.observe(element);
+    };
+    const productCards = [];
+    const clearDeferredBackground = (element) => {
+      if (!element) return;
+      element.style.backgroundImage = "";
+      element.style.backgroundColor = "";
+      element.removeAttribute("data-lazy-bg");
+      element.removeAttribute("data-lazy-mode");
+      if (lazyImageObserver) lazyImageObserver.unobserve(element);
+    };
+    const renderCardVisual = (visual, product, cardIndex = 0) => {
+      if (!visual || !product?.images?.length) return;
+      const eagerCardLimit = phoneHeroMedia.matches ? 2 : desktopHeaderMedia.matches ? 6 : 4;
+      const useGalleryLayout = product.images.length > 1 && !phoneHeroMedia.matches;
+
+      clearDeferredBackground(visual);
+      visual.classList.toggle("gallery", useGalleryLayout);
+
+      if (useGalleryLayout) {
+        visual.dataset.shotCount = String(product.images.length);
+        visual.innerHTML = `${product.images.map(() => '<div class="gallery-shot" aria-hidden="true"></div>').join("")}<span class="tag">${product.category}</span>`;
+        [...visual.querySelectorAll(".gallery-shot")].forEach((shot, index) => {
+          clearDeferredBackground(shot);
+          queueDeferredBackground(shot, resolveCatalogImage(product.images[index]), "contain", cardIndex < eagerCardLimit && index < 2);
+        });
+        return;
+      }
+
+      delete visual.dataset.shotCount;
+      visual.innerHTML = `<span class="tag">${product.category}</span>`;
+      queueDeferredBackground(visual, resolveCatalogImage(product.images[0]), "visual", cardIndex < eagerCardLimit);
+    };
+    const rerenderProductCards = () => {
+      productCards.forEach(({ visual, productId, cardIndex }) => {
+        const product = products.get(productId);
+        if (product) renderCardVisual(visual, product, cardIndex);
+      });
     };
     const parseSizes = (button, description) => button.dataset.sizes ? button.dataset.sizes.split(",").map((size) => size.trim()).filter(Boolean) : description.includes("S-M-L") ? [...defaultSizes] : [...defaultSizes];
     const parseOptions = (button) => button.dataset.options ? button.dataset.options.split(",").map((option) => option.trim()).filter(Boolean) : [];
@@ -772,6 +819,7 @@
 
       products.set(product.id, product);
       card.dataset.productId = product.id;
+      productCards.push({ visual, productId: product.id, cardIndex });
       if (price && !row.querySelector(".price-block")) {
         const priceBlock = document.createElement("div");
         priceBlock.className = "price-block";
@@ -782,12 +830,7 @@
         priceBlock.append(oldPrice, price);
       }
       if (product.images.length) {
-        visual.classList.remove("gallery");
-        visual.innerHTML = `<span class="tag">${product.category}</span>`;
-        visual.style.backgroundColor = "#f4f0ea";
-        visual.style.backgroundImage = "";
-        const eagerCardLimit = phoneHeroMedia.matches ? 2 : desktopHeaderMedia.matches ? 6 : 4;
-        queueDeferredBackground(visual, resolveCatalogImage(product.images[0]), "visual", cardIndex < eagerCardLimit);
+        renderCardVisual(visual, product, cardIndex);
       }
       visual.classList.add("is-clickable");
       title.classList.add("is-link");
@@ -911,8 +954,10 @@
       closeHeaderMenu();
     });
     desktopHeaderMedia.addEventListener("change", syncHeaderMenu);
+    desktopHeaderMedia.addEventListener("change", rerenderProductCards);
     phoneHeroMedia.addEventListener("change", () => {
       renderHeroLatest();
+      rerenderProductCards();
       document.documentElement.scrollLeft = 0;
       document.body.scrollLeft = 0;
       const product = activeProductId ? products.get(activeProductId) : null;

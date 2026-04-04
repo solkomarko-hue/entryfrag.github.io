@@ -511,18 +511,19 @@ body.team-open .team-modal{opacity:1;visibility:visible;transform:translateY(0)}
 }
 
 .visual{
-  min-height:220px;
-  padding:14px;
+  min-height:280px;
+  padding:16px;
   border-radius:var(--radius-md);
   display:flex;
   align-items:flex-end;
   position:relative;
   overflow:hidden;
-  background:var(--art,#f4f0ea center/cover no-repeat);
+  background:var(--art,#f4f0ea center/contain no-repeat);
 }
 
-.visual::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.22))}
+.visual::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.18))}
 .visual img{position:absolute;top:16px;right:16px;width:72px;opacity:.16;filter:grayscale(1)}
+.visual .tag{position:relative;z-index:1}
 .visual .visual-preview{
   top:14px;
   right:14px;
@@ -541,15 +542,23 @@ body.team-open .team-modal{opacity:1;visibility:visible;transform:translateY(0)}
 .visual.gallery{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;
+  gap:10px;
   align-items:stretch;
-  padding:10px;
-  background:linear-gradient(145deg,#1a1a1a,#4f4f4f);
+  padding:12px;
+  background:linear-gradient(160deg,#f4ede3,#dfd2c2);
 }
 
-.visual.gallery::after{background:linear-gradient(180deg,transparent,rgba(0,0,0,.16))}
-.visual.gallery .tag{position:absolute;left:10px;bottom:10px;z-index:2}
-.gallery-shot{border-radius:var(--radius-sm);background-position:center;background-size:cover;min-height:136px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.visual.gallery::after{background:linear-gradient(180deg,transparent,rgba(0,0,0,.08))}
+.visual.gallery .tag{position:absolute;left:12px;bottom:12px;z-index:2}
+.gallery-shot{
+  border-radius:var(--radius-sm);
+  background-position:center;
+  background-size:contain;
+  background-repeat:no-repeat;
+  min-height:124px;
+  background-color:rgba(255,255,255,.84);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);
+}
 .visual.is-clickable,.meta h3.is-link{cursor:pointer}
 .visual.is-clickable:hover,.meta h3.is-link:hover{opacity:.94}
 
@@ -1224,7 +1233,7 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .visual{min-height:360px;padding:18px}
   .visual.gallery{padding:12px}
   .visual.gallery .tag{left:12px;bottom:12px}
-  .gallery-shot{min-height:210px}
+  .gallery-shot{min-height:180px}
   .stats div{flex:1 1 150px}
   .sizechart-shot{height:360px}
   .drawer{padding:20px}
@@ -1301,7 +1310,8 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .info,.list{padding:28px}
   .footer-bar,.footer-social{padding:22px 26px}
   .visual{min-height:440px;padding:22px}
-  .gallery-shot{min-height:230px}
+  .visual.gallery[data-shot-count="3"],.visual.gallery[data-shot-count="5"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .gallery-shot{min-height:170px}
   .product-modal,.sizechart-modal,.team-modal,.checkout-modal{
     inset:20px;
     width:auto;
