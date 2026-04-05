@@ -1296,7 +1296,7 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
 
   .cart-btn{order:3;justify-self:auto}
 
-  .hero-grid{grid-template-columns:1.1fr .9fr}
+  .hero-grid{grid-template-columns:1.1fr .9fr;align-items:start}
   .categories,.teams-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
   .products{grid-template-columns:repeat(2,minmax(0,1fr))}
   .about{grid-template-columns:.95fr 1.05fr}
@@ -1384,4 +1384,3 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .drawer{padding:24px;gap:18px}
   .drawer h3{font-size:1.45rem}
 }
-
