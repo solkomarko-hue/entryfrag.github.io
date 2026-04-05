@@ -1163,8 +1163,26 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
 }
 
 @media (max-width:767px){
-  .hero-side{width:min(100%,340px);margin-inline:auto}
+  .header{
+    max-width:340px;
+    gap:8px;
+    padding:8px 10px;
+  }
+  .brand{gap:8px}
+  .brand img{width:36px;height:36px;padding:6px}
+  .brand strong{font-size:.86rem;letter-spacing:.1em}
+  .menu-toggle{width:40px;min-width:40px;height:40px}
+  .cart-btn{gap:6px;padding:8px 10px;font-size:.72rem}
+  .count{min-width:24px;min-height:24px;font-size:.72rem}
+  .hero{padding:16px 0}
+  .hero-grid{gap:14px}
+  .hero-main,.hero-side{width:min(100%,340px);margin-inline:auto}
+  .hero-main{padding:16px}
+  .hero-main h1{font-size:clamp(1.85rem,8.8vw,2.45rem)}
+  .hero-main p{font-size:.92rem}
+  .hero-side{padding:14px}
   .hero-side img{width:min(100%,180px);max-height:180px}
+  .hero-note{padding:12px}
   .product-body{gap:16px;padding-bottom:12px}
   .product-media{
     grid-template-rows:minmax(0,1fr) auto;
