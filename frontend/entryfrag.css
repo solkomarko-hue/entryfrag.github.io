@@ -1296,15 +1296,15 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
 
   .cart-btn{order:3;justify-self:auto}
 
-  .hero-grid{grid-template-columns:1.1fr .9fr;align-items:start}
+  .hero-grid{grid-template-columns:1.1fr .9fr;align-items:stretch}
   .categories,.teams-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
   .products{grid-template-columns:repeat(2,minmax(0,1fr))}
   .about{grid-template-columns:.95fr 1.05fr}
   .team-products .products{grid-template-columns:repeat(2,minmax(0,1fr))}
   .product-body{grid-template-columns:1.05fr .95fr}
 
-  .hero-main{padding:42px}
-  .hero-side{gap:14px;padding:20px}
+  .hero-main{display:flex;flex-direction:column;justify-content:flex-start;padding:42px;height:100%}
+  .hero-side{gap:14px;justify-content:space-between;padding:20px;height:100%}
   .hero-side img{width:min(100%,190px);max-height:190px}
   .hero-note{padding:18px}
   .card{padding:24px}
