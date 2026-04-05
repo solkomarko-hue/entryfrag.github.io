@@ -1304,8 +1304,9 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .product-body{grid-template-columns:1.05fr .95fr}
 
   .hero-main{padding:42px}
-  .hero-side{padding:26px}
-  .hero-note{padding:22px}
+  .hero-side{gap:14px;padding:20px}
+  .hero-side img{width:min(100%,190px);max-height:190px}
+  .hero-note{padding:18px}
   .card{padding:24px}
   .info,.list{padding:28px}
   .footer-bar,.footer-social{padding:22px 26px}
