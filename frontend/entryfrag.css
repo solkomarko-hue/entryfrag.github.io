@@ -78,8 +78,8 @@ input,select,textarea{font:inherit}
 img{display:block;max-width:100%}
 
 .wrap{
-  width:min(var(--content-max),calc(100% - (var(--page-gutter) * 2)));
-  max-width:calc(100dvw - (var(--page-gutter) * 2));
+  width:min(var(--content-max),100%);
+  padding-inline:var(--page-gutter);
   margin:0 auto;
 }
 
@@ -95,8 +95,7 @@ main,section,.wrap,.hero-grid,.about,.products,.categories,.teams-grid,.team-pro
   gap:10px;
   padding:10px 12px;
   margin:12px auto 0;
-  width:min(var(--content-max),calc(100% - (var(--page-gutter) * 2)));
-  max-width:calc(100dvw - (var(--page-gutter) * 2));
+  width:min(var(--content-max),100%);
   background:#ffffffe8;
   border:1px solid #ffffffaa;
   border-radius:var(--radius-lg);
@@ -292,6 +291,7 @@ body.menu-open .header-panel{
   letter-spacing:-.04em;
   text-transform:uppercase;
   max-width:none;
+  overflow-wrap:anywhere;
 }
 
 .hero-main p{
@@ -427,6 +427,7 @@ section.block{padding:var(--section-pad-y) 0}
   font-size:var(--font-section);
   text-transform:uppercase;
   line-height:1.02;
+  overflow-wrap:anywhere;
 }
 
 .section-head p{max-width:560px}
