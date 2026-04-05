@@ -1161,6 +1161,16 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   *,*::before,*::after{scroll-behavior:auto !important;animation:none !important;transition:none !important}
 }
 
+@media (max-width:767px){
+  .hero-side{width:min(100%,340px);margin-inline:auto}
+  .hero-side img{width:min(100%,180px);max-height:180px}
+  .product-media{grid-template-rows:minmax(0,1fr) auto;gap:12px}
+  .product-main-shot{height:clamp(260px,42vh,360px);padding:14px}
+  .product-main-shot img{width:auto;height:auto;max-width:min(100%,280px);max-height:100%;margin:auto}
+  .product-thumbs{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;overflow:visible;padding-top:6px}
+  .product-thumb{min-height:64px;min-width:64px;padding:6px;flex:0 0 64px;border-radius:var(--radius-md)}
+}
+
 @media (min-width:768px){
   :root{
     --page-gutter:24px;
