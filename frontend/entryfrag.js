@@ -437,7 +437,7 @@
     const renderCardVisual = (visual, product, cardIndex = 0) => {
       if (!visual || !product?.images?.length) return;
       const eagerCardLimit = phoneHeroMedia.matches ? 2 : desktopHeaderMedia.matches ? 6 : 4;
-      const useGalleryLayout = product.images.length > 1 && !phoneHeroMedia.matches;
+      const useGalleryLayout = false;
 
       clearDeferredBackground(visual);
       visual.classList.toggle("gallery", useGalleryLayout);
@@ -1134,7 +1134,6 @@
     document.body.scrollLeft = 0;
     if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
     renderCart();
-
 
 
 
