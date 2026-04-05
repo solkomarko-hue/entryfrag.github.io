@@ -516,6 +516,7 @@
     const hideSizeChart = (restoreFocus = true) => {
       body.classList.remove("sizechart-open");
       syncSurfaceState();
+      if (body.classList.contains("product-open")) setTimeout(() => snapProductViewport(), 340);
       if (restoreFocus) restoreSurfaceFocus("sizechart");
     };
 
@@ -669,6 +670,27 @@
       setProductImage(0);
     }
 
+    const snapProductViewport = () => {
+      productModal.scrollTop = 0;
+      productBody.scrollTop = 0;
+      productMainShot.scrollIntoView({ block: "start", inline: "nearest" });
+      requestAnimationFrame(() => {
+        productModal.scrollTop = 0;
+        productBody.scrollTop = 0;
+        productMainShot.scrollIntoView({ block: "start", inline: "nearest" });
+      });
+      setTimeout(() => {
+        productModal.scrollTop = 0;
+        productBody.scrollTop = 0;
+        productMainShot.scrollIntoView({ block: "start", inline: "nearest" });
+      }, 80);
+      setTimeout(() => {
+        productModal.scrollTop = 0;
+        productBody.scrollTop = 0;
+        productMainShot.scrollIntoView({ block: "start", inline: "nearest" });
+      }, 360);
+    };
+
     function openProduct(productId, pushHash = true, returnFocus = document.activeElement) {
       if (!products.has(productId)) return;
       rememberSurfaceFocus("product", returnFocus);
@@ -680,8 +702,7 @@
       hideSuccessModal(false);
       if (!location.hash.startsWith("#product-")) previousHash = location.hash || "#home";
       renderProduct(productId);
-      productModal.scrollTop = 0;
-      productBody.scrollTop = 0;
+      snapProductViewport();
       body.classList.add("product-open");
       syncSurfaceState();
       focusSurface(productModal, closeProduct);
@@ -893,12 +914,14 @@
       if (!sizeButton) return;
       productSizes.querySelectorAll(".size-chip").forEach((button) => button.classList.remove("active"));
       sizeButton.classList.add("active");
+      sizeButton.blur();
     });
     productOptions.addEventListener("click", (event) => {
       const optionButton = event.target.closest(".option-chip");
       if (!optionButton) return;
       productOptions.querySelectorAll(".option-chip").forEach((button) => button.classList.remove("active"));
       optionButton.classList.add("active");
+      optionButton.blur();
     });
 
     productAddToCart.addEventListener("click", () => {
@@ -918,6 +941,7 @@
     });
     productSizeChart.addEventListener("click", () => {
       const product = products.get(activeProductId);
+      productSizeChart.blur();
       openSizeChart(product);
     });
 
@@ -1134,7 +1158,3 @@
     document.body.scrollLeft = 0;
     if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
     renderCart();
-
-
-
-
