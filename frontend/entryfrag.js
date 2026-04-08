@@ -632,6 +632,9 @@
       if (!frameImage) return;
       frameImage.src = src || "";
       frameImage.alt = alt;
+      const imageKey = previewImageKey(src);
+      if (imageKey) frame.dataset.imageKey = imageKey;
+      else delete frame.dataset.imageKey;
     };
     const setProductImage = (index) => {
       const product = products.get(activeProductId);
