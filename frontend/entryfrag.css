@@ -1418,7 +1418,7 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
    .product-media,.product-copy{padding:20px}
   .product-main-shot{height:clamp(360px,60vh,620px);padding:20px}
   .product-main-shot img{width:auto;height:auto;max-width:min(100%,560px);max-height:100%;margin:auto}
-  .product-main-shot img[src$="fut1.2.jpg"]{transform:scale(1.6);transform-origin:center}
+  .product-main-shot img[src$="fut1.2.webp"]{transform:scale(1.6);transform-origin:center}
   .product-thumbs{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;overflow:visible;padding-top:6px;padding-bottom:0}
   .product-thumb{min-height:88px;min-width:88px;padding:8px;flex:0 0 88px;border-radius:var(--radius-md)}
   .product-meta{padding:18px}
