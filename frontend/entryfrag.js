@@ -781,12 +781,8 @@
 
     function renderHeroLatest() {
       const allProducts = [...products.values()];
-      const featured = allProducts.find((product) => product.id === "navi-2025-jersey");
       const latestLimit = phoneHeroMedia.matches ? 2 : 3;
-      const latestProducts = [
-        ...(featured ? [featured] : []),
-        ...allProducts.slice().reverse().filter((product) => product.id !== "navi-2025-jersey").slice(0, featured ? latestLimit - 1 : latestLimit)
-      ];
+      const latestProducts = allProducts.slice().reverse().slice(0, latestLimit);
       heroProductCount.textContent = String(allProducts.length);
       heroLatest.innerHTML = latestProducts.map((product) => `
         <button class="hero-latest-item" data-product-id="${product.id}" type="button">
