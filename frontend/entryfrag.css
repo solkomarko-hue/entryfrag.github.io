@@ -571,6 +571,44 @@ section.block{padding:var(--section-pad-y) 0}
 
 .category::before{content:"";position:absolute;inset:0;background:var(--bg-art)}
 .category>div{position:relative;z-index:1;max-width:none}
+.category-photo{
+  position:absolute;
+  top:14px;
+  right:18px;
+  width:78px;
+  aspect-ratio:3 / 4;
+  border-radius:18px;
+  background-image:var(--photo-a);
+  background-size:cover;
+  background-position:center;
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 18px 34px rgba(0,0,0,.26);
+  opacity:.96;
+  z-index:0;
+}
+
+.category-photo::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(0,0,0,.04));
+}
+
+.category-photo.photo-a{
+  transform:rotate(8deg);
+}
+
+.category-photo.photo-b{
+  top:20px;
+  right:88px;
+  width:70px;
+  border-radius:16px;
+  background-image:var(--photo-b);
+  transform:rotate(-7deg);
+  opacity:.88;
+}
+
 .category h3{margin:0;font-size:1.12rem;text-transform:uppercase;letter-spacing:.08em;line-height:1.05}
 .category p{color:rgba(255,255,255,.78);line-height:1.6}
 
@@ -1494,6 +1532,8 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .product-thumb{min-height:38px;padding:3px}
   .categories,.teams-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .category{min-height:160px;padding:18px}
+  .category-photo{width:86px;right:20px}
+  .category-photo.photo-b{right:96px;width:76px}
   .category>div{max-width:370px}
   .category h3{font-size:1.25rem}
   .team-card{min-height:var(--touch-target);padding:16px;grid-template-columns:1fr;gap:8px;align-content:end}
