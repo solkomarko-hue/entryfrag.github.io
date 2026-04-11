@@ -11,6 +11,36 @@
     const cartBtn = document.getElementById("cartBtn");
     const menuToggle = document.getElementById("menuToggle");
     const headerPanel = document.getElementById("headerPanel");
+    const siteNav = headerPanel.querySelector(".site-nav");
+    const headerPanelTop = document.createElement("div");
+    headerPanelTop.className = "header-panel-top";
+    const menuSearch = document.createElement("form");
+    menuSearch.className = "menu-search";
+    menuSearch.id = "menuSearch";
+    menuSearch.setAttribute("role", "search");
+    const menuSearchLabel = document.createElement("label");
+    menuSearchLabel.className = "visually-hidden";
+    menuSearchLabel.htmlFor = "menuSearchInput";
+    menuSearchLabel.textContent = "Search products";
+    const menuSearchInput = document.createElement("input");
+    menuSearchInput.id = "menuSearchInput";
+    menuSearchInput.type = "search";
+    menuSearchInput.placeholder = "Search jerseys, zip-ups, teams";
+    menuSearchInput.autocomplete = "off";
+    const menuSearchClear = document.createElement("button");
+    menuSearchClear.className = "menu-search-clear";
+    menuSearchClear.id = "menuSearchClear";
+    menuSearchClear.type = "button";
+    menuSearchClear.hidden = true;
+    menuSearchClear.textContent = "Clear";
+    const menuSearchStatus = document.createElement("p");
+    menuSearchStatus.className = "menu-search-status";
+    menuSearchStatus.id = "menuSearchStatus";
+    menuSearchStatus.setAttribute("aria-live", "polite");
+    menuSearch.append(menuSearchLabel, menuSearchInput, menuSearchClear);
+    headerPanelTop.append(menuSearch, menuSearchStatus);
+    if (siteNav) headerPanel.insertBefore(headerPanelTop, siteNav);
+    else headerPanel.append(headerPanelTop);
     const headerLinks = [...document.querySelectorAll(".site-nav a")];
     const desktopHeaderMedia = window.matchMedia("(min-width: 1024px)");
     const phoneHeroMedia = window.matchMedia("(max-width: 767px)");
@@ -87,6 +117,7 @@
     const surfaceReturnFocus = new Map();
     const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     let lockedScrollY = 0;
+    const catalogSections = new Map();
 
     const isVisibleElement = (element) => element instanceof HTMLElement
       && !element.hidden
@@ -361,6 +392,29 @@
     const previewImageKey = (src) => ((src || "").split("?")[0].split("/").pop() || "").replace(/(\.(png|jpe?g|webp|gif))+$/i, "");
     const previewImageExt = (src) => ((((src || "").split("?")[0].split("/").pop() || "").match(/\.(png|jpe?g|webp|gif)$/i) || [])[1] || "jpg").toLowerCase();
     const isSizeChartAsset = (src) => /rozmir/i.test(src || "");
+    const normalizeSearchText = (value) => (value || "")
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+    const updateSearchClearVisibility = () => {
+      menuSearchClear.hidden = !menuSearchInput.value.trim();
+    };
+    const updateSearchStatus = (query, matchCount) => {
+      if (!query) {
+        menuSearchStatus.textContent = "";
+        delete menuSearchStatus.dataset.state;
+        return;
+      }
+      if (!matchCount) {
+        menuSearchStatus.textContent = `No matches for "${menuSearchInput.value.trim()}"`;
+        menuSearchStatus.dataset.state = "empty";
+        return;
+      }
+      menuSearchStatus.textContent = `${matchCount} result${matchCount === 1 ? "" : "s"} for "${menuSearchInput.value.trim()}"`;
+      delete menuSearchStatus.dataset.state;
+    };
     const toPreviewSrc = (src) => {
       const key = previewImageKey(src);
       const ext = previewImageExt(src);
@@ -486,6 +540,46 @@
       if (normalized.includes("cloud9")) return "Cloud9";
       if (normalized.includes("fut")) return "FUT";
       return "\u0406\u043D\u0448\u0435";
+    };
+    const buildProductSearchText = (product) => normalizeSearchText([
+      product.name,
+      product.category,
+      product.description,
+      inferTeam(product.name),
+      product.options.join(" "),
+      product.sizes.join(" ")
+    ].join(" "));
+    const focusSearchMatch = (entry) => {
+      const target = entry?.card || document.getElementById("jerseys");
+      if (target instanceof HTMLElement) target.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" });
+    };
+    const applyCatalogSearch = (rawQuery, { scrollIntoView = false } = {}) => {
+      const query = normalizeSearchText(rawQuery);
+      const tokens = query ? query.split(" ") : [];
+      let matchCount = 0;
+      let firstMatch = null;
+
+      catalogSections.forEach((entries, section) => {
+        let visibleCount = 0;
+        entries.forEach((entry) => {
+          const matches = !tokens.length || tokens.every((token) => entry.searchText.includes(token));
+          entry.card.hidden = !matches;
+          if (!matches) return;
+          visibleCount += 1;
+          matchCount += 1;
+          if (!firstMatch) firstMatch = entry;
+        });
+        if (section instanceof HTMLElement) section.hidden = Boolean(tokens.length) && !visibleCount;
+      });
+
+      updateSearchClearVisibility();
+      updateSearchStatus(query, matchCount);
+
+      if (scrollIntoView && tokens.length) {
+        closeHeaderMenu();
+        focusSearchMatch(firstMatch);
+      }
+      return matchCount;
     };
 
     const openCart = (returnFocus = document.activeElement) => {
@@ -843,6 +937,12 @@
       products.set(product.id, product);
       card.dataset.productId = product.id;
       productCards.push({ visual, productId: product.id, cardIndex });
+      const section = card.closest("section");
+      const catalogEntry = { card, productId: product.id, section, searchText: buildProductSearchText(product) };
+      if (section instanceof HTMLElement) {
+        if (!catalogSections.has(section)) catalogSections.set(section, []);
+        catalogSections.get(section).push(catalogEntry);
+      }
       if (price && !row.querySelector(".price-block")) {
         const priceBlock = document.createElement("div");
         priceBlock.className = "price-block";
@@ -974,6 +1074,21 @@
     checkout.addEventListener("click", () => openCheckoutModal(checkout));
     menuToggle.addEventListener("click", toggleHeaderMenu);
     headerLinks.forEach((link) => link.addEventListener("click", closeHeaderMenu));
+    menuSearch.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const matchCount = applyCatalogSearch(menuSearchInput.value, { scrollIntoView: true });
+      if (normalizeSearchText(menuSearchInput.value) && !matchCount) {
+        showToast(`No products found for "${menuSearchInput.value.trim()}"`);
+      }
+    });
+    menuSearchInput.addEventListener("input", () => {
+      applyCatalogSearch(menuSearchInput.value);
+    });
+    menuSearchClear.addEventListener("click", () => {
+      menuSearchInput.value = "";
+      applyCatalogSearch("");
+      menuSearchInput.focus({ preventScroll: true });
+    });
     document.addEventListener("click", (event) => {
       if (!body.classList.contains("menu-open")) return;
       if (event.target.closest(".header")) return;
@@ -1153,6 +1268,7 @@
 
     syncSurfaceState();
     syncHeaderMenu();
+    updateSearchClearVisibility();
 
     renderHeroLatest();
     renderTeams();
