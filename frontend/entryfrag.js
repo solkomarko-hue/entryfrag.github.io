@@ -37,8 +37,12 @@
     menuSearchStatus.className = "menu-search-status";
     menuSearchStatus.id = "menuSearchStatus";
     menuSearchStatus.setAttribute("aria-live", "polite");
+    const menuSearchResults = document.createElement("div");
+    menuSearchResults.className = "menu-search-results";
+    menuSearchResults.id = "menuSearchResults";
+    menuSearchResults.hidden = true;
     menuSearch.append(menuSearchLabel, menuSearchInput, menuSearchClear);
-    headerPanelTop.append(menuSearch, menuSearchStatus);
+    headerPanelTop.append(menuSearch, menuSearchResults, menuSearchStatus);
     if (siteNav) headerPanel.insertBefore(headerPanelTop, siteNav);
     else headerPanel.append(headerPanelTop);
     const headerLinks = [...document.querySelectorAll(".site-nav a")];
@@ -415,6 +419,31 @@
       menuSearchStatus.textContent = `${matchCount} result${matchCount === 1 ? "" : "s"} for "${menuSearchInput.value.trim()}"`;
       delete menuSearchStatus.dataset.state;
     };
+    const renderSearchResults = (query, matches) => {
+      if (!query) {
+        menuSearchResults.hidden = true;
+        menuSearchResults.innerHTML = "";
+        return;
+      }
+
+      if (!matches.length) {
+        menuSearchResults.hidden = false;
+        menuSearchResults.innerHTML = `<div class="menu-search-empty">No matching items found.</div>`;
+        return;
+      }
+
+      menuSearchResults.hidden = false;
+      menuSearchResults.innerHTML = matches.slice(0, 6).map((entry) => {
+        const product = products.get(entry.productId);
+        if (!product) return "";
+        return `
+          <button class="menu-search-result" data-product-id="${product.id}" type="button">
+            <strong>${product.name}</strong>
+            <span>${product.category} • ${money(product.price)}</span>
+          </button>
+        `;
+      }).join("");
+    };
     const toPreviewSrc = (src) => {
       const key = previewImageKey(src);
       const ext = previewImageExt(src);
@@ -558,6 +587,7 @@
       const tokens = query ? query.split(" ") : [];
       let matchCount = 0;
       let firstMatch = null;
+      const matchedEntries = [];
 
       catalogSections.forEach((entries, section) => {
         let visibleCount = 0;
@@ -567,6 +597,7 @@
           if (!matches) return;
           visibleCount += 1;
           matchCount += 1;
+          matchedEntries.push(entry);
           if (!firstMatch) firstMatch = entry;
         });
         if (section instanceof HTMLElement) section.hidden = Boolean(tokens.length) && !visibleCount;
@@ -574,9 +605,11 @@
 
       updateSearchClearVisibility();
       updateSearchStatus(query, matchCount);
+      renderSearchResults(query, matchedEntries);
 
       if (scrollIntoView && tokens.length) {
         closeHeaderMenu();
+        menuSearchResults.hidden = true;
         focusSearchMatch(firstMatch);
       }
       return matchCount;
@@ -1084,12 +1117,24 @@
     menuSearchInput.addEventListener("input", () => {
       applyCatalogSearch(menuSearchInput.value);
     });
+    menuSearchInput.addEventListener("focus", () => {
+      if (menuSearchInput.value.trim()) applyCatalogSearch(menuSearchInput.value);
+    });
     menuSearchClear.addEventListener("click", () => {
       menuSearchInput.value = "";
       applyCatalogSearch("");
       menuSearchInput.focus({ preventScroll: true });
     });
+    menuSearchResults.addEventListener("click", (event) => {
+      const item = event.target.closest("[data-product-id]");
+      if (!item) return;
+      menuSearchResults.hidden = true;
+      openProduct(item.dataset.productId, true, menuSearchInput);
+    });
     document.addEventListener("click", (event) => {
+      if (!event.target.closest(".header-panel-top")) {
+        menuSearchResults.hidden = true;
+      }
       if (!body.classList.contains("menu-open")) return;
       if (event.target.closest(".header")) return;
       closeHeaderMenu();
