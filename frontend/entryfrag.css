@@ -607,6 +607,14 @@ section.block{padding:var(--section-pad-y) 0}
   display:block;
 }
 
+.category-photo.is-logo{
+  object-fit:contain;
+  object-position:center;
+  background:rgba(255,255,255,.92);
+  padding:10px;
+  border-color:rgba(255,255,255,.36);
+}
+
 .category-photo.photo-a{
   transform:rotate(8deg);
 }
