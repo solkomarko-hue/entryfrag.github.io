@@ -315,13 +315,32 @@ body.menu-open .header-panel{
 
 .menu-search-result{
   display:grid;
-  gap:3px;
+  grid-template-columns:46px minmax(0,1fr);
+  gap:10px;
   width:100%;
   padding:10px 12px;
   text-align:left;
+  align-items:center;
   border-radius:16px;
   background:#fff8f5;
   border:1px solid transparent;
+}
+
+.menu-search-thumb{
+  width:46px;
+  height:46px;
+  border-radius:12px;
+  object-fit:cover;
+  object-position:center top;
+  display:block;
+  background:#f2ebe3;
+  border:1px solid rgba(17,17,17,.06);
+}
+
+.menu-search-copy{
+  display:grid;
+  gap:3px;
+  min-width:0;
 }
 
 .menu-search-result:hover,
@@ -334,6 +353,7 @@ body.menu-open .header-panel{
 .menu-search-result strong{
   font-size:.88rem;
   line-height:1.2;
+  min-width:0;
 }
 
 .menu-search-result span{

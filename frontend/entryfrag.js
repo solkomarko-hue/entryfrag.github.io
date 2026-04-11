@@ -443,10 +443,14 @@
       menuSearchResults.innerHTML = matches.slice(0, 6).map((entry) => {
         const product = products.get(entry.productId);
         if (!product) return "";
+        const previewImage = resolveCatalogImage(product.images[0] || "image.png.png");
         return `
           <button class="menu-search-result" data-product-id="${product.id}" type="button">
-            <strong>${product.name}</strong>
-            <span>${product.category} â€¢ ${money(product.price)}</span>
+            <img class="menu-search-thumb" src="${previewImage}" alt="" loading="lazy" decoding="async">
+            <span class="menu-search-copy">
+              <strong>${product.name}</strong>
+              <span>${product.category} • ${money(product.price)}</span>
+            </span>
           </button>
         `;
       }).join("");
@@ -1375,3 +1379,4 @@
     document.body.scrollLeft = 0;
     if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
     renderCart();
+
