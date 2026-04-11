@@ -688,6 +688,29 @@
             <span class="tag">Підтвердження</span>
             <h4>Перед відправленням перевірте все ще раз</h4>
           </div>
+          <div class="checkout-payment">
+            <span class="checkout-payment-label">Спосіб оплати</span>
+            <div class="checkout-payment-options" id="paymentOptions">
+              <label class="checkout-payment-option" for="paymentFull">
+                <input id="paymentFull" name="paymentOption" type="radio" value="full_card" checked>
+                <span>
+                  <strong>Повна оплата на картку</strong>
+                  <small>Оплата всієї суми замовлення перед відправкою.</small>
+                </span>
+              </label>
+              <label class="checkout-payment-option" for="paymentPartial">
+                <input id="paymentPartial" name="paymentOption" type="radio" value="predoplata">
+                <span>
+                  <strong>Предоплата</strong>
+                  <small>Часткова оплата перед відправкою, решта при отриманні.</small>
+                </span>
+              </label>
+            </div>
+            <div class="checkout-payment-note" id="prepaymentNote" hidden>
+              <strong>Передоплата</strong>
+              <p>Для джерсі передоплата становить 200 грн. Для штанів і зіпок передоплата становить 400 грн.</p>
+            </div>
+          </div>
           <div class="checkout-confirm">
             <input id="confirmOrderDetails" name="confirmOrderDetails" type="checkbox" required>
             <label for="confirmOrderDetails">Підтверджую, що всі дані замовлення заповнені правильно, і я хочу оформити це замовлення.</label>

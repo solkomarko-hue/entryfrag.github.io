@@ -106,6 +106,8 @@
     const novaPoshtaCityList = document.getElementById("novaPoshtaCityList");
     const novaPoshtaCityRef = document.getElementById("novaPoshtaCityRef");
     const novaPoshtaBranch = document.getElementById("novaPoshtaBranch");
+    const paymentOptions = [...document.querySelectorAll('input[name="paymentOption"]')];
+    const prepaymentNote = document.getElementById("prepaymentNote");
     const confirmOrderDetails = document.getElementById("confirmOrderDetails");
 
     const defaultSizes = ["S", "M", "L"];
@@ -569,6 +571,11 @@
       if (normalized.includes("cloud9")) return "Cloud9";
       if (normalized.includes("fut")) return "FUT";
       return "\u0406\u043D\u0448\u0435";
+    };
+    const getSelectedPaymentOption = () => paymentOptions.find((input) => input.checked)?.value || "full_card";
+    const paymentOptionLabel = (value) => value === "predoplata" ? "\u041F\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430" : "\u041F\u043E\u0432\u043D\u0430 \u043E\u043F\u043B\u0430\u0442\u0430 \u043D\u0430 \u043A\u0430\u0440\u0442\u043A\u0443";
+    const syncPaymentOption = () => {
+      prepaymentNote.hidden = getSelectedPaymentOption() !== "predoplata";
     };
     const buildProductSearchText = (product) => normalizeSearchText([
       product.name,
@@ -1141,6 +1148,7 @@
     });
     desktopHeaderMedia.addEventListener("change", syncHeaderMenu);
     desktopHeaderMedia.addEventListener("change", rerenderProductCards);
+    paymentOptions.forEach((input) => input.addEventListener("change", syncPaymentOption));
     phoneHeroMedia.addEventListener("change", () => {
       renderHeroLatest();
       rerenderProductCards();
@@ -1188,6 +1196,7 @@
       const subtotal = [...cart.values()].reduce((sum, item) => sum + item.qty * item.price, 0);
       const discount = promoApplied ? Math.round(subtotal * promoDiscountPercent) : 0;
       const total = subtotal - discount;
+      const paymentOption = String(form.get("paymentOption") || getSelectedPaymentOption());
       if (!confirmOrderDetails.checked) {
         showToast("\u041F\u0456\u0434\u0442\u0432\u0435\u0440\u0434\u0456\u0442\u044C \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u0456\u0441\u0442\u044C \u0434\u0430\u043D\u0438\u0445 \u043F\u0435\u0440\u0435\u0434 \u043E\u0444\u043E\u0440\u043C\u043B\u0435\u043D\u043D\u044F\u043C \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F");
         return;
@@ -1207,6 +1216,8 @@
         `Telegram: ${form.get("customerTelegram")}`,
         `\u041C\u0456\u0441\u0442\u043E: ${novaPoshtaCity.value}`,
         `\u0412\u0456\u0434\u0434\u0456\u043B\u0435\u043D\u043D\u044F \u041D\u041F: ${form.get("novaPoshtaBranch")}`,
+        `\u041E\u043F\u043B\u0430\u0442\u0430: ${paymentOptionLabel(paymentOption)}`,
+        ...(paymentOption === "predoplata" ? ["\u041F\u0435\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430: 200 \u0433\u0440\u043D \u0437\u0430 \u0434\u0436\u0435\u0440\u0441\u0456, 400 \u0433\u0440\u043D \u0437\u0430 \u0448\u0442\u0430\u043D\u0438 \u0442\u0430 \u0437\u0456\u043F\u043A\u0438"] : []),
         ``,
         `\u0422\u043E\u0432\u0430\u0440\u0438:`,
         `${orderItems}`,
@@ -1232,6 +1243,8 @@
         subtotal,
         discount,
         total,
+        paymentOption,
+        paymentOptionLabel: paymentOptionLabel(paymentOption),
         promo: promoApplied ? "SIGNA (-5%)" : "none",
         status: "sent"
       };
@@ -1313,6 +1326,7 @@
 
     syncSurfaceState();
     syncHeaderMenu();
+    syncPaymentOption();
     updateSearchClearVisibility();
 
     renderHeroLatest();
