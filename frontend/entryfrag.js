@@ -112,6 +112,7 @@
 
     const defaultSizes = ["S", "M", "L"];
     const promoDiscountPercent = 0.05;
+    const optionPriceDelta = 100;
     let activeProductId = null;
     let activeProductImage = 0;
     let previousHash = "#home";
@@ -421,6 +422,9 @@
       menuSearchStatus.textContent = `${matchCount} result${matchCount === 1 ? "" : "s"} for "${menuSearchInput.value.trim()}"`;
       delete menuSearchStatus.dataset.state;
     };
+    const isNoNameOption = (option) => normalizeSearchText(option).includes("без імен");
+    const getOptionSurcharge = (option = "") => option && !isNoNameOption(option) ? optionPriceDelta : 0;
+    const getProductPrice = (product, option = "") => (product?.price || 0) + getOptionSurcharge(option);
     const renderSearchResults = (query, matches) => {
       if (!query) {
         menuSearchResults.hidden = true;
@@ -576,6 +580,11 @@
     const paymentOptionLabel = (value) => value === "predoplata" ? "\u041F\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430" : "\u041F\u043E\u0432\u043D\u0430 \u043E\u043F\u043B\u0430\u0442\u0430 \u043D\u0430 \u043A\u0430\u0440\u0442\u043A\u0443";
     const syncPaymentOption = () => {
       prepaymentNote.hidden = getSelectedPaymentOption() !== "predoplata";
+    };
+    const syncProductPrice = () => {
+      const product = products.get(activeProductId);
+      if (!product) return;
+      productPrice.textContent = money(getProductPrice(product, getActiveOption()));
     };
     const buildProductSearchText = (product) => normalizeSearchText([
       product.name,
@@ -807,6 +816,7 @@
       productOptions.innerHTML = product.options.map((option) => `
         <button class="option-chip" data-option="${option}" type="button">${option}</button>
       `).join("");
+      syncProductPrice();
       setProductImage(0);
     }
 
@@ -859,6 +869,7 @@
       const optionSuffix = option ? `::${option}` : "";
       const cartId = `${product.id}::${size}${optionSuffix}`;
       const optionLabel = option ? ` \u2022 ${option}` : "";
+      const unitPrice = getProductPrice(product, option);
       const item = cart.get(cartId);
       if (item) item.qty += 1;
       else cart.set(cartId, {
@@ -868,7 +879,7 @@
         category: product.category,
         size,
         option,
-        price: product.price,
+        price: unitPrice,
         qty: 1
       });
       renderCart();
@@ -1063,6 +1074,7 @@
       if (!optionButton) return;
       productOptions.querySelectorAll(".option-chip").forEach((button) => button.classList.remove("active"));
       optionButton.classList.add("active");
+      syncProductPrice();
       optionButton.blur();
     });
 
