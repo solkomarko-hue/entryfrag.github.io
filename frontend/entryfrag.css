@@ -591,6 +591,41 @@ section.block{padding:var(--section-pad-y) 0}
   transition:transform var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-med) var(--ease-standard);
 }
 
+.team-card-main{
+  display:grid;
+  grid-template-columns:46px minmax(0,1fr);
+  gap:12px;
+  align-items:center;
+  min-width:0;
+}
+
+.team-logo-badge{
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  background:linear-gradient(180deg,#fff,#f3ede5);
+  border:1px solid rgba(17,17,17,.08);
+  box-shadow:0 10px 22px rgba(17,17,17,.08);
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+}
+
+.team-logo{
+  width:78%;
+  height:78%;
+  object-fit:contain;
+  display:block;
+}
+
+.team-logo-fallback{
+  color:var(--ink);
+  font-size:1rem;
+  font-weight:900;
+  text-transform:uppercase;
+}
+
+.team-card-copy{min-width:0}
 .team-card:hover{transform:translateY(-2px);border-color:rgba(235,32,39,.22);box-shadow:0 16px 30px rgba(17,17,17,.08)}
 .team-card h3{font-size:.98rem;text-transform:uppercase;line-height:1.08}
 .team-count{margin-top:4px;font-size:.8rem;color:var(--muted);font-weight:700}
@@ -1462,6 +1497,8 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .category>div{max-width:370px}
   .category h3{font-size:1.25rem}
   .team-card{min-height:var(--touch-target);padding:16px;grid-template-columns:1fr;gap:8px;align-content:end}
+  .team-card-main{grid-template-columns:42px minmax(0,1fr);gap:10px}
+  .team-logo-badge{width:42px;height:42px;border-radius:12px}
   .team-card h3{font-size:1rem;line-height:1.05}
   .team-count{margin-top:0}
   .products,.about,.team-products .products{grid-template-columns:repeat(2,minmax(0,1fr))}

@@ -576,6 +576,24 @@
       if (normalized.includes("fut")) return "FUT";
       return "\u0406\u043D\u0448\u0435";
     };
+    const teamLogos = new Map([
+      ["Astralis", "astralislogo.jpg"],
+      ["Aurora", "auroralogo.png"],
+      ["Cloud9", "cloud9logo.jpg"],
+      ["Eternal Fire", "eternalfirelogo.png"],
+      ["Falcons", "falconslogo.jpg"],
+      ["Faze Clan", "fazeclanlogo.jpg"],
+      ["Furia", "furialogo.png"],
+      ["FUT", "futlogo.png"],
+      ["G2", "g2logo.jpg"],
+      ["NaVi", "navilogo.jpg"],
+      ["Team Liquid", "teamliquidlogo.png"],
+      ["Team Spirit", "teamspiritlogo.png"],
+      ["The MongolZ", "themongolzlogo.jpg"],
+      ["Virtus Pro", "virtusprologo.png"],
+      ["Vitality", "vitalitylogo.webp"]
+    ]);
+    const getTeamLogo = (team) => teamLogos.get(team) || "";
     const getSelectedPaymentOption = () => paymentOptions.find((input) => input.checked)?.value || "full_card";
     const paymentOptionLabel = (value) => value === "predoplata" ? "\u041F\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430" : "\u041F\u043E\u0432\u043D\u0430 \u043E\u043F\u043B\u0430\u0442\u0430 \u043D\u0430 \u043A\u0430\u0440\u0442\u043A\u0443";
     const syncPaymentOption = () => {
@@ -953,9 +971,18 @@
 
       teamsGrid.innerHTML = [...grouped.entries()].sort((a, b) => a[0].localeCompare(b[0], "uk")).map(([team, items]) => `
         <button class="team-card" data-team="${team}" type="button">
-          <div>
-            <h3>${team}</h3>
-            <div class="team-count">${items.length} \u0442\u043E\u0432\u0430\u0440(\u0456\u0432)</div>
+          <div class="team-card-main">
+            ${getTeamLogo(team) ? `
+              <span class="team-logo-badge">
+                <img class="team-logo" src="${resolveCatalogImage(getTeamLogo(team))}" alt="${team} logo" loading="lazy" decoding="async">
+              </span>
+            ` : `
+              <span class="team-logo-badge team-logo-fallback" aria-hidden="true">${team.slice(0, 1)}</span>
+            `}
+            <div class="team-card-copy">
+              <h3>${team}</h3>
+              <div class="team-count">${items.length} \u0442\u043E\u0432\u0430\u0440(\u0456\u0432)</div>
+            </div>
           </div>
           <div class="team-open">\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438</div>
         </button>
