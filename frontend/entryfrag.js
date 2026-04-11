@@ -113,6 +113,17 @@
     const defaultSizes = ["S", "M", "L"];
     const promoDiscountPercent = 0.05;
     const optionPriceDelta = 100;
+    const featuredLatestProductIds = [
+      "fut-black-jersey",
+      "fut-black-grey-jersey",
+      "g2-red-jersey",
+      "g2-green-jersey",
+      "furia-black-blue-jersey",
+      "furia-black-white-jersey",
+      "vitality-black-white-jersey",
+      "vitality-yellow-jersey",
+      "team-vitality-jersey"
+    ];
     let activeProductId = null;
     let activeProductImage = 0;
     let previousHash = "#home";
@@ -423,7 +434,7 @@
       menuSearchStatus.textContent = `${matchCount} result${matchCount === 1 ? "" : "s"} for "${menuSearchInput.value.trim()}"`;
       delete menuSearchStatus.dataset.state;
     };
-    const isNoNameOption = (option) => normalizeSearchText(option).includes("без імен");
+    const isNoNameOption = (option) => normalizeSearchText(option).includes("Р±РµР· С–РјРµРЅ");
     const getOptionSurcharge = (option = "") => option && !isNoNameOption(option) ? optionPriceDelta : 0;
     const getProductPrice = (product, option = "") => (product?.price || 0) + getOptionSurcharge(option);
     const renderSearchResults = (query, matches) => {
@@ -449,7 +460,7 @@
             <img class="menu-search-thumb" src="${previewImage}" alt="" loading="lazy" decoding="async">
             <span class="menu-search-copy">
               <strong>${product.name}</strong>
-              <span>${product.category} � ${money(product.price)}</span>
+              <span>${product.category} • ${money(product.price)}</span>
             </span>
           </button>
         `;
@@ -950,7 +961,14 @@
     function renderHeroLatest() {
       const allProducts = [...products.values()];
       const latestLimit = phoneHeroMedia.matches ? 2 : 3;
-      const latestProducts = allProducts.slice().reverse().slice(0, latestLimit);
+      const featuredProducts = featuredLatestProductIds
+        .map((id) => products.get(id))
+        .filter(Boolean);
+      const fallbackProducts = allProducts
+        .slice()
+        .reverse()
+        .filter((product) => !featuredLatestProductIds.includes(product.id));
+      const latestProducts = [...featuredProducts, ...fallbackProducts].slice(0, latestLimit);
       heroProductCount.textContent = String(allProducts.length);
       heroLatest.innerHTML = latestProducts.map((product) => `
         <button class="hero-latest-item" data-product-id="${product.id}" type="button">
