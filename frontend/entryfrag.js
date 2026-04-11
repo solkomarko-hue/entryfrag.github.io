@@ -434,8 +434,38 @@
       menuSearchStatus.textContent = `${matchCount} result${matchCount === 1 ? "" : "s"} for "${menuSearchInput.value.trim()}"`;
       delete menuSearchStatus.dataset.state;
     };
-    const isNoNameOption = (option) => normalizeSearchText(option).includes("Р±РµР· С–РјРµРЅ");
-    const getOptionSurcharge = (option = "") => option && !isNoNameOption(option) ? optionPriceDelta : 0;
+    const isNoNameOption = (option) => {
+      const normalized = normalizeSearchText(option);
+      return normalized.includes("без імені")
+        || normalized.includes("без имени")
+        || normalized.includes("no name");
+    };
+    const isVisualOption = (option) => {
+      const normalized = normalizeSearchText(option);
+      if (!normalized) return false;
+      const colorWords = [
+        "чорна",
+        "біла",
+        "біла-чорна",
+        "біло-чорна",
+        "чорно-біла",
+        "black",
+        "white",
+        "grey",
+        "gray",
+        "blue",
+        "red",
+        "green",
+        "yellow"
+      ];
+      return colorWords.includes(normalized)
+        || normalized.startsWith("фото ")
+        || normalized.startsWith("photo ");
+    };
+    const getOptionSurcharge = (option = "") => {
+      if (!option || isNoNameOption(option) || isVisualOption(option)) return 0;
+      return optionPriceDelta;
+    };
     const getProductPrice = (product, option = "") => (product?.price || 0) + getOptionSurcharge(option);
     const renderSearchResults = (query, matches) => {
       if (!query) {
@@ -460,7 +490,7 @@
             <img class="menu-search-thumb" src="${previewImage}" alt="" loading="lazy" decoding="async">
             <span class="menu-search-copy">
               <strong>${product.name}</strong>
-              <span>${product.category} • ${money(product.price)}</span>
+              <span>${product.category} вЂў ${money(product.price)}</span>
             </span>
           </button>
         `;
