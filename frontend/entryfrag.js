@@ -399,6 +399,7 @@
     const previewImageKey = (src) => ((src || "").split("?")[0].split("/").pop() || "").replace(/(\.(png|jpe?g|webp|gif))+$/i, "");
     const previewImageExt = (src) => ((((src || "").split("?")[0].split("/").pop() || "").match(/\.(png|jpe?g|webp|gif)$/i) || [])[1] || "jpg").toLowerCase();
     const isSizeChartAsset = (src) => /rozmir/i.test(src || "");
+    const isLogoAsset = (src) => /logo/i.test(src || "");
     const normalizeSearchText = (value) => (value || "")
       .toLowerCase()
       .normalize("NFKD")
@@ -456,7 +457,7 @@
       return key ? `mobile-previews/${key}.${ext}` : src;
     };
     const resolveCatalogImage = (src) => {
-      if (!src || isSizeChartAsset(src)) return src;
+      if (!src || isSizeChartAsset(src) || isLogoAsset(src)) return src;
       return toPreviewSrc(src);
     };
     const resolveDetailImage = (src) => {
