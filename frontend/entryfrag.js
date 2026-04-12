@@ -130,12 +130,14 @@
     let promoApplied = false;
     let currentOrderNumber = "";
     let cachedCities = [];
+    const sortableSectionIds = new Set(["jerseys", "zipups", "pants"]);
     const surfaceRootIds = new Set(["overlay", "drawer", "productOverlay", "productModal", "sizeChartModal", "teamModal", "checkoutModal", "successModal", "toast"]);
     const backgroundRoots = [...body.children].filter((node) => node instanceof HTMLElement && !surfaceRootIds.has(node.id) && node.tagName !== "SCRIPT");
     const surfaceReturnFocus = new Map();
     const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
     let lockedScrollY = 0;
     const catalogSections = new Map();
+    const sortableSections = new Map();
 
     const isVisibleElement = (element) => element instanceof HTMLElement
       && !element.hidden
@@ -650,6 +652,44 @@
       if (!product) return;
       productPrice.textContent = money(getProductPrice(product, getActiveOption()));
     };
+    const getSortedSectionEntries = (entries, sortValue) => [...entries].sort((a, b) => {
+      if (sortValue === "expensive") return b.product.price - a.product.price || a.originalIndex - b.originalIndex;
+      if (sortValue === "cheap") return a.product.price - b.product.price || a.originalIndex - b.originalIndex;
+      return a.originalIndex - b.originalIndex;
+    });
+    const applySectionSort = (sectionId, sortValue = "none") => {
+      const group = sortableSections.get(sectionId);
+      if (!group) return;
+      const sortedEntries = getSortedSectionEntries(group.entries, sortValue);
+      sortedEntries.forEach((entry) => group.container.append(entry.card));
+      group.sortValue = sortValue;
+      if (group.select) group.select.value = sortValue;
+    };
+    const initSectionFilters = () => {
+      sortableSections.forEach((group, sectionId) => {
+        if (!group.head || !group.container || group.select) return;
+        group.head.classList.add("section-head-has-filter");
+
+        const filterWrap = document.createElement("label");
+        filterWrap.className = "catalog-filter";
+        const filterLabel = document.createElement("span");
+        filterLabel.className = "catalog-filter-label";
+        filterLabel.textContent = "Filter";
+        const filterSelect = document.createElement("select");
+        filterSelect.className = "catalog-filter-select";
+        filterSelect.setAttribute("aria-label", `Filter ${sectionId}`);
+        filterSelect.innerHTML = `
+          <option value="none">No filter</option>
+          <option value="expensive">Most expensive</option>
+          <option value="cheap">Most cheap</option>
+          <option value="popular">Most popular</option>
+        `;
+        filterSelect.addEventListener("change", () => applySectionSort(sectionId, filterSelect.value));
+        filterWrap.append(filterLabel, filterSelect);
+        group.head.append(filterWrap);
+        group.select = filterSelect;
+      });
+    };
     const buildProductSearchText = (product) => normalizeSearchText([
       product.name,
       product.category,
@@ -1073,6 +1113,22 @@
       if (section instanceof HTMLElement) {
         if (!catalogSections.has(section)) catalogSections.set(section, []);
         catalogSections.get(section).push(catalogEntry);
+        if (sortableSectionIds.has(section.id)) {
+          if (!sortableSections.has(section.id)) {
+            sortableSections.set(section.id, {
+              section,
+              head: section.querySelector(".section-head"),
+              container: card.parentElement,
+              entries: []
+            });
+          }
+          const group = sortableSections.get(section.id);
+          group.entries.push({
+            card,
+            product,
+            originalIndex: group.entries.length
+          });
+        }
       }
       if (price && !row.querySelector(".price-block")) {
         const priceBlock = document.createElement("div");
@@ -1118,6 +1174,8 @@
 
       button.addEventListener("click", () => openProduct(product.id));
     });
+
+    initSectionFilters();
 
     heroLatest.addEventListener("click", (event) => {
       const item = event.target.closest("[data-product-id]");
