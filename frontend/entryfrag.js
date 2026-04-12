@@ -674,15 +674,15 @@
         filterWrap.className = "catalog-filter";
         const filterLabel = document.createElement("span");
         filterLabel.className = "catalog-filter-label";
-        filterLabel.textContent = "Filter";
+        filterLabel.textContent = "Фільтр";
         const filterSelect = document.createElement("select");
         filterSelect.className = "catalog-filter-select";
-        filterSelect.setAttribute("aria-label", `Filter ${sectionId}`);
+        filterSelect.setAttribute("aria-label", `Фільтр ${sectionId}`);
         filterSelect.innerHTML = `
-          <option value="none">No filter</option>
-          <option value="expensive">Most expensive</option>
-          <option value="cheap">Most cheap</option>
-          <option value="popular">Most popular</option>
+          <option value="none">Без фільтра</option>
+          <option value="expensive">Від дорогих</option>
+          <option value="cheap">Від дешевих</option>
+          <option value="popular">Популярні</option>
         `;
         filterSelect.addEventListener("change", () => applySectionSort(sectionId, filterSelect.value));
         filterWrap.append(filterLabel, filterSelect);
