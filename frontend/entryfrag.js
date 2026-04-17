@@ -307,6 +307,7 @@
     const apiBaseUrl = (window.ENTRYFRAG_API_URL || "").trim().replace(/\/$/, "");
     const isHostedSite = location.protocol.startsWith("http") && !["localhost", "127.0.0.1"].includes(location.hostname);
     const orderLoggerUrl = apiBaseUrl ? `${apiBaseUrl}/api/orders` : "/api/orders";
+    const adminAccessKey = "entryfrag-admin-access";
     const adminCredentials = {
       username: "ENTRYFRAGADMIN",
       password: "efs1mpleg0at@"
@@ -330,6 +331,9 @@
       adminLoginButton.textContent = busy ? "Checking..." : "Open admin profile";
     };
     const resetAdminAccess = () => {
+      try {
+        sessionStorage.removeItem(adminAccessKey);
+      } catch {}
       setAdminLoggedIn(false);
       adminLoginForm.reset();
       adminUsernameInput.value = "";
@@ -339,14 +343,6 @@
       adminPasswordToggle.setAttribute("aria-pressed", "false");
       adminPasswordToggle.innerHTML = "&#128065;";
     };
-    const showAdminProfile = (message = "Admin profile unlocked.") => {
-      adminProfileName.textContent = adminCredentials.username;
-      adminProfileStatus.textContent = message;
-      setAdminLoggedIn(true);
-      setAdminMessage(message, "success");
-      adminPasswordInput.value = "";
-      adminUsernameInput.value = adminCredentials.username;
-    };
     const tryAdminLogin = async (username, password) => {
       setAdminBusy(true);
       try {
@@ -355,7 +351,11 @@
           setAdminMessage("Wrong admin name or password.", "error");
           return false;
         }
-        showAdminProfile();
+        try {
+          sessionStorage.setItem(adminAccessKey, "granted");
+        } catch {}
+        setAdminMessage("Opening admin page...", "success");
+        window.location.assign("./admin.html");
         return true;
       } finally {
         setAdminBusy(false);

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENTRYFRAG | Admin</title>
+  <link rel="stylesheet" href="./frontend/admin.css">
+</head>
+<body>
+  <header class="admin-shell wrap">
+    <a class="admin-brand" href="./index.html" aria-label="Back to ENTRYFRAG">
+      <strong>ENTRYFRAG</strong>
+      <span>Admin page</span>
+    </a>
+    <div class="admin-actions">
+      <a class="admin-link" href="./index.html">Store</a>
+      <button class="admin-logout" id="adminLogoutPage" type="button">Log out</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="admin-hero">
+      <span class="admin-tag">Private</span>
+      <h1>Admin Open Space</h1>
+      <p>This page opens only after a successful admin login.</p>
+    </section>
+
+    <section class="admin-space" aria-labelledby="adminSpaceTitle">
+      <div class="admin-space-head">
+        <div>
+          <span class="admin-tag">Workspace</span>
+          <h2 id="adminSpaceTitle">Open admin page</h2>
+        </div>
+      </div>
+      <div class="admin-canvas">
+        <div class="admin-canvas-copy">
+          <strong>ENTRYFRAG Admin</strong>
+          <p>You are inside the dedicated admin page.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./frontend/admin.js"></script>
+</body>
+</html>
