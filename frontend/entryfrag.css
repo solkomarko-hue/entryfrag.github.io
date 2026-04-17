@@ -915,6 +915,192 @@ body.team-open .team-modal{opacity:1;visibility:visible;transform:translateY(0)}
 .footer-social a{display:inline-flex;align-items:center;min-height:var(--touch-target);color:#dcdcdc;text-decoration:none;font-size:1rem;border-bottom:2px solid transparent;transition:.2s}
 .footer-social a:hover{color:#fff;border-color:#fff}
 
+.footer-admin{
+  margin-top:12px;
+  padding:20px;
+  background:linear-gradient(180deg,rgba(18,18,18,.96),rgba(28,28,28,.98));
+  color:#f5f1ea;
+  border-radius:var(--radius-lg);
+  box-shadow:0 18px 44px rgba(0,0,0,.28);
+  display:grid;
+  gap:16px;
+}
+
+.footer-admin-head{display:grid;gap:10px}
+.footer-admin-head h2{
+  font-size:clamp(1.35rem,4vw,1.85rem);
+  line-height:1.1;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.footer-admin-head p{color:#cfc8bf;line-height:1.6}
+
+.admin-login{
+  display:grid;
+  gap:12px;
+}
+
+.admin-field{
+  display:grid;
+  gap:8px;
+}
+
+.admin-field span,.admin-stat span{
+  font-size:var(--font-xs);
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:#d2cabe;
+  font-weight:800;
+}
+
+.admin-field input{
+  width:100%;
+  min-height:52px;
+  padding:13px 14px;
+  border-radius:var(--radius-md);
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  font-size:16px;
+}
+
+.admin-field input::placeholder{color:#a79f94}
+.admin-field input:focus{
+  outline:2px solid rgba(235,32,39,.22);
+  outline-offset:1px;
+  border-color:rgba(235,32,39,.5);
+}
+
+.admin-submit,.admin-action{
+  min-height:52px;
+  padding:12px 18px;
+  border-radius:var(--radius-pill);
+  background:var(--red);
+  color:#fff;
+  font-weight:900;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+
+.admin-submit:hover,.admin-action:hover{background:var(--red-dark)}
+
+.admin-action-secondary{
+  background:rgba(255,255,255,.08);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.14);
+}
+
+.admin-action-secondary:hover{background:rgba(255,255,255,.14)}
+
+.admin-login-message{
+  min-height:1.5em;
+  color:#d6cfc6;
+  font-size:var(--font-sm);
+}
+
+.admin-login-message.is-error{color:#ff908f}
+.admin-login-message.is-success{color:#9ae3a6}
+
+.admin-panel{
+  display:grid;
+  gap:14px;
+}
+
+.admin-stats{
+  display:grid;
+  gap:10px;
+}
+
+.admin-stat,.admin-order,.admin-empty{
+  border-radius:var(--radius-md);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.1);
+}
+
+.admin-stat{
+  padding:14px 16px;
+  display:grid;
+  gap:6px;
+}
+
+.admin-stat strong{
+  font-size:1.25rem;
+  line-height:1.2;
+  color:#fff;
+}
+
+.admin-panel-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.admin-orders{
+  display:grid;
+  gap:12px;
+}
+
+.admin-order{
+  padding:16px;
+  display:grid;
+  gap:12px;
+}
+
+.admin-order-head{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-between;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.admin-order-head strong{
+  font-size:1rem;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+
+.admin-order-date{
+  color:#d2c9bc;
+  font-size:var(--font-sm);
+}
+
+.admin-order-summary,.admin-order-customer,.admin-order-items{
+  display:grid;
+  gap:6px;
+}
+
+.admin-order-summary span,.admin-order-customer span{
+  color:#ebe5dd;
+  line-height:1.55;
+  overflow-wrap:anywhere;
+}
+
+.admin-order-items{
+  padding-top:4px;
+  border-top:1px solid rgba(255,255,255,.1);
+}
+
+.admin-order-items strong{
+  font-size:var(--font-xs);
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:#d2cabe;
+}
+
+.admin-order-items ul{
+  display:grid;
+  gap:6px;
+  padding-left:18px;
+  color:#f5f1ea;
+}
+
+.admin-empty{
+  padding:18px;
+  color:#d6cfc6;
+  line-height:1.6;
+}
+
 .overlay{
   position:fixed;
   inset:0;
@@ -1708,7 +1894,9 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .hero-note{padding:18px}
   .card{padding:24px}
   .info,.list{padding:28px}
-  .footer-bar,.footer-social{padding:22px 26px}
+  .footer-bar,.footer-social,.footer-admin{padding:22px 26px}
+  .admin-login{grid-template-columns:repeat(3,minmax(0,1fr));align-items:end}
+  .admin-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
   .visual{min-height:440px;padding:22px}
   .visual.gallery[data-shot-count="3"],.visual.gallery[data-shot-count="5"]{grid-template-columns:repeat(3,minmax(0,1fr))}
   .gallery-shot{min-height:170px}

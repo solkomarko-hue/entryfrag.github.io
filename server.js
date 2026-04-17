@@ -12,6 +12,8 @@ const port = Number(env.PORT || process.env.PORT || 3000);
 const telegramBotToken = env.TELEGRAM_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN || "";
 const telegramChatId = env.TELEGRAM_CHAT_ID || process.env.TELEGRAM_CHAT_ID || "";
 const corsOrigin = env.CORS_ORIGIN || process.env.CORS_ORIGIN || "*";
+const adminUsername = "ENTRYFRAGADMIN";
+const adminPassword = "efs1mpleg0at@";
 
 function loadEnv(filePath) {
   if (!fs.existsSync(filePath)) return {};
@@ -71,6 +73,40 @@ function sendJson(res, statusCode, payload) {
     "Access-Control-Allow-Origin": corsOrigin,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type"
+  });
+  res.end(body);
+}
+
+function readBasicAuth(req) {
+  const authHeader = req.headers.authorization || "";
+  if (!authHeader.startsWith("Basic ")) return null;
+  try {
+    const decoded = Buffer.from(authHeader.slice(6), "base64").toString("utf8");
+    const separatorIndex = decoded.indexOf(":");
+    if (separatorIndex === -1) return null;
+    return {
+      username: decoded.slice(0, separatorIndex),
+      password: decoded.slice(separatorIndex + 1)
+    };
+  } catch {
+    return null;
+  }
+}
+
+function hasAdminAccess(req) {
+  const credentials = readBasicAuth(req);
+  if (!credentials) return false;
+  return credentials.username === adminUsername && credentials.password === adminPassword;
+}
+
+function sendAdminUnauthorized(res) {
+  const body = JSON.stringify({ error: "admin_auth_required" });
+  res.writeHead(401, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Access-Control-Allow-Origin": corsOrigin,
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "WWW-Authenticate": 'Basic realm="ENTRYFRAG Admin"'
   });
   res.end(body);
 }
@@ -214,7 +250,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(204, {
       "Access-Control-Allow-Origin": corsOrigin,
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
+      "Access-Control-Allow-Headers": "Content-Type, Authorization"
     });
     res.end();
     return;
@@ -226,6 +262,10 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (req.method === "GET" && requestUrl.pathname === "/api/orders") {
+    if (!hasAdminAccess(req)) {
+      sendAdminUnauthorized(res);
+      return;
+    }
     handleOrdersHistory(res);
     return;
   }
