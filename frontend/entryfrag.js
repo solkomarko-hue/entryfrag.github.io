@@ -101,6 +101,7 @@
     const adminLoginForm = document.getElementById("adminLoginForm");
     const adminUsernameInput = document.getElementById("adminUsername");
     const adminPasswordInput = document.getElementById("adminPassword");
+    const adminPasswordToggle = document.getElementById("adminPasswordToggle");
     const adminLoginButton = document.getElementById("adminLoginButton");
     const adminLoginMessage = document.getElementById("adminLoginMessage");
     const adminPanel = document.getElementById("adminPanel");
@@ -333,6 +334,10 @@
       adminLoginForm.reset();
       adminUsernameInput.value = "";
       adminPasswordInput.value = "";
+      adminPasswordInput.type = "password";
+      adminPasswordToggle.setAttribute("aria-label", "Show password");
+      adminPasswordToggle.setAttribute("aria-pressed", "false");
+      adminPasswordToggle.innerHTML = "&#128065;";
     };
     const showAdminProfile = (message = "Admin profile unlocked.") => {
       adminProfileName.textContent = adminCredentials.username;
@@ -1384,6 +1389,14 @@
       }
       setAdminMessage("Checking admin access...");
       await tryAdminLogin(username, password);
+    });
+    adminPasswordToggle.addEventListener("click", () => {
+      const isVisible = adminPasswordInput.type === "text";
+      adminPasswordInput.type = isVisible ? "password" : "text";
+      adminPasswordToggle.setAttribute("aria-label", isVisible ? "Show password" : "Hide password");
+      adminPasswordToggle.setAttribute("aria-pressed", String(!isVisible));
+      adminPasswordToggle.innerHTML = isVisible ? "&#128065;" : "Hide";
+      adminPasswordInput.focus({ preventScroll: true });
     });
     adminLogout.addEventListener("click", () => {
       hideAdminModal();

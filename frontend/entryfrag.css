@@ -950,6 +950,10 @@ body.team-open .team-modal{opacity:1;visibility:visible;transform:translateY(0)}
   gap:8px;
 }
 
+.admin-password-wrap{
+  position:relative;
+}
+
 .admin-field span,.admin-profile-meta span{
   font-size:var(--font-xs);
   text-transform:uppercase;
@@ -967,6 +971,31 @@ body.team-open .team-modal{opacity:1;visibility:visible;transform:translateY(0)}
   background:rgba(255,255,255,.06);
   color:#fff;
   font-size:16px;
+}
+
+.admin-password-wrap input{
+  padding-right:64px;
+}
+
+.admin-password-toggle{
+  position:absolute;
+  top:50%;
+  right:8px;
+  transform:translateY(-50%);
+  min-height:36px;
+  min-width:36px;
+  padding:6px 10px;
+  border-radius:var(--radius-pill);
+  background:rgba(255,255,255,.08);
+  color:#f4efe8;
+  border:1px solid rgba(255,255,255,.12);
+  font-size:1rem;
+  font-weight:800;
+  line-height:1;
+}
+
+.admin-password-toggle:hover{
+  background:rgba(255,255,255,.15);
 }
 
 .admin-field input::placeholder{color:#a79f94}

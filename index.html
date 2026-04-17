@@ -758,7 +758,10 @@
         </label>
         <label class="admin-field">
           <span>Password</span>
-          <input id="adminPassword" name="adminPassword" type="password" placeholder="Enter password" autocomplete="off" required>
+          <div class="admin-password-wrap">
+            <input id="adminPassword" name="adminPassword" type="password" placeholder="Enter password" autocomplete="off" required>
+            <button class="admin-password-toggle" id="adminPasswordToggle" type="button" aria-label="Show password" aria-pressed="false">&#128065;</button>
+          </div>
         </label>
         <button class="admin-submit" id="adminLoginButton" type="submit">Open admin profile</button>
       </form>
