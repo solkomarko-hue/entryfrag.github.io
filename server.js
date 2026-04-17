@@ -66,6 +66,34 @@ function removeOrder(orderNumber) {
   return true;
 }
 
+function updateOrder(originalOrderNumber, updatedOrder) {
+  const orders = readOrders();
+  const targetOrderNumber = String(originalOrderNumber || "");
+  const existingIndex = orders.findIndex((order) => String(order.orderNumber || "") === targetOrderNumber);
+  if (existingIndex === -1) {
+    return { error: "order_not_found" };
+  }
+
+  const nextOrderNumber = String(updatedOrder?.orderNumber || "").trim();
+  if (!nextOrderNumber) {
+    return { error: "missing_order_number" };
+  }
+
+  const duplicateIndex = orders.findIndex((order, index) => index !== existingIndex && String(order.orderNumber || "") === nextOrderNumber);
+  if (duplicateIndex !== -1) {
+    return { error: "duplicate_order_number" };
+  }
+
+  const nextOrder = {
+    ...orders[existingIndex],
+    ...updatedOrder,
+    orderNumber: nextOrderNumber
+  };
+  orders[existingIndex] = nextOrder;
+  writeOrders(orders);
+  return { order: nextOrder };
+}
+
 function getTelegramChatId() {
   if (fs.existsSync(managerChatFile)) {
     const fileChatId = fs.readFileSync(managerChatFile, "utf8").trim();
@@ -82,7 +110,7 @@ function sendJson(res, statusCode, payload) {
     "Content-Type": "application/json; charset=utf-8",
     "Access-Control-Allow-Origin": corsOrigin,
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type"
+    "Access-Control-Allow-Headers": "Content-Type, Authorization"
   });
   res.end(body);
 }
@@ -272,6 +300,37 @@ async function handleDeleteOrderRequest(req, res) {
   }
 }
 
+async function handleUpdateOrderRequest(req, res) {
+  try {
+    const rawBody = await readRequestBody(req);
+    const parsed = JSON.parse(rawBody || "{}");
+    const originalOrderNumber = String(parsed.originalOrderNumber || "").trim();
+    const updatedOrder = parsed.order;
+
+    if (!originalOrderNumber) {
+      sendJson(res, 400, { error: "missing_original_order_number" });
+      return;
+    }
+
+    if (!updatedOrder || typeof updatedOrder !== "object" || Array.isArray(updatedOrder)) {
+      sendJson(res, 400, { error: "missing_order_payload" });
+      return;
+    }
+
+    const result = updateOrder(originalOrderNumber, updatedOrder);
+    if (result.error) {
+      const statusCode = result.error === "order_not_found" ? 404 : 400;
+      sendJson(res, statusCode, { error: result.error });
+      return;
+    }
+
+    sendJson(res, 200, { status: "ok", order: result.order });
+  } catch (error) {
+    const code = error.message === "payload_too_large" ? 413 : 500;
+    sendJson(res, code, { error: error.message || "internal" });
+  }
+}
+
 function handleOrdersHistory(res) {
   const orders = readOrders().sort((a, b) => String(b.receivedAt || "").localeCompare(String(a.receivedAt || "")));
   sendJson(res, 200, { orders });
@@ -315,6 +374,15 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     await handleDeleteOrderRequest(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && requestUrl.pathname === "/api/orders/update") {
+    if (!hasAdminAccess(req)) {
+      sendAdminUnauthorized(res);
+      return;
+    }
+    await handleUpdateOrderRequest(req, res);
     return;
   }
 

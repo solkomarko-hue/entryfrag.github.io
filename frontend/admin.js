@@ -17,6 +17,27 @@
   const revenueBreakdownNote = document.getElementById("revenueBreakdownNote");
   const topItemsList = document.getElementById("topItemsList");
   const ordersRecord = document.getElementById("ordersRecord");
+  const orderEditorForm = document.getElementById("orderEditorForm");
+  const orderEditorEmpty = document.getElementById("orderEditorEmpty");
+  const orderEditorNote = document.getElementById("orderEditorNote");
+  const cancelOrderEditButton = document.getElementById("cancelOrderEditButton");
+  const saveOrderButton = document.getElementById("saveOrderButton");
+  const editorOriginalOrderNumber = document.getElementById("editorOriginalOrderNumber");
+  const editorOrderNumber = document.getElementById("editorOrderNumber");
+  const editorReceivedAt = document.getElementById("editorReceivedAt");
+  const editorCustomerName = document.getElementById("editorCustomerName");
+  const editorPhone = document.getElementById("editorPhone");
+  const editorCity = document.getElementById("editorCity");
+  const editorBranch = document.getElementById("editorBranch");
+  const editorPaymentLabel = document.getElementById("editorPaymentLabel");
+  const editorPaymentCode = document.getElementById("editorPaymentCode");
+  const editorPromo = document.getElementById("editorPromo");
+  const editorTelegramNick = document.getElementById("editorTelegramNick");
+  const editorSubtotal = document.getElementById("editorSubtotal");
+  const editorDiscount = document.getElementById("editorDiscount");
+  const editorTotal = document.getElementById("editorTotal");
+  const editorItemsList = document.getElementById("editorItemsList");
+  const addOrderItemButton = document.getElementById("addOrderItemButton");
   const viewButtons = [...document.querySelectorAll("[data-view]")];
 
   const apiBaseUrl = (window.ENTRYFRAG_API_URL || "").trim().replace(/\/$/, "");
@@ -25,6 +46,8 @@
   let currentView = "day";
   let allOrders = [];
   let isSyncing = false;
+  let isSavingOrder = false;
+  let editingOrderNumber = "";
 
   const clearAdminAccess = () => {
     try {
@@ -42,6 +65,7 @@
     statusNode.classList.remove("is-error", "is-success");
     if (tone) statusNode.classList.add(`is-${tone}`);
   };
+
   const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
     "&": "&amp;",
     "<": "&lt;",
@@ -62,10 +86,94 @@
   };
 
   const money = (value) => new Intl.NumberFormat(locale).format(Math.round(value || 0)) + " ₴";
+  const toSafeNumber = (value, fallback = 0) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+  const toSafeTimestamp = (value) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+  };
+  const sortOrders = (orders) => orders.sort((a, b) => toSafeTimestamp(b.receivedAt) - toSafeTimestamp(a.receivedAt));
+
   const formatOrderDate = (value) => {
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "Unknown date";
     return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(date);
+  };
+
+  const toDateTimeLocalValue = (value) => {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    const adjusted = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+    return adjusted.toISOString().slice(0, 16);
+  };
+
+  const getOrderSubtotal = (order) => {
+    if (Number.isFinite(Number(order?.subtotal))) return Number(order.subtotal);
+    const items = Array.isArray(order?.items) ? order.items : [];
+    return items.reduce((sum, item) => sum + Number(item?.qty || 0) * Number(item?.unitPrice || 0), 0);
+  };
+
+  const getOrderDiscount = (order) => {
+    if (Number.isFinite(Number(order?.discount))) return Number(order.discount);
+    const subtotal = getOrderSubtotal(order);
+    const total = toSafeNumber(order?.total, subtotal);
+    return Math.max(subtotal - total, 0);
+  };
+
+  const buildEditorItemMarkup = (item = {}) => `
+    <article class="editor-item">
+      <div class="editor-item-grid">
+        <label class="editor-field">
+          <span>Name</span>
+          <input data-item-field="name" type="text" value="${escapeHtml(item.name || "")}" autocomplete="off">
+        </label>
+        <label class="editor-field">
+          <span>Size</span>
+          <input data-item-field="size" type="text" value="${escapeHtml(item.size || "")}" autocomplete="off">
+        </label>
+        <label class="editor-field">
+          <span>Option</span>
+          <input data-item-field="option" type="text" value="${escapeHtml(item.option || "")}" autocomplete="off">
+        </label>
+        <label class="editor-field">
+          <span>Quantity</span>
+          <input data-item-field="qty" type="number" min="0" step="1" value="${escapeHtml(String(Math.max(toSafeNumber(item.qty, 1), 0)))}">
+        </label>
+        <label class="editor-field">
+          <span>Unit price</span>
+          <input data-item-field="unitPrice" type="number" min="0" step="1" value="${escapeHtml(String(Math.max(toSafeNumber(item.unitPrice, 0), 0)))}">
+        </label>
+      </div>
+      <button class="editor-item-remove" type="button" data-remove-item>Remove item</button>
+    </article>
+  `;
+
+  const renderEditorItems = (items = []) => {
+    if (!editorItemsList) return;
+    const sourceItems = Array.isArray(items) && items.length ? items : [{}];
+    editorItemsList.innerHTML = sourceItems.map((item) => buildEditorItemMarkup(item)).join("");
+  };
+
+  const readEditorItems = () => {
+    const rows = [...(editorItemsList?.querySelectorAll(".editor-item") || [])];
+    return rows.map((row) => {
+      const name = row.querySelector('[data-item-field="name"]')?.value.trim() || "";
+      const size = row.querySelector('[data-item-field="size"]')?.value.trim() || "";
+      const option = row.querySelector('[data-item-field="option"]')?.value.trim() || "";
+      const qty = Math.max(toSafeNumber(row.querySelector('[data-item-field="qty"]')?.value, 0), 0);
+      const unitPrice = Math.max(toSafeNumber(row.querySelector('[data-item-field="unitPrice"]')?.value, 0), 0);
+      return { name, size, option, qty, unitPrice };
+    }).filter((item) => item.name || item.size || item.option || item.qty || item.unitPrice);
+  };
+
+  const syncTotalsFromItems = () => {
+    const items = readEditorItems();
+    const subtotal = items.reduce((sum, item) => sum + Number(item.qty || 0) * Number(item.unitPrice || 0), 0);
+    const discount = Math.max(toSafeNumber(editorDiscount?.value, 0), 0);
+    if (editorSubtotal) editorSubtotal.value = String(Math.round(subtotal));
+    if (editorTotal) editorTotal.value = String(Math.max(Math.round(subtotal - discount), 0));
   };
 
   const getPeriodKey = (date, view) => {
@@ -100,6 +208,7 @@
     if (view === "month") return `Revenue for the current month from ${count} order${count === 1 ? "" : "s"}.`;
     return `Revenue for today from ${count} order${count === 1 ? "" : "s"}.`;
   };
+
   const getGraphNote = (view) => {
     if (view === "year") return "Year-by-year revenue trend";
     if (view === "month") return "Month-by-month revenue trend";
@@ -202,9 +311,12 @@
 
     earningsGraph.innerHTML = `
       <svg class="graph-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Earnings graph">
+        <line class="graph-gridline" x1="${padding.left}" y1="${padding.top}" x2="${width - padding.right}" y2="${padding.top}"></line>
         <line class="graph-axis" x1="${padding.left}" y1="${padding.top + innerHeight}" x2="${width - padding.right}" y2="${padding.top + innerHeight}"></line>
         <path class="graph-area" d="${areaPath}"></path>
         <path class="graph-line" d="${linePath}"></path>
+        <text class="graph-baseline" x="${padding.left}" y="${padding.top + innerHeight - 8}" text-anchor="start">0</text>
+        <text class="graph-baseline" x="${padding.left}" y="${padding.top - 8}" text-anchor="start">${escapeHtml(money(maxValue))}</text>
         ${points.map((point) => `
           <circle class="graph-point" cx="${point.x}" cy="${point.y}" r="5"></circle>
           <text class="graph-value" x="${point.x}" y="${Math.max(point.y - 12, 14)}" text-anchor="middle">${escapeHtml(money(point.total))}</text>
@@ -273,6 +385,7 @@
             </div>
             <div class="order-card-head-actions">
               <strong>${money(Number(order.total || 0))}</strong>
+              <button class="order-edit" type="button" data-edit-order="${escapeHtml(order.orderNumber || "")}">Edit</button>
               <button class="order-delete" type="button" data-delete-order="${escapeHtml(order.orderNumber || "")}">Delete</button>
             </div>
           </div>
@@ -283,6 +396,7 @@
             <span class="order-chip">${escapeHtml(order.branch || "No branch")}</span>
             <span class="order-chip">${escapeHtml(order.paymentOptionLabel || order.paymentOption || "Payment not set")}</span>
             <span class="order-chip">Promo: ${escapeHtml(order.promo || "none")}</span>
+            ${order.telegramNick ? `<span class="order-chip">${escapeHtml(order.telegramNick)}</span>` : ""}
           </div>
           <div class="order-card-items">
             <strong>Items</strong>
@@ -291,6 +405,49 @@
         </article>
       `;
     }).join("");
+  };
+
+  const resetEditor = () => {
+    editingOrderNumber = "";
+    orderEditorForm?.reset();
+    renderEditorItems([]);
+    if (orderEditorForm) orderEditorForm.hidden = true;
+    if (orderEditorEmpty) orderEditorEmpty.hidden = false;
+    if (orderEditorNote) orderEditorNote.textContent = "Choose an order from the list below to adjust it.";
+    if (saveOrderButton) {
+      saveOrderButton.disabled = false;
+      saveOrderButton.textContent = "Save order changes";
+    }
+  };
+
+  const startEditingOrder = (orderNumber) => {
+    const order = allOrders.find((entry) => String(entry.orderNumber || "") === String(orderNumber || ""));
+    if (!order) {
+      setStatus("Could not open that order for editing.", "error");
+      return;
+    }
+
+    editingOrderNumber = String(order.orderNumber || "");
+    if (editorOriginalOrderNumber) editorOriginalOrderNumber.value = String(order.orderNumber || "");
+    if (editorOrderNumber) editorOrderNumber.value = String(order.orderNumber || "");
+    if (editorReceivedAt) editorReceivedAt.value = toDateTimeLocalValue(order.receivedAt);
+    if (editorCustomerName) editorCustomerName.value = String(order.customerName || "");
+    if (editorPhone) editorPhone.value = String(order.phone || "");
+    if (editorCity) editorCity.value = String(order.city || "");
+    if (editorBranch) editorBranch.value = String(order.branch || "");
+    if (editorPaymentLabel) editorPaymentLabel.value = String(order.paymentOptionLabel || "");
+    if (editorPaymentCode) editorPaymentCode.value = String(order.paymentOption || "");
+    if (editorPromo) editorPromo.value = String(order.promo || "");
+    if (editorTelegramNick) editorTelegramNick.value = String(order.telegramNick || "");
+    if (editorSubtotal) editorSubtotal.value = String(Math.round(getOrderSubtotal(order)));
+    if (editorDiscount) editorDiscount.value = String(Math.round(getOrderDiscount(order)));
+    if (editorTotal) editorTotal.value = String(Math.round(toSafeNumber(order.total, getOrderSubtotal(order))));
+    renderEditorItems(Array.isArray(order.items) ? order.items : []);
+
+    if (orderEditorForm) orderEditorForm.hidden = false;
+    if (orderEditorEmpty) orderEditorEmpty.hidden = true;
+    if (orderEditorNote) orderEditorNote.textContent = `Adjusting order ${order.orderNumber || "ENTRYFRAG"}`;
+    orderEditorForm?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const renderDashboard = () => {
@@ -354,6 +511,29 @@
     return payload;
   };
 
+  const updateOrder = async (authHeader, originalOrderNumber, order) => {
+    const response = await fetch(`${orderHistoryUrl}/update`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authHeader
+      },
+      body: JSON.stringify({ originalOrderNumber, order })
+    });
+
+    let payload = {};
+    try {
+      payload = await response.json();
+    } catch {}
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error("admin_auth_required");
+      throw new Error(payload?.error || "admin_update_failed");
+    }
+
+    return payload;
+  };
+
   const initializeDashboard = async ({ manual = false } = {}) => {
     if (isSyncing) return;
     const session = readSession();
@@ -371,8 +551,9 @@
 
     try {
       const orders = await fetchOrders(session.authHeader);
-      allOrders = orders.sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime());
+      allOrders = sortOrders(orders);
       renderDashboard();
+      resetEditor();
       setStatus(`Dashboard synchronized from ${allOrders.length} saved order${allOrders.length === 1 ? "" : "s"}.`, "success");
     } catch (error) {
       clearAdminAccess();
@@ -406,10 +587,17 @@
   });
 
   ordersRecord?.addEventListener("click", async (event) => {
-    const button = event.target.closest("[data-delete-order]");
-    if (!button) return;
+    const editButton = event.target.closest("[data-edit-order]");
+    if (editButton) {
+      const orderNumber = editButton.dataset.editOrder;
+      if (orderNumber) startEditingOrder(orderNumber);
+      return;
+    }
 
-    const orderNumber = button.dataset.deleteOrder;
+    const deleteButton = event.target.closest("[data-delete-order]");
+    if (!deleteButton) return;
+
+    const orderNumber = deleteButton.dataset.deleteOrder;
     if (!orderNumber) return;
 
     const session = readSession();
@@ -421,14 +609,17 @@
     const confirmed = window.confirm(`Delete order ${orderNumber}? This cannot be undone.`);
     if (!confirmed) return;
 
-    button.disabled = true;
-    button.textContent = "Deleting...";
+    deleteButton.disabled = true;
+    deleteButton.textContent = "Deleting...";
     setStatus(`Deleting order ${orderNumber}...`);
 
     try {
       await deleteOrder(session.authHeader, orderNumber);
       allOrders = allOrders.filter((order) => String(order.orderNumber || "") !== String(orderNumber));
       renderDashboard();
+      if (String(editingOrderNumber) === String(orderNumber)) {
+        resetEditor();
+      }
       setStatus(`Order ${orderNumber} deleted.`, "success");
     } catch (error) {
       if (String(error.message).includes("admin_auth_required")) {
@@ -437,8 +628,132 @@
         return;
       }
       setStatus(`Could not delete order ${orderNumber}.`, "error");
-      button.disabled = false;
-      button.textContent = "Delete";
+      deleteButton.disabled = false;
+      deleteButton.textContent = "Delete";
+    }
+  });
+
+  cancelOrderEditButton?.addEventListener("click", () => {
+    resetEditor();
+    setStatus("Order editing cancelled.");
+  });
+
+  addOrderItemButton?.addEventListener("click", () => {
+    if (!editorItemsList) return;
+    editorItemsList.insertAdjacentHTML("beforeend", buildEditorItemMarkup({ qty: 1, unitPrice: 0 }));
+  });
+
+  editorItemsList?.addEventListener("click", (event) => {
+    const removeButton = event.target.closest("[data-remove-item]");
+    if (!removeButton) return;
+
+    const itemCard = removeButton.closest(".editor-item");
+    itemCard?.remove();
+
+    if (!editorItemsList?.querySelector(".editor-item")) {
+      renderEditorItems([]);
+    }
+
+    syncTotalsFromItems();
+  });
+
+  editorItemsList?.addEventListener("input", (event) => {
+    const field = event.target.closest('[data-item-field="qty"], [data-item-field="unitPrice"]');
+    if (!field) return;
+    syncTotalsFromItems();
+  });
+
+  editorDiscount?.addEventListener("input", () => {
+    syncTotalsFromItems();
+  });
+
+  orderEditorForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (isSavingOrder) return;
+
+    const session = readSession();
+    if (!session.hasAccess || !session.authHeader) {
+      redirectHome();
+      return;
+    }
+
+    const originalOrderNumber = String(editorOriginalOrderNumber?.value || "").trim();
+    const nextOrderNumber = String(editorOrderNumber?.value || "").trim();
+    if (!originalOrderNumber || !nextOrderNumber) {
+      setStatus("Order number is required before saving changes.", "error");
+      return;
+    }
+
+    const existingOrder = allOrders.find((order) => String(order.orderNumber || "") === originalOrderNumber);
+    if (!existingOrder) {
+      setStatus("That order no longer exists in the dashboard data.", "error");
+      resetEditor();
+      return;
+    }
+
+    const parsedItems = readEditorItems();
+
+    const receivedAtValue = String(editorReceivedAt?.value || "").trim();
+    const receivedAtDate = receivedAtValue ? new Date(receivedAtValue) : null;
+    const subtotal = Math.max(toSafeNumber(editorSubtotal?.value, getOrderSubtotal(existingOrder)), 0);
+    const discount = Math.max(toSafeNumber(editorDiscount?.value, getOrderDiscount(existingOrder)), 0);
+    const total = Math.max(toSafeNumber(editorTotal?.value, subtotal - discount), 0);
+    const updatedOrder = {
+      ...existingOrder,
+      orderNumber: nextOrderNumber,
+      receivedAt: receivedAtDate && !Number.isNaN(receivedAtDate.getTime())
+        ? receivedAtDate.toISOString()
+        : String(existingOrder.receivedAt || new Date().toISOString()),
+      customerName: String(editorCustomerName?.value || "").trim(),
+      phone: String(editorPhone?.value || "").trim(),
+      city: String(editorCity?.value || "").trim(),
+      branch: String(editorBranch?.value || "").trim(),
+      paymentOptionLabel: String(editorPaymentLabel?.value || "").trim(),
+      paymentOption: String(editorPaymentCode?.value || "").trim(),
+      promo: String(editorPromo?.value || "").trim(),
+      telegramNick: String(editorTelegramNick?.value || "").trim(),
+      subtotal,
+      discount,
+      total,
+      items: parsedItems
+    };
+
+    isSavingOrder = true;
+    if (saveOrderButton) {
+      saveOrderButton.disabled = true;
+      saveOrderButton.textContent = "Saving...";
+    }
+    setStatus(`Saving changes to order ${originalOrderNumber}...`);
+
+    try {
+      const payload = await updateOrder(session.authHeader, originalOrderNumber, updatedOrder);
+      const savedOrder = payload?.order ? payload.order : updatedOrder;
+      allOrders = sortOrders(allOrders.map((order) => (
+        String(order.orderNumber || "") === originalOrderNumber ? savedOrder : order
+      )));
+      renderDashboard();
+      startEditingOrder(savedOrder.orderNumber || nextOrderNumber);
+      setStatus(`Order ${savedOrder.orderNumber || nextOrderNumber} updated.`, "success");
+    } catch (error) {
+      if (String(error.message).includes("admin_auth_required")) {
+        clearAdminAccess();
+        redirectHome();
+        return;
+      }
+
+      if (String(error.message).includes("duplicate_order_number")) {
+        setStatus("Another order already uses that order number. Choose a different one.", "error");
+      } else if (String(error.message).includes("order_not_found")) {
+        setStatus("That order could not be found in storage anymore.", "error");
+      } else {
+        setStatus(`Could not update order ${originalOrderNumber}.`, "error");
+      }
+    } finally {
+      isSavingOrder = false;
+      if (saveOrderButton) {
+        saveOrderButton.disabled = false;
+        saveOrderButton.textContent = "Save order changes";
+      }
     }
   });
 
@@ -447,5 +762,6 @@
     if (!session.hasAccess || !session.authHeader) redirectHome();
   });
 
+  resetEditor();
   initializeDashboard();
 })();

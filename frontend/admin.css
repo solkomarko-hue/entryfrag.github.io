@@ -286,6 +286,12 @@ button{font:inherit;border:none;cursor:pointer}
   stroke-width:1;
 }
 
+.graph-gridline{
+  stroke:rgba(18,18,18,.1);
+  stroke-width:1;
+  stroke-dasharray:4 6;
+}
+
 .graph-line{
   fill:none;
   stroke:var(--red);
@@ -316,11 +322,195 @@ button{font:inherit;border:none;cursor:pointer}
   font-weight:800;
 }
 
+.graph-baseline{
+  fill:#7d7368;
+  font-size:12px;
+  font-weight:800;
+}
+
 .breakdown-list,
 .top-items-list,
 .orders-record{
   display:grid;
   gap:12px;
+}
+
+.order-editor{
+  display:grid;
+  gap:14px;
+}
+
+.order-editor-empty{
+  padding:18px;
+  border-radius:var(--radius-md);
+  background:var(--cream);
+  border:1px dashed rgba(18,18,18,.16);
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.order-editor-grid{
+  display:grid;
+  gap:12px;
+  grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+}
+
+.editor-field{
+  display:grid;
+  gap:8px;
+}
+
+.editor-field span{
+  font-size:.8rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#5f584f;
+}
+
+.editor-field input,
+.editor-field textarea{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:var(--text);
+  font:inherit;
+}
+
+.editor-field textarea{
+  min-height:200px;
+  resize:vertical;
+  font-family:"Consolas","Courier New",monospace;
+  line-height:1.5;
+}
+
+.editor-field-full{
+  grid-column:1 / -1;
+}
+
+.editor-items-shell{
+  display:grid;
+  gap:12px;
+}
+
+.editor-items-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-end;
+}
+
+.editor-items-label{
+  display:block;
+  font-size:.8rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#5f584f;
+}
+
+.editor-items-head p{
+  color:var(--muted);
+  line-height:1.5;
+  font-size:.94rem;
+}
+
+.editor-items-list{
+  display:grid;
+  gap:12px;
+}
+
+.editor-item{
+  display:grid;
+  gap:12px;
+  padding:14px;
+  border-radius:var(--radius-md);
+  background:var(--cream);
+  border:1px solid var(--line);
+}
+
+.editor-item-grid{
+  display:grid;
+  gap:10px;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+}
+
+.editor-item-remove,
+.editor-add-item{
+  min-height:38px;
+  padding:8px 14px;
+  border-radius:var(--radius-pill);
+  font-weight:800;
+}
+
+.editor-add-item{
+  background:rgba(18,18,18,.06);
+  color:var(--text);
+  border:1px solid rgba(18,18,18,.12);
+}
+
+.editor-add-item:hover{
+  background:rgba(18,18,18,.1);
+}
+
+.editor-item-remove{
+  justify-self:start;
+  background:#fff;
+  color:#9f2328;
+  border:1px solid rgba(159,35,40,.18);
+}
+
+.editor-item-remove:hover{
+  background:rgba(159,35,40,.08);
+}
+
+.editor-items-empty{
+  padding:16px;
+  border-radius:var(--radius-md);
+  background:#fff;
+  border:1px dashed rgba(18,18,18,.16);
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.editor-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+}
+
+.editor-save,
+.editor-cancel,
+.order-edit,
+.order-delete{
+  min-height:38px;
+  padding:8px 14px;
+  border-radius:var(--radius-pill);
+  font-weight:800;
+}
+
+.editor-save,
+.order-edit{
+  background:rgba(18,18,18,.06);
+  color:var(--text);
+  border:1px solid rgba(18,18,18,.12);
+}
+
+.editor-save:hover,
+.order-edit:hover{
+  background:rgba(18,18,18,.1);
+}
+
+.editor-cancel{
+  background:#fff;
+  color:var(--muted);
+  border:1px solid var(--line);
+}
+
+.editor-cancel:hover{
+  background:var(--cream);
 }
 
 .breakdown-item,
@@ -410,19 +600,18 @@ button{font:inherit;border:none;cursor:pointer}
 }
 
 .order-delete{
-  min-height:38px;
-  padding:8px 14px;
-  border-radius:var(--radius-pill);
   background:rgba(159,35,40,.1);
   color:#9f2328;
   border:1px solid rgba(159,35,40,.18);
-  font-weight:800;
 }
 
 .order-delete:hover{
   background:rgba(159,35,40,.16);
 }
 
+.editor-save:disabled,
+.editor-cancel:disabled,
+.order-edit:disabled,
 .order-delete:disabled{
   opacity:.65;
   cursor:wait;
@@ -488,6 +677,21 @@ button{font:inherit;border:none;cursor:pointer}
   .order-card-head-actions{
     width:100%;
     justify-items:start;
+  }
+
+  .editor-actions{
+    flex-direction:column;
+  }
+
+  .editor-items-head{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .editor-save,
+  .editor-cancel,
+  .editor-add-item{
+    width:100%;
   }
 
   .section-actions{

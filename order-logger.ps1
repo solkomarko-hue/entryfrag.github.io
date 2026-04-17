@@ -99,6 +99,56 @@ function Remove-Order {
   return $true
 }
 
+function Update-OrderRecord {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$OriginalOrderNumber,
+    [Parameter(Mandatory = $true)]
+    [psobject]$UpdatedOrder
+  )
+
+  $orders = @()
+  foreach ($entry in (Read-Orders)) {
+    $orders += $entry
+  }
+
+  $existingIndex = -1
+  for ($i = 0; $i -lt $orders.Count; $i++) {
+    if ([string]$orders[$i].orderNumber -eq $OriginalOrderNumber) {
+      $existingIndex = $i
+      break
+    }
+  }
+
+  if ($existingIndex -lt 0) {
+    return @{ Error = "order_not_found" }
+  }
+
+  $nextOrderNumber = [string]$UpdatedOrder.orderNumber
+  if ([string]::IsNullOrWhiteSpace($nextOrderNumber)) {
+    return @{ Error = "missing_order_number" }
+  }
+
+  for ($i = 0; $i -lt $orders.Count; $i++) {
+    if ($i -ne $existingIndex -and [string]$orders[$i].orderNumber -eq $nextOrderNumber.Trim()) {
+      return @{ Error = "duplicate_order_number" }
+    }
+  }
+
+  $merged = @{}
+  foreach ($property in $orders[$existingIndex].PSObject.Properties) {
+    $merged[$property.Name] = $property.Value
+  }
+  foreach ($property in $UpdatedOrder.PSObject.Properties) {
+    $merged[$property.Name] = $property.Value
+  }
+  $merged["orderNumber"] = $nextOrderNumber.Trim()
+
+  $orders[$existingIndex] = [pscustomobject]$merged
+  Write-Orders $orders
+  return @{ Order = $orders[$existingIndex] }
+}
+
 function Get-ManagerChatId {
   if (Test-Path $managerChatFile) {
     $chatId = (Get-Content $managerChatFile -Raw).Trim()
@@ -305,6 +355,19 @@ function Handle-Request {
   }
 
   if ($Request.Method -eq "GET") {
+    if ($Request.Path -eq "/api/orders") {
+      if (-not (Test-AdminAccess -Headers $Request.Headers)) {
+        return New-JsonResponse -StatusCode 401 -Body '{"error":"admin_auth_required"}'
+      }
+
+      $orders = @()
+      foreach ($entry in (Read-Orders)) {
+        $orders += $entry
+      }
+      $sortedOrders = @($orders | Sort-Object -Descending -Property @{ Expression = { [string]$_.receivedAt } })
+      return New-JsonResponse -StatusCode 200 -Body ((@{ orders = $sortedOrders } | ConvertTo-Json -Depth 8 -Compress))
+    }
+
     return Get-LocalFileResponse -RequestPath $Request.Path
   }
 
@@ -330,6 +393,35 @@ function Handle-Request {
     }
 
     return New-JsonResponse -StatusCode 200 -Body '{"status":"ok"}'
+  }
+
+  if ($Request.Method -eq "POST" -and $Request.Path -eq "/api/orders/update") {
+    if (-not (Test-AdminAccess -Headers $Request.Headers)) {
+      return New-JsonResponse -StatusCode 401 -Body '{"error":"admin_auth_required"}'
+    }
+
+    try {
+      $json = $Request.Body | ConvertFrom-Json
+    } catch {
+      return New-JsonResponse -StatusCode 400 -Body '{"error":"invalid_json"}'
+    }
+
+    $originalOrderNumber = [string]$json.originalOrderNumber
+    if ([string]::IsNullOrWhiteSpace($originalOrderNumber)) {
+      return New-JsonResponse -StatusCode 400 -Body '{"error":"missing_original_order_number"}'
+    }
+
+    if (-not $json.order) {
+      return New-JsonResponse -StatusCode 400 -Body '{"error":"missing_order_payload"}'
+    }
+
+    $result = Update-OrderRecord -OriginalOrderNumber $originalOrderNumber.Trim() -UpdatedOrder $json.order
+    if ($result.Error) {
+      $statusCode = if ($result.Error -eq "order_not_found") { 404 } else { 400 }
+      return New-JsonResponse -StatusCode $statusCode -Body ((@{ error = $result.Error } | ConvertTo-Json -Compress))
+    }
+
+    return New-JsonResponse -StatusCode 200 -Body ((@{ status = "ok"; order = $result.Order } | ConvertTo-Json -Depth 8 -Compress))
   }
 
   if ($Request.Method -ne "POST" -or ($Request.Path -ne "/orders" -and $Request.Path -ne "/api/orders")) {
