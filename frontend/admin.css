@@ -355,6 +355,32 @@ button{font:inherit;border:none;cursor:pointer}
   grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
 }
 
+.editor-readonly-card{
+  display:grid;
+  gap:8px;
+  padding:14px;
+  border-radius:var(--radius-md);
+  background:var(--cream);
+  border:1px solid var(--line);
+}
+
+.editor-readonly-card span{
+  font-size:.8rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#5f584f;
+}
+
+.editor-readonly-card strong{
+  line-height:1.5;
+}
+
+.order-editor-totals .editor-field input[readonly]{
+  background:var(--cream);
+  color:#4f473e;
+}
+
 .editor-field{
   display:grid;
   gap:8px;
@@ -437,7 +463,6 @@ button{font:inherit;border:none;cursor:pointer}
   grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
 }
 
-.editor-item-remove,
 .editor-add-item{
   min-height:38px;
   padding:8px 14px;
@@ -453,17 +478,6 @@ button{font:inherit;border:none;cursor:pointer}
 
 .editor-add-item:hover{
   background:rgba(18,18,18,.1);
-}
-
-.editor-item-remove{
-  justify-self:start;
-  background:#fff;
-  color:#9f2328;
-  border:1px solid rgba(159,35,40,.18);
-}
-
-.editor-item-remove:hover{
-  background:rgba(159,35,40,.08);
 }
 
 .editor-items-empty{

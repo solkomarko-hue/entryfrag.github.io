@@ -107,95 +107,76 @@
         <div class="panel-head">
           <div>
             <h3 id="orderEditorTitle">Adjust order</h3>
-            <span class="panel-note" id="orderEditorNote">Choose an order from the list below to adjust it.</span>
+            <span class="panel-note" id="orderEditorNote">Choose an order from the list below to adjust its price.</span>
           </div>
         </div>
         <div class="order-editor-empty" id="orderEditorEmpty">
-          Select an order from the record below, then edit the customer info, totals, payment details, or items and save the changes here.
+          Select an order from the record below, then adjust item prices here. The rest of the order stays locked.
         </div>
         <form class="order-editor" id="orderEditorForm" hidden>
           <input id="editorOriginalOrderNumber" type="hidden">
 
           <div class="order-editor-grid">
-            <label class="editor-field">
+            <article class="editor-readonly-card">
               <span>Order number</span>
-              <input id="editorOrderNumber" type="text" autocomplete="off" required>
-            </label>
+              <strong id="editorOrderNumberText">-</strong>
+            </article>
 
-            <label class="editor-field">
+            <article class="editor-readonly-card">
               <span>Received at</span>
-              <input id="editorReceivedAt" type="datetime-local">
-            </label>
+              <strong id="editorReceivedAtText">-</strong>
+            </article>
 
-            <label class="editor-field">
-              <span>Customer name</span>
-              <input id="editorCustomerName" type="text" autocomplete="off">
-            </label>
+            <article class="editor-readonly-card">
+              <span>Customer</span>
+              <strong id="editorCustomerText">-</strong>
+            </article>
 
-            <label class="editor-field">
-              <span>Phone</span>
-              <input id="editorPhone" type="text" autocomplete="off">
-            </label>
+            <article class="editor-readonly-card">
+              <span>Location</span>
+              <strong id="editorLocationText">-</strong>
+            </article>
 
-            <label class="editor-field">
-              <span>City</span>
-              <input id="editorCity" type="text" autocomplete="off">
-            </label>
+            <article class="editor-readonly-card">
+              <span>Payment</span>
+              <strong id="editorPaymentText">-</strong>
+            </article>
 
-            <label class="editor-field">
-              <span>Branch</span>
-              <input id="editorBranch" type="text" autocomplete="off">
-            </label>
+            <article class="editor-readonly-card">
+              <span>Promo / Telegram</span>
+              <strong id="editorMetaText">-</strong>
+            </article>
+          </div>
 
-            <label class="editor-field">
-              <span>Payment label</span>
-              <input id="editorPaymentLabel" type="text" autocomplete="off">
-            </label>
-
-            <label class="editor-field">
-              <span>Payment code</span>
-              <input id="editorPaymentCode" type="text" autocomplete="off">
-            </label>
-
-            <label class="editor-field">
-              <span>Promo</span>
-              <input id="editorPromo" type="text" autocomplete="off">
-            </label>
-
-            <label class="editor-field">
-              <span>Telegram nick</span>
-              <input id="editorTelegramNick" type="text" autocomplete="off">
-            </label>
-
+          <div class="order-editor-grid order-editor-totals">
             <label class="editor-field">
               <span>Subtotal</span>
-              <input id="editorSubtotal" type="number" step="1" min="0">
+              <input id="editorSubtotal" type="number" step="1" min="0" readonly>
             </label>
 
             <label class="editor-field">
               <span>Discount</span>
-              <input id="editorDiscount" type="number" step="1" min="0">
+              <input id="editorDiscount" type="number" step="1" min="0" readonly>
             </label>
 
             <label class="editor-field">
               <span>Total</span>
-              <input id="editorTotal" type="number" step="1" min="0">
+              <input id="editorTotal" type="number" step="1" min="0" readonly>
             </label>
           </div>
 
           <section class="editor-items-shell editor-field-full" aria-labelledby="editorItemsTitle">
             <div class="editor-items-head">
               <div>
-                <span class="editor-items-label" id="editorItemsTitle">Items and price</span>
-                <p>Adjust quantity and unit price for each item in the order.</p>
+                <span class="editor-items-label" id="editorItemsTitle">Adjust item price</span>
+                <p>Only unit price is editable. Everything else in the order stays locked.</p>
               </div>
-              <button class="editor-add-item" id="addOrderItemButton" type="button">Add item</button>
             </div>
             <div class="editor-items-list" id="editorItemsList"></div>
           </section>
 
           <div class="editor-actions">
-            <button class="editor-save" id="saveOrderButton" type="submit">Save order changes</button>
+            <button class="editor-save" id="saveOrderButton" type="submit">Save price changes</button>
             <button class="editor-cancel" id="cancelOrderEditButton" type="button">Cancel</button>
           </div>
         </form>

@@ -23,21 +23,16 @@
   const cancelOrderEditButton = document.getElementById("cancelOrderEditButton");
   const saveOrderButton = document.getElementById("saveOrderButton");
   const editorOriginalOrderNumber = document.getElementById("editorOriginalOrderNumber");
-  const editorOrderNumber = document.getElementById("editorOrderNumber");
-  const editorReceivedAt = document.getElementById("editorReceivedAt");
-  const editorCustomerName = document.getElementById("editorCustomerName");
-  const editorPhone = document.getElementById("editorPhone");
-  const editorCity = document.getElementById("editorCity");
-  const editorBranch = document.getElementById("editorBranch");
-  const editorPaymentLabel = document.getElementById("editorPaymentLabel");
-  const editorPaymentCode = document.getElementById("editorPaymentCode");
-  const editorPromo = document.getElementById("editorPromo");
-  const editorTelegramNick = document.getElementById("editorTelegramNick");
+  const editorOrderNumberText = document.getElementById("editorOrderNumberText");
+  const editorReceivedAtText = document.getElementById("editorReceivedAtText");
+  const editorCustomerText = document.getElementById("editorCustomerText");
+  const editorLocationText = document.getElementById("editorLocationText");
+  const editorPaymentText = document.getElementById("editorPaymentText");
+  const editorMetaText = document.getElementById("editorMetaText");
   const editorSubtotal = document.getElementById("editorSubtotal");
   const editorDiscount = document.getElementById("editorDiscount");
   const editorTotal = document.getElementById("editorTotal");
   const editorItemsList = document.getElementById("editorItemsList");
-  const addOrderItemButton = document.getElementById("addOrderItemButton");
   const viewButtons = [...document.querySelectorAll("[data-view]")];
 
   const apiBaseUrl = (window.ENTRYFRAG_API_URL || "").trim().replace(/\/$/, "");
@@ -125,28 +120,37 @@
   const buildEditorItemMarkup = (item = {}) => `
     <article class="editor-item">
       <div class="editor-item-grid">
-        <label class="editor-field">
+        <article class="editor-readonly-card">
           <span>Name</span>
-          <input data-item-field="name" type="text" value="${escapeHtml(item.name || "")}" autocomplete="off">
-        </label>
-        <label class="editor-field">
+          <strong>${escapeHtml(item.name || "Item")}</strong>
+        </article>
+        <article class="editor-readonly-card">
           <span>Size</span>
-          <input data-item-field="size" type="text" value="${escapeHtml(item.size || "")}" autocomplete="off">
-        </label>
-        <label class="editor-field">
+          <strong>${escapeHtml(item.size || "-")}</strong>
+        </article>
+        <article class="editor-readonly-card">
           <span>Option</span>
-          <input data-item-field="option" type="text" value="${escapeHtml(item.option || "")}" autocomplete="off">
-        </label>
-        <label class="editor-field">
+          <strong>${escapeHtml(item.option || "-")}</strong>
+        </article>
+        <article class="editor-readonly-card">
           <span>Quantity</span>
-          <input data-item-field="qty" type="number" min="0" step="1" value="${escapeHtml(String(Math.max(toSafeNumber(item.qty, 1), 0)))}">
-        </label>
+          <strong>${escapeHtml(String(Math.max(toSafeNumber(item.qty, 0), 0)))}</strong>
+        </article>
         <label class="editor-field">
           <span>Unit price</span>
-          <input data-item-field="unitPrice" type="number" min="0" step="1" value="${escapeHtml(String(Math.max(toSafeNumber(item.unitPrice, 0), 0)))}">
+          <input
+            data-item-field="unitPrice"
+            data-item-name="${escapeHtml(item.name || "")}"
+            data-item-size="${escapeHtml(item.size || "")}"
+            data-item-option="${escapeHtml(item.option || "")}"
+            data-item-qty="${escapeHtml(String(Math.max(toSafeNumber(item.qty, 0), 0)))}"
+            type="number"
+            min="0"
+            step="1"
+            value="${escapeHtml(String(Math.max(toSafeNumber(item.unitPrice, 0), 0)))}"
+          >
         </label>
       </div>
-      <button class="editor-item-remove" type="button" data-remove-item>Remove item</button>
     </article>
   `;
 
@@ -157,13 +161,13 @@
   };
 
   const readEditorItems = () => {
-    const rows = [...(editorItemsList?.querySelectorAll(".editor-item") || [])];
-    return rows.map((row) => {
-      const name = row.querySelector('[data-item-field="name"]')?.value.trim() || "";
-      const size = row.querySelector('[data-item-field="size"]')?.value.trim() || "";
-      const option = row.querySelector('[data-item-field="option"]')?.value.trim() || "";
-      const qty = Math.max(toSafeNumber(row.querySelector('[data-item-field="qty"]')?.value, 0), 0);
-      const unitPrice = Math.max(toSafeNumber(row.querySelector('[data-item-field="unitPrice"]')?.value, 0), 0);
+    const rows = [...(editorItemsList?.querySelectorAll('[data-item-field="unitPrice"]') || [])];
+    return rows.map((field) => {
+      const name = field.dataset.itemName || "";
+      const size = field.dataset.itemSize || "";
+      const option = field.dataset.itemOption || "";
+      const qty = Math.max(toSafeNumber(field.dataset.itemQty, 0), 0);
+      const unitPrice = Math.max(toSafeNumber(field.value, 0), 0);
       return { name, size, option, qty, unitPrice };
     }).filter((item) => item.name || item.size || item.option || item.qty || item.unitPrice);
   };
@@ -411,12 +415,18 @@
     editingOrderNumber = "";
     orderEditorForm?.reset();
     renderEditorItems([]);
+    if (editorOrderNumberText) editorOrderNumberText.textContent = "-";
+    if (editorReceivedAtText) editorReceivedAtText.textContent = "-";
+    if (editorCustomerText) editorCustomerText.textContent = "-";
+    if (editorLocationText) editorLocationText.textContent = "-";
+    if (editorPaymentText) editorPaymentText.textContent = "-";
+    if (editorMetaText) editorMetaText.textContent = "-";
     if (orderEditorForm) orderEditorForm.hidden = true;
     if (orderEditorEmpty) orderEditorEmpty.hidden = false;
-    if (orderEditorNote) orderEditorNote.textContent = "Choose an order from the list below to adjust it.";
+    if (orderEditorNote) orderEditorNote.textContent = "Choose an order from the list below to adjust its price.";
     if (saveOrderButton) {
       saveOrderButton.disabled = false;
-      saveOrderButton.textContent = "Save order changes";
+      saveOrderButton.textContent = "Save price changes";
     }
   };
 
@@ -429,16 +439,22 @@
 
     editingOrderNumber = String(order.orderNumber || "");
     if (editorOriginalOrderNumber) editorOriginalOrderNumber.value = String(order.orderNumber || "");
-    if (editorOrderNumber) editorOrderNumber.value = String(order.orderNumber || "");
-    if (editorReceivedAt) editorReceivedAt.value = toDateTimeLocalValue(order.receivedAt);
-    if (editorCustomerName) editorCustomerName.value = String(order.customerName || "");
-    if (editorPhone) editorPhone.value = String(order.phone || "");
-    if (editorCity) editorCity.value = String(order.city || "");
-    if (editorBranch) editorBranch.value = String(order.branch || "");
-    if (editorPaymentLabel) editorPaymentLabel.value = String(order.paymentOptionLabel || "");
-    if (editorPaymentCode) editorPaymentCode.value = String(order.paymentOption || "");
-    if (editorPromo) editorPromo.value = String(order.promo || "");
-    if (editorTelegramNick) editorTelegramNick.value = String(order.telegramNick || "");
+    if (editorOrderNumberText) editorOrderNumberText.textContent = String(order.orderNumber || "-");
+    if (editorReceivedAtText) editorReceivedAtText.textContent = formatOrderDate(order.receivedAt);
+    if (editorCustomerText) {
+      editorCustomerText.textContent = [order.customerName || "Customer", order.phone || "No phone"].join(" | ");
+    }
+    if (editorLocationText) {
+      editorLocationText.textContent = [order.city || "No city", order.branch || "No branch"].join(" | ");
+    }
+    if (editorPaymentText) {
+      editorPaymentText.textContent = order.paymentOptionLabel || order.paymentOption || "Payment not set";
+    }
+    if (editorMetaText) {
+      const promo = order.promo ? `Promo: ${order.promo}` : "Promo: none";
+      const telegram = order.telegramNick ? `Telegram: ${order.telegramNick}` : "Telegram: none";
+      editorMetaText.textContent = `${promo} | ${telegram}`;
+    }
     if (editorSubtotal) editorSubtotal.value = String(Math.round(getOrderSubtotal(order)));
     if (editorDiscount) editorDiscount.value = String(Math.round(getOrderDiscount(order)));
     if (editorTotal) editorTotal.value = String(Math.round(toSafeNumber(order.total, getOrderSubtotal(order))));
@@ -446,7 +462,7 @@
 
     if (orderEditorForm) orderEditorForm.hidden = false;
     if (orderEditorEmpty) orderEditorEmpty.hidden = true;
-    if (orderEditorNote) orderEditorNote.textContent = `Adjusting order ${order.orderNumber || "ENTRYFRAG"}`;
+    if (orderEditorNote) orderEditorNote.textContent = `Adjusting prices for order ${order.orderNumber || "ENTRYFRAG"}`;
     orderEditorForm?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
@@ -638,32 +654,9 @@
     setStatus("Order editing cancelled.");
   });
 
-  addOrderItemButton?.addEventListener("click", () => {
-    if (!editorItemsList) return;
-    editorItemsList.insertAdjacentHTML("beforeend", buildEditorItemMarkup({ qty: 1, unitPrice: 0 }));
-  });
-
-  editorItemsList?.addEventListener("click", (event) => {
-    const removeButton = event.target.closest("[data-remove-item]");
-    if (!removeButton) return;
-
-    const itemCard = removeButton.closest(".editor-item");
-    itemCard?.remove();
-
-    if (!editorItemsList?.querySelector(".editor-item")) {
-      renderEditorItems([]);
-    }
-
-    syncTotalsFromItems();
-  });
-
   editorItemsList?.addEventListener("input", (event) => {
-    const field = event.target.closest('[data-item-field="qty"], [data-item-field="unitPrice"]');
+    const field = event.target.closest('[data-item-field="unitPrice"]');
     if (!field) return;
-    syncTotalsFromItems();
-  });
-
-  editorDiscount?.addEventListener("input", () => {
     syncTotalsFromItems();
   });
 
@@ -678,9 +671,8 @@
     }
 
     const originalOrderNumber = String(editorOriginalOrderNumber?.value || "").trim();
-    const nextOrderNumber = String(editorOrderNumber?.value || "").trim();
-    if (!originalOrderNumber || !nextOrderNumber) {
-      setStatus("Order number is required before saving changes.", "error");
+    if (!originalOrderNumber) {
+      setStatus("Choose an order before saving price changes.", "error");
       return;
     }
 
@@ -693,25 +685,11 @@
 
     const parsedItems = readEditorItems();
 
-    const receivedAtValue = String(editorReceivedAt?.value || "").trim();
-    const receivedAtDate = receivedAtValue ? new Date(receivedAtValue) : null;
     const subtotal = Math.max(toSafeNumber(editorSubtotal?.value, getOrderSubtotal(existingOrder)), 0);
     const discount = Math.max(toSafeNumber(editorDiscount?.value, getOrderDiscount(existingOrder)), 0);
     const total = Math.max(toSafeNumber(editorTotal?.value, subtotal - discount), 0);
     const updatedOrder = {
       ...existingOrder,
-      orderNumber: nextOrderNumber,
-      receivedAt: receivedAtDate && !Number.isNaN(receivedAtDate.getTime())
-        ? receivedAtDate.toISOString()
-        : String(existingOrder.receivedAt || new Date().toISOString()),
-      customerName: String(editorCustomerName?.value || "").trim(),
-      phone: String(editorPhone?.value || "").trim(),
-      city: String(editorCity?.value || "").trim(),
-      branch: String(editorBranch?.value || "").trim(),
-      paymentOptionLabel: String(editorPaymentLabel?.value || "").trim(),
-      paymentOption: String(editorPaymentCode?.value || "").trim(),
-      promo: String(editorPromo?.value || "").trim(),
-      telegramNick: String(editorTelegramNick?.value || "").trim(),
       subtotal,
       discount,
       total,
@@ -732,8 +710,8 @@
         String(order.orderNumber || "") === originalOrderNumber ? savedOrder : order
       )));
       renderDashboard();
-      startEditingOrder(savedOrder.orderNumber || nextOrderNumber);
-      setStatus(`Order ${savedOrder.orderNumber || nextOrderNumber} updated.`, "success");
+      startEditingOrder(savedOrder.orderNumber || originalOrderNumber);
+      setStatus(`Prices updated for order ${savedOrder.orderNumber || originalOrderNumber}.`, "success");
     } catch (error) {
       if (String(error.message).includes("admin_auth_required")) {
         clearAdminAccess();
@@ -741,18 +719,16 @@
         return;
       }
 
-      if (String(error.message).includes("duplicate_order_number")) {
-        setStatus("Another order already uses that order number. Choose a different one.", "error");
-      } else if (String(error.message).includes("order_not_found")) {
+      if (String(error.message).includes("order_not_found")) {
         setStatus("That order could not be found in storage anymore.", "error");
       } else {
-        setStatus(`Could not update order ${originalOrderNumber}.`, "error");
+        setStatus(`Could not update prices for order ${originalOrderNumber}.`, "error");
       }
     } finally {
       isSavingOrder = false;
       if (saveOrderButton) {
         saveOrderButton.disabled = false;
-        saveOrderButton.textContent = "Save order changes";
+        saveOrderButton.textContent = "Save price changes";
       }
     }
   });
