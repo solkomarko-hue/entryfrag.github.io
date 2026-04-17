@@ -940,6 +940,11 @@ body.team-open .team-modal{opacity:1;visibility:visible;transform:translateY(0)}
   gap:12px;
 }
 
+.admin-login[hidden],
+.admin-panel[hidden]{
+  display:none !important;
+}
+
 .admin-field{
   display:grid;
   gap:8px;
