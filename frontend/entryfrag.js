@@ -361,6 +361,16 @@
         setAdminBusy(false);
       }
     };
+    const handleAdminLogin = async () => {
+      const username = adminUsernameInput.value.trim();
+      const password = adminPasswordInput.value;
+      if (!username || !password) {
+        setAdminMessage("Enter admin name and password.", "error");
+        return;
+      }
+      setAdminMessage("Checking admin access...");
+      await tryAdminLogin(username, password);
+    };
     const submitOrderToServer = async (orderPayload, telegramPayload) => {
       if (isHostedSite && !apiBaseUrl) {
         throw new Error("backend_not_configured");
@@ -1379,17 +1389,18 @@
       menuSearchResults.hidden = true;
       openProduct(item.dataset.productId, true, menuSearchInput);
     });
-    adminLoginForm.addEventListener("submit", async (event) => {
+    adminLoginForm.addEventListener("submit", (event) => {
       event.preventDefault();
-      const username = adminUsernameInput.value.trim();
-      const password = adminPasswordInput.value;
-      if (!username || !password) {
-        setAdminMessage("Enter admin name and password.", "error");
-        return;
-      }
-      setAdminMessage("Checking admin access...");
-      await tryAdminLogin(username, password);
+      event.stopPropagation();
     });
+    adminLoginButton.addEventListener("click", () => {
+      handleAdminLogin();
+    });
+    [adminUsernameInput, adminPasswordInput].forEach((input) => input.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      handleAdminLogin();
+    }));
     adminPasswordToggle.addEventListener("click", () => {
       const isVisible = adminPasswordInput.type === "text";
       adminPasswordInput.type = isVisible ? "password" : "text";
