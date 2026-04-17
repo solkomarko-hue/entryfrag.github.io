@@ -62,7 +62,7 @@ body.scroll-locked{
 }
 
 .overlay,.product-overlay{touch-action:none}
-.drawer,.product-modal,.sizechart-modal,.team-modal,.checkout-modal,.success-modal,.items,.product-body,.team-products,.checkout-scroll{
+.drawer,.product-modal,.sizechart-modal,.team-modal,.checkout-modal,.admin-modal,.success-modal,.items,.product-body,.team-products,.checkout-scroll{
   overscroll-behavior:contain;
 }
 a{text-decoration:none;color:inherit}
@@ -915,25 +915,25 @@ body.team-open .team-modal{opacity:1;visibility:visible;transform:translateY(0)}
 .footer-social a{display:inline-flex;align-items:center;min-height:var(--touch-target);color:#dcdcdc;text-decoration:none;font-size:1rem;border-bottom:2px solid transparent;transition:.2s}
 .footer-social a:hover{color:#fff;border-color:#fff}
 
-.footer-admin{
-  margin-top:12px;
-  padding:20px;
-  background:linear-gradient(180deg,rgba(18,18,18,.96),rgba(28,28,28,.98));
-  color:#f5f1ea;
-  border-radius:var(--radius-lg);
-  box-shadow:0 18px 44px rgba(0,0,0,.28);
-  display:grid;
-  gap:16px;
+.footer-admin-button{
+  width:auto;
+  justify-self:start;
+  min-height:36px;
+  padding:8px 14px;
+  border-radius:var(--radius-pill);
+  background:rgba(255,255,255,.08);
+  color:#f2ede6;
+  border:1px solid rgba(255,255,255,.14);
+  font-size:.8rem;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
 }
 
-.footer-admin-head{display:grid;gap:10px}
-.footer-admin-head h2{
-  font-size:clamp(1.35rem,4vw,1.85rem);
-  line-height:1.1;
-  text-transform:uppercase;
-  letter-spacing:.06em;
+.footer-admin-button:hover{
+  background:rgba(255,255,255,.16);
+  color:#fff;
 }
-.footer-admin-head p{color:#cfc8bf;line-height:1.6}
 
 .admin-login{
   display:grid;
@@ -1101,6 +1101,51 @@ body.team-open .team-modal{opacity:1;visibility:visible;transform:translateY(0)}
   line-height:1.6;
 }
 
+.admin-modal{
+  position:fixed;
+  top:50%;
+  left:50%;
+  width:min(560px,calc(100% - 24px));
+  max-height:calc(100vh - 24px);
+  overflow:hidden;
+  background:#111;
+  color:#f5f1ea;
+  box-shadow:0 24px 60px rgba(0,0,0,.28);
+  display:grid;
+  grid-template-rows:auto minmax(0,1fr);
+  gap:12px;
+  transform:translate(-50%,calc(-50% + 20px));
+  opacity:0;
+  visibility:hidden;
+  transition:.3s;
+  z-index:48;
+}
+
+body.admin-open .product-overlay{opacity:1;visibility:visible}
+body.admin-open .admin-modal{opacity:1;visibility:visible;transform:translate(-50%,-50%)}
+
+.admin-modal-head{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+  padding:18px 18px 0;
+}
+
+.admin-modal-head h3{
+  margin-top:6px;
+  font-size:1.45rem;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+
+.admin-modal-body{
+  display:grid;
+  gap:14px;
+  overflow:auto;
+  padding:0 18px 18px;
+}
+
 .overlay{
   position:fixed;
   inset:0;
@@ -1219,7 +1264,7 @@ body.cart-open .drawer{transform:translateY(0)}
   z-index:45;
 }
 
-.product-modal,.sizechart-modal,.checkout-modal,.success-modal{
+.product-modal,.sizechart-modal,.checkout-modal,.admin-modal,.success-modal{
   padding:16px;
   border-radius:var(--radius-lg);
 }
@@ -1894,13 +1939,13 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .hero-note{padding:18px}
   .card{padding:24px}
   .info,.list{padding:28px}
-  .footer-bar,.footer-social,.footer-admin{padding:22px 26px}
+  .footer-bar,.footer-social{padding:22px 26px}
   .admin-login{grid-template-columns:repeat(3,minmax(0,1fr));align-items:end}
   .admin-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
   .visual{min-height:440px;padding:22px}
   .visual.gallery[data-shot-count="3"],.visual.gallery[data-shot-count="5"]{grid-template-columns:repeat(3,minmax(0,1fr))}
   .gallery-shot{min-height:170px}
-  .product-modal,.sizechart-modal,.team-modal,.checkout-modal{
+  .product-modal,.sizechart-modal,.team-modal,.checkout-modal,.admin-modal{
     inset:20px;
     width:auto;
     height:min(92vh,900px);
@@ -1917,6 +1962,7 @@ body.success-open .success-modal{opacity:1;visibility:visible;transform:translat
   .sizechart-modal{inset:28px;height:min(94vh,940px)}
   .sizechart-shot{width:min(980px,calc(100vw - 48px));height:420px;margin:auto;padding:8px}
   .checkout-modal{width:min(760px,calc(100% - 24px));height:min(90vh,860px)}
+  .admin-modal{width:min(560px,calc(100% - 24px));max-height:calc(100vh - 40px);padding:10px 0 0}
   .success-modal{
     width:min(440px,calc(100% - 24px));
     max-height:calc(100vh - 40px);

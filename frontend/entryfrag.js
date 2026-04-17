@@ -92,10 +92,12 @@
     const closeTeamModal = document.getElementById("closeTeamModal");
     const checkoutModal = document.getElementById("checkoutModal");
     const closeCheckoutModal = document.getElementById("closeCheckoutModal");
+    const adminOpenButton = document.getElementById("adminOpenButton");
+    const adminModal = document.getElementById("adminModal");
+    const closeAdminModal = document.getElementById("closeAdminModal");
     const successModal = document.getElementById("successModal");
     const closeSuccessModal = document.getElementById("closeSuccessModal");
     const successMessage = document.getElementById("successMessage");
-    const adminSection = document.getElementById("adminSection");
     const adminLoginForm = document.getElementById("adminLoginForm");
     const adminUsernameInput = document.getElementById("adminUsername");
     const adminPasswordInput = document.getElementById("adminPassword");
@@ -144,7 +146,7 @@
     let currentOrderNumber = "";
     let cachedCities = [];
     const sortableSectionIds = new Set(["jerseys", "zipups", "pants"]);
-    const surfaceRootIds = new Set(["overlay", "drawer", "productOverlay", "productModal", "sizeChartModal", "teamModal", "checkoutModal", "successModal", "toast"]);
+    const surfaceRootIds = new Set(["overlay", "drawer", "productOverlay", "productModal", "sizeChartModal", "teamModal", "checkoutModal", "adminModal", "successModal", "toast"]);
     const backgroundRoots = [...body.children].filter((node) => node instanceof HTMLElement && !surfaceRootIds.has(node.id) && node.tagName !== "SCRIPT");
     const surfaceReturnFocus = new Map();
     const focusableSelector = 'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -194,6 +196,7 @@
     };
     const getActiveSurface = () => {
       if (body.classList.contains("success-open")) return { key: "success", root: successModal, focusTarget: closeSuccessModal };
+      if (body.classList.contains("admin-open")) return { key: "admin", root: adminModal, focusTarget: closeAdminModal };
       if (body.classList.contains("sizechart-open")) return { key: "sizechart", root: sizeChartModal, focusTarget: closeSizeChart };
       if (body.classList.contains("checkout-open")) return { key: "checkout", root: checkoutModal, focusTarget: closeCheckoutModal };
       if (body.classList.contains("team-open")) return { key: "team", root: teamModal, focusTarget: closeTeamModal };
@@ -213,7 +216,7 @@
     };
     const syncSurfaceState = () => {
       const cartOpen = body.classList.contains("cart-open");
-      const productSurfaceOpen = ["product-open", "sizechart-open", "team-open", "checkout-open", "success-open"].some((surfaceClass) => body.classList.contains(surfaceClass));
+      const productSurfaceOpen = ["product-open", "sizechart-open", "team-open", "checkout-open", "admin-open", "success-open"].some((surfaceClass) => body.classList.contains(surfaceClass));
       overlay.setAttribute("aria-hidden", String(!cartOpen));
       productOverlay.setAttribute("aria-hidden", String(!productSurfaceOpen));
       drawer.setAttribute("aria-hidden", String(!cartOpen));
@@ -221,6 +224,7 @@
       sizeChartModal.setAttribute("aria-hidden", String(!body.classList.contains("sizechart-open")));
       teamModal.setAttribute("aria-hidden", String(!body.classList.contains("team-open")));
       checkoutModal.setAttribute("aria-hidden", String(!body.classList.contains("checkout-open")));
+      adminModal.setAttribute("aria-hidden", String(!body.classList.contains("admin-open")));
       successModal.setAttribute("aria-hidden", String(!body.classList.contains("success-open")));
       const hasActiveSurface = cartOpen || productSurfaceOpen;
       if (hasActiveSurface) lockBodyScroll();
@@ -239,6 +243,7 @@
         return;
       }
       if (activeSurface.key === "success") hideSuccessModal();
+      else if (activeSurface.key === "admin") hideAdminModal();
       else if (activeSurface.key === "sizechart") hideSizeChart();
       else if (activeSurface.key === "checkout") {
         if (desktopHeaderMedia.matches) hideCheckoutModal();
@@ -255,6 +260,7 @@
       [sizeChartModal, "Size chart"],
       [teamModal, "Team products"],
       [checkoutModal, "Checkout"],
+      [adminModal, "Admin login"],
       [successModal, "Order status"]
     ].forEach(([root, label]) => {
       root.setAttribute("role", "dialog");
@@ -330,7 +336,6 @@
     const setAdminLoggedIn = (loggedIn) => {
       adminLoginForm.hidden = loggedIn;
       adminPanel.hidden = !loggedIn;
-      adminSection.classList.toggle("admin-logged-in", loggedIn);
     };
     const setAdminBusy = (busy) => {
       adminLoginButton.disabled = busy;
@@ -987,6 +992,20 @@
       if (restoreFocus) restoreSurfaceFocus("checkout");
     };
 
+    const openAdminModal = (returnFocus = document.activeElement) => {
+      rememberSurfaceFocus("admin", returnFocus);
+      closeHeaderMenu();
+      body.classList.add("admin-open");
+      syncSurfaceState();
+      focusSurface(adminModal, closeAdminModal);
+    };
+
+    const hideAdminModal = (restoreFocus = true) => {
+      body.classList.remove("admin-open");
+      syncSurfaceState();
+      if (restoreFocus) restoreSurfaceFocus("admin");
+    };
+
     const showSuccessModal = (message, returnFocus = document.activeElement) => {
       rememberSurfaceFocus("success", returnFocus);
       successMessage.textContent = message;
@@ -1410,6 +1429,8 @@
       if (desktopHeaderMedia.matches) hideCheckoutModal();
       else returnToCartFromCheckout();
     });
+    adminOpenButton.addEventListener("click", () => openAdminModal(adminOpenButton));
+    closeAdminModal.addEventListener("click", () => hideAdminModal());
     closeSuccessModal.addEventListener("click", () => hideSuccessModal());
     checkoutBack.addEventListener("click", returnToCartFromCheckout);
     checkout.addEventListener("click", () => openCheckoutModal(checkout));

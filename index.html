@@ -568,51 +568,8 @@
       <span>Будь на зв’язку з нами у Telegram та Instagram</span>
       <a href="https://t.me/+WfE-faiUIrhkOGUy" target="_blank" rel="noopener noreferrer">Telegram • вступити</a>
       <a href="https://www.instagram.com/entryfrag.jersey?igsh=ZmRwbHVsdzQyMjJv" target="_blank" rel="noopener noreferrer">Instagram • стежити</a>
+      <button class="footer-admin-button" id="adminOpenButton" type="button">Admin</button>
     </div>
-    <section class="footer-admin" id="adminSection" aria-labelledby="adminSectionTitle">
-      <div class="footer-admin-head">
-        <span class="tag">Admin</span>
-        <div>
-          <h2 id="adminSectionTitle">ENTRYFRAG Admin Profile</h2>
-          <p>Use the approved admin username and password to open the order dashboard.</p>
-        </div>
-      </div>
-      <form class="admin-login" id="adminLoginForm">
-        <label class="admin-field">
-          <span>Admin name</span>
-          <input id="adminUsername" name="adminUsername" type="text" placeholder="ENTRYFRAGADMIN" autocomplete="username" required>
-        </label>
-        <label class="admin-field">
-          <span>Password</span>
-          <input id="adminPassword" name="adminPassword" type="password" placeholder="Enter admin password" autocomplete="current-password" required>
-        </label>
-        <button class="admin-submit" id="adminLoginButton" type="submit">Open admin profile</button>
-      </form>
-      <p class="admin-login-message" id="adminLoginMessage" aria-live="polite">Admin access is locked.</p>
-      <section class="admin-panel" id="adminPanel" hidden>
-        <div class="admin-stats">
-          <article class="admin-stat">
-            <span>Total orders</span>
-            <strong id="adminOrderCount">0</strong>
-          </article>
-          <article class="admin-stat">
-            <span>Total revenue</span>
-            <strong id="adminRevenue">0 ₴</strong>
-          </article>
-          <article class="admin-stat">
-            <span>Latest order</span>
-            <strong id="adminLastOrder">No orders yet</strong>
-          </article>
-        </div>
-        <div class="admin-panel-actions">
-          <button class="admin-action" id="adminRefresh" type="button">Refresh orders</button>
-          <button class="admin-action admin-action-secondary" id="adminLogout" type="button">Log out</button>
-        </div>
-        <div class="admin-orders" id="adminOrders">
-          <div class="admin-empty">No orders yet.</div>
-        </div>
-      </section>
-    </section>
   </footer>
 
   <div class="overlay" id="overlay"></div>
@@ -784,6 +741,52 @@
         <button class="checkout-submit" type="submit">Підтвердити замовлення</button>
       </div>
     </form>
+  </aside>
+  <aside class="admin-modal" id="adminModal" aria-hidden="true">
+    <div class="admin-modal-head">
+      <div>
+        <span class="tag">Admin</span>
+        <h3 id="adminSectionTitle">ENTRYFRAG Admin Profile</h3>
+      </div>
+      <button class="close" id="closeAdminModal" type="button">×</button>
+    </div>
+    <div class="admin-modal-body">
+      <form class="admin-login" id="adminLoginForm">
+        <label class="admin-field">
+          <span>Admin name</span>
+          <input id="adminUsername" name="adminUsername" type="text" placeholder="ENTRYFRAGADMIN" autocomplete="username" required>
+        </label>
+        <label class="admin-field">
+          <span>Password</span>
+          <input id="adminPassword" name="adminPassword" type="password" placeholder="Enter admin password" autocomplete="current-password" required>
+        </label>
+        <button class="admin-submit" id="adminLoginButton" type="submit">Open admin profile</button>
+      </form>
+      <p class="admin-login-message" id="adminLoginMessage" aria-live="polite">Admin access is locked.</p>
+      <section class="admin-panel" id="adminPanel" hidden>
+        <div class="admin-stats">
+          <article class="admin-stat">
+            <span>Total orders</span>
+            <strong id="adminOrderCount">0</strong>
+          </article>
+          <article class="admin-stat">
+            <span>Total revenue</span>
+            <strong id="adminRevenue">0 ₴</strong>
+          </article>
+          <article class="admin-stat">
+            <span>Latest order</span>
+            <strong id="adminLastOrder">No orders yet</strong>
+          </article>
+        </div>
+        <div class="admin-panel-actions">
+          <button class="admin-action" id="adminRefresh" type="button">Refresh orders</button>
+          <button class="admin-action admin-action-secondary" id="adminLogout" type="button">Log out</button>
+        </div>
+        <div class="admin-orders" id="adminOrders">
+          <div class="admin-empty">No orders yet.</div>
+        </div>
+      </section>
+    </div>
   </aside>
   <aside class="success-modal" id="successModal" aria-hidden="true">
     <div class="success-copy">
