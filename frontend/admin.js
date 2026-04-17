@@ -271,7 +271,10 @@
               <strong>${escapeHtml(order.orderNumber || "ENTRYFRAG")}</strong>
               <small>${formatOrderDate(order.receivedAt)}</small>
             </div>
-            <strong>${money(Number(order.total || 0))}</strong>
+            <div class="order-card-head-actions">
+              <strong>${money(Number(order.total || 0))}</strong>
+              <button class="order-delete" type="button" data-delete-order="${escapeHtml(order.orderNumber || "")}">Delete</button>
+            </div>
           </div>
           <div class="order-card-meta">
             <span class="order-chip">${escapeHtml(order.customerName || "Customer")}</span>
@@ -328,6 +331,29 @@
     return Array.isArray(payload.orders) ? payload.orders : [];
   };
 
+  const deleteOrder = async (authHeader, orderNumber) => {
+    const response = await fetch(`${orderHistoryUrl}/delete`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: authHeader
+      },
+      body: JSON.stringify({ orderNumber })
+    });
+
+    let payload = {};
+    try {
+      payload = await response.json();
+    } catch {}
+
+    if (!response.ok) {
+      if (response.status === 401) throw new Error("admin_auth_required");
+      throw new Error(payload?.error || "admin_delete_failed");
+    }
+
+    return payload;
+  };
+
   const initializeDashboard = async ({ manual = false } = {}) => {
     if (isSyncing) return;
     const session = readSession();
@@ -377,6 +403,43 @@
 
   syncOrdersButton?.addEventListener("click", () => {
     initializeDashboard({ manual: true });
+  });
+
+  ordersRecord?.addEventListener("click", async (event) => {
+    const button = event.target.closest("[data-delete-order]");
+    if (!button) return;
+
+    const orderNumber = button.dataset.deleteOrder;
+    if (!orderNumber) return;
+
+    const session = readSession();
+    if (!session.hasAccess || !session.authHeader) {
+      redirectHome();
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete order ${orderNumber}? This cannot be undone.`);
+    if (!confirmed) return;
+
+    button.disabled = true;
+    button.textContent = "Deleting...";
+    setStatus(`Deleting order ${orderNumber}...`);
+
+    try {
+      await deleteOrder(session.authHeader, orderNumber);
+      allOrders = allOrders.filter((order) => String(order.orderNumber || "") !== String(orderNumber));
+      renderDashboard();
+      setStatus(`Order ${orderNumber} deleted.`, "success");
+    } catch (error) {
+      if (String(error.message).includes("admin_auth_required")) {
+        clearAdminAccess();
+        redirectHome();
+        return;
+      }
+      setStatus(`Could not delete order ${orderNumber}.`, "error");
+      button.disabled = false;
+      button.textContent = "Delete";
+    }
   });
 
   window.addEventListener("pageshow", () => {

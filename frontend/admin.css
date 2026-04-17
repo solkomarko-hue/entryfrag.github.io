@@ -342,6 +342,12 @@ button{font:inherit;border:none;cursor:pointer}
   align-items:flex-start;
 }
 
+.order-card-head-actions{
+  display:grid;
+  gap:10px;
+  justify-items:end;
+}
+
 .breakdown-item strong,
 .top-item strong,
 .order-card strong{
@@ -403,6 +409,25 @@ button{font:inherit;border:none;cursor:pointer}
   font-weight:700;
 }
 
+.order-delete{
+  min-height:38px;
+  padding:8px 14px;
+  border-radius:var(--radius-pill);
+  background:rgba(159,35,40,.1);
+  color:#9f2328;
+  border:1px solid rgba(159,35,40,.18);
+  font-weight:800;
+}
+
+.order-delete:hover{
+  background:rgba(159,35,40,.16);
+}
+
+.order-delete:disabled{
+  opacity:.65;
+  cursor:wait;
+}
+
 .order-card-items ul{
   display:grid;
   gap:8px;
@@ -458,6 +483,11 @@ button{font:inherit;border:none;cursor:pointer}
   .order-card-head{
     align-items:flex-start;
     flex-direction:column;
+  }
+
+  .order-card-head-actions{
+    width:100%;
+    justify-items:start;
   }
 
   .section-actions{

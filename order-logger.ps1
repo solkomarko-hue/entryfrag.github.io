@@ -84,6 +84,21 @@ function Append-Order($order) {
   Write-Orders $orders
 }
 
+function Remove-Order {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$OrderNumber
+  )
+
+  $orders = Read-Orders
+  $filtered = @($orders | Where-Object { $_.orderNumber -ne $OrderNumber })
+  if ($filtered.Count -eq $orders.Count) {
+    return $false
+  }
+  Write-Orders $filtered
+  return $true
+}
+
 function Get-ManagerChatId {
   if (Test-Path $managerChatFile) {
     $chatId = (Get-Content $managerChatFile -Raw).Trim()
@@ -135,7 +150,7 @@ function Send-HttpResponse {
     "HTTP/1.1 $StatusCode $statusText",
     "Access-Control-Allow-Origin: *",
     "Access-Control-Allow-Methods: GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers: Content-Type",
+    "Access-Control-Allow-Headers: Content-Type, Authorization",
     "Content-Type: $ContentType",
     "Content-Length: $($BodyBytes.Length)",
     "Connection: close",
@@ -246,6 +261,36 @@ function Read-HttpRequest {
     Method = $parts[0]
     Path = $parts[1]
     Body = $body
+    Headers = $headers
+  }
+}
+
+function Test-AdminAccess {
+  param(
+    [Parameter(Mandatory = $true)]
+    [hashtable]$Headers
+  )
+
+  if (-not $Headers.ContainsKey("authorization")) {
+    return $false
+  }
+
+  $authHeader = [string]$Headers["authorization"]
+  if (-not $authHeader.StartsWith("Basic ")) {
+    return $false
+  }
+
+  try {
+    $decoded = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($authHeader.Substring(6)))
+    $separatorIndex = $decoded.IndexOf(":")
+    if ($separatorIndex -lt 0) {
+      return $false
+    }
+    $username = $decoded.Substring(0, $separatorIndex)
+    $password = $decoded.Substring($separatorIndex + 1)
+    return $username -eq "ENTRYFRAGADMIN" -and $password -eq "efs1mpleg0at@"
+  } catch {
+    return $false
   }
 }
 
@@ -261,6 +306,30 @@ function Handle-Request {
 
   if ($Request.Method -eq "GET") {
     return Get-LocalFileResponse -RequestPath $Request.Path
+  }
+
+  if ($Request.Method -eq "POST" -and $Request.Path -eq "/api/orders/delete") {
+    if (-not (Test-AdminAccess -Headers $Request.Headers)) {
+      return New-JsonResponse -StatusCode 401 -Body '{"error":"admin_auth_required"}'
+    }
+
+    try {
+      $json = $Request.Body | ConvertFrom-Json
+    } catch {
+      return New-JsonResponse -StatusCode 400 -Body '{"error":"invalid_json"}'
+    }
+
+    $orderNumber = [string]$json.orderNumber
+    if ([string]::IsNullOrWhiteSpace($orderNumber)) {
+      return New-JsonResponse -StatusCode 400 -Body '{"error":"missing_order_number"}'
+    }
+
+    $deleted = Remove-Order -OrderNumber $orderNumber.Trim()
+    if (-not $deleted) {
+      return New-JsonResponse -StatusCode 404 -Body '{"error":"order_not_found"}'
+    }
+
+    return New-JsonResponse -StatusCode 200 -Body '{"status":"ok"}'
   }
 
   if ($Request.Method -ne "POST" -or ($Request.Path -ne "/orders" -and $Request.Path -ne "/api/orders")) {

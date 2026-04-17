@@ -56,6 +56,16 @@ function appendOrder(order) {
   writeOrders(orders);
 }
 
+function removeOrder(orderNumber) {
+  const orders = readOrders();
+  const filteredOrders = orders.filter((order) => String(order.orderNumber || "") !== String(orderNumber || ""));
+  if (filteredOrders.length === orders.length) {
+    return false;
+  }
+  writeOrders(filteredOrders);
+  return true;
+}
+
 function getTelegramChatId() {
   if (fs.existsSync(managerChatFile)) {
     const fileChatId = fs.readFileSync(managerChatFile, "utf8").trim();
@@ -238,6 +248,30 @@ async function handleOrderRequest(req, res) {
   }
 }
 
+async function handleDeleteOrderRequest(req, res) {
+  try {
+    const rawBody = await readRequestBody(req);
+    const parsed = JSON.parse(rawBody || "{}");
+    const orderNumber = String(parsed.orderNumber || "").trim();
+
+    if (!orderNumber) {
+      sendJson(res, 400, { error: "missing_order_number" });
+      return;
+    }
+
+    const deleted = removeOrder(orderNumber);
+    if (!deleted) {
+      sendJson(res, 404, { error: "order_not_found" });
+      return;
+    }
+
+    sendJson(res, 200, { status: "ok", deletedOrderNumber: orderNumber });
+  } catch (error) {
+    const code = error.message === "payload_too_large" ? 413 : 500;
+    sendJson(res, code, { error: error.message || "internal" });
+  }
+}
+
 function handleOrdersHistory(res) {
   const orders = readOrders().sort((a, b) => String(b.receivedAt || "").localeCompare(String(a.receivedAt || "")));
   sendJson(res, 200, { orders });
@@ -272,6 +306,15 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "POST" && requestUrl.pathname === "/api/orders") {
     await handleOrderRequest(req, res);
+    return;
+  }
+
+  if (req.method === "POST" && requestUrl.pathname === "/api/orders/delete") {
+    if (!hasAdminAccess(req)) {
+      sendAdminUnauthorized(res);
+      return;
+    }
+    await handleDeleteOrderRequest(req, res);
     return;
   }
 
