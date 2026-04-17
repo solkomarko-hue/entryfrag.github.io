@@ -308,6 +308,7 @@
     const isHostedSite = location.protocol.startsWith("http") && !["localhost", "127.0.0.1"].includes(location.hostname);
     const orderLoggerUrl = apiBaseUrl ? `${apiBaseUrl}/api/orders` : "/api/orders";
     const adminAccessKey = "entryfrag-admin-access";
+    const adminAuthKey = "entryfrag-admin-auth";
     const adminCredentials = {
       username: "ENTRYFRAGADMIN",
       password: "efs1mpleg0at@"
@@ -333,6 +334,7 @@
     const resetAdminAccess = () => {
       try {
         sessionStorage.removeItem(adminAccessKey);
+        sessionStorage.removeItem(adminAuthKey);
       } catch {}
       setAdminLoggedIn(false);
       adminLoginForm.reset();
@@ -353,6 +355,7 @@
         }
         try {
           sessionStorage.setItem(adminAccessKey, "granted");
+          sessionStorage.setItem(adminAuthKey, `Basic ${window.btoa(`${username}:${password}`)}`);
         } catch {}
         setAdminMessage("Opening admin page...", "success");
         window.location.assign("./admin.html");

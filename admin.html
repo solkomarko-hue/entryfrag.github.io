@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ENTRYFRAG | Admin</title>
+  <title>ENTRYFRAG | Admin Dashboard</title>
+  <script src="./entryfrag-config.js"></script>
   <link rel="stylesheet" href="./frontend/admin.css">
 </head>
 <body>
   <header class="admin-shell wrap">
-    <a class="admin-brand" href="./index.html" aria-label="Back to ENTRYFRAG">
+    <a class="admin-brand" href="./index.html" aria-label="Back to ENTRYFRAG store">
       <strong>ENTRYFRAG</strong>
-      <span>Admin page</span>
+      <span>Admin dashboard</span>
     </a>
     <div class="admin-actions">
       <a class="admin-link" href="./index.html">Store</a>
@@ -18,26 +19,78 @@
     </div>
   </header>
 
-  <main class="wrap">
+  <main class="wrap admin-main">
     <section class="admin-hero">
       <span class="admin-tag">Private</span>
-      <h1>Admin Open Space</h1>
-      <p>This page opens only after a successful admin login.</p>
+      <h1>Revenue Dashboard</h1>
+      <p>Track revenue by day, month, or year, review best-selling items, and keep a full order record in one place.</p>
     </section>
 
-    <section class="admin-space" aria-labelledby="adminSpaceTitle">
-      <div class="admin-space-head">
+    <div class="admin-status" id="adminStatus" aria-live="polite">Loading admin dashboard...</div>
+
+    <section class="dashboard-section" aria-labelledby="revenueDashboardTitle">
+      <div class="section-head">
         <div>
-          <span class="admin-tag">Workspace</span>
-          <h2 id="adminSpaceTitle">Open admin page</h2>
+          <span class="admin-tag">Revenue</span>
+          <h2 id="revenueDashboardTitle">Revenue by period</h2>
+        </div>
+        <div class="view-switch" id="viewSwitch" role="tablist" aria-label="Revenue period">
+          <button class="view-switch-button is-active" type="button" data-view="day" aria-pressed="true">Day</button>
+          <button class="view-switch-button" type="button" data-view="month" aria-pressed="false">Month</button>
+          <button class="view-switch-button" type="button" data-view="year" aria-pressed="false">Year</button>
         </div>
       </div>
-      <div class="admin-canvas">
-        <div class="admin-canvas-copy">
-          <strong>ENTRYFRAG Admin</strong>
-          <p>You are inside the dedicated admin page.</p>
+
+      <div class="metric-grid">
+        <article class="metric-card metric-card-primary">
+          <span class="metric-label" id="selectedPeriodLabel">Today</span>
+          <strong class="metric-value" id="selectedRevenueValue">0 ₴</strong>
+          <p class="metric-copy" id="selectedRevenueCopy">Revenue for the selected period.</p>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Orders in period</span>
+          <strong class="metric-value" id="selectedOrderCount">0</strong>
+          <p class="metric-copy">How many orders were placed in the selected period.</p>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Average order</span>
+          <strong class="metric-value" id="selectedAverageValue">0 ₴</strong>
+          <p class="metric-copy">Average revenue per order in the selected period.</p>
+        </article>
+        <article class="metric-card">
+          <span class="metric-label">Total revenue</span>
+          <strong class="metric-value" id="totalRevenueValue">0 ₴</strong>
+          <p class="metric-copy">Revenue across all saved orders.</p>
+        </article>
+      </div>
+
+      <div class="dashboard-grid">
+        <section class="panel-card" aria-labelledby="revenueBreakdownTitle">
+          <div class="panel-head">
+            <h3 id="revenueBreakdownTitle">Revenue breakdown</h3>
+            <span class="panel-note" id="revenueBreakdownNote">Latest periods first</span>
+          </div>
+          <div class="breakdown-list" id="revenueBreakdown"></div>
+        </section>
+
+        <section class="panel-card" aria-labelledby="topItemsTitle">
+          <div class="panel-head">
+            <h3 id="topItemsTitle">Most sold items</h3>
+            <span class="panel-note">Ranked by quantity sold</span>
+          </div>
+          <div class="top-items-list" id="topItemsList"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="dashboard-section" aria-labelledby="ordersRecordTitle">
+      <div class="section-head">
+        <div>
+          <span class="admin-tag">Orders</span>
+          <h2 id="ordersRecordTitle">All orders record</h2>
         </div>
       </div>
+      <div class="orders-record" id="ordersRecord"></div>
     </section>
   </main>
 
