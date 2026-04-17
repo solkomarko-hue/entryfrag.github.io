@@ -306,7 +306,6 @@
     const apiBaseUrl = (window.ENTRYFRAG_API_URL || "").trim().replace(/\/$/, "");
     const isHostedSite = location.protocol.startsWith("http") && !["localhost", "127.0.0.1"].includes(location.hostname);
     const orderLoggerUrl = apiBaseUrl ? `${apiBaseUrl}/api/orders` : "/api/orders";
-    const adminSessionKey = "entryfrag-admin-session";
     const adminCredentials = {
       username: "ENTRYFRAGADMIN",
       password: "efs1mpleg0at@"
@@ -329,22 +328,11 @@
       adminLogout.disabled = busy;
       adminLoginButton.textContent = busy ? "Checking..." : "Open admin profile";
     };
-    const readAdminSession = () => {
-      try {
-        return sessionStorage.getItem(adminSessionKey) || "";
-      } catch {
-        return "";
-      }
-    };
-    const saveAdminSession = (authHeader) => {
-      try {
-        sessionStorage.setItem(adminSessionKey, authHeader);
-      } catch {}
-    };
-    const clearAdminSession = () => {
-      try {
-        sessionStorage.removeItem(adminSessionKey);
-      } catch {}
+    const resetAdminAccess = () => {
+      setAdminLoggedIn(false);
+      adminLoginForm.reset();
+      adminUsernameInput.value = "";
+      adminPasswordInput.value = "";
     };
     const showAdminProfile = (message = "Admin profile unlocked.") => {
       adminProfileName.textContent = adminCredentials.username;
@@ -358,12 +346,10 @@
       setAdminBusy(true);
       try {
         if (username !== adminCredentials.username || password !== adminCredentials.password) {
-          clearAdminSession();
-          setAdminLoggedIn(false);
+          resetAdminAccess();
           setAdminMessage("Wrong admin name or password.", "error");
           return false;
         }
-        saveAdminSession(adminCredentials.username);
         showAdminProfile();
         return true;
       } finally {
@@ -919,13 +905,17 @@
     const openAdminModal = (returnFocus = document.activeElement) => {
       rememberSurfaceFocus("admin", returnFocus);
       closeHeaderMenu();
+      resetAdminAccess();
+      setAdminMessage("Admin access is locked.");
       body.classList.add("admin-open");
       syncSurfaceState();
-      focusSurface(adminModal, closeAdminModal);
+      focusSurface(adminModal, adminUsernameInput);
     };
 
     const hideAdminModal = (restoreFocus = true) => {
       body.classList.remove("admin-open");
+      resetAdminAccess();
+      setAdminMessage("Admin access is locked.");
       syncSurfaceState();
       if (restoreFocus) restoreSurfaceFocus("admin");
     };
@@ -1396,9 +1386,7 @@
       await tryAdminLogin(username, password);
     });
     adminLogout.addEventListener("click", () => {
-      clearAdminSession();
-      setAdminLoggedIn(false);
-      adminLoginForm.reset();
+      resetAdminAccess();
       setAdminMessage("Admin access is locked.");
       adminUsernameInput.focus({ preventScroll: true });
     });
@@ -1592,14 +1580,8 @@
     syncHeaderMenu();
     syncPaymentOption();
     updateSearchClearVisibility();
-    setAdminLoggedIn(false);
-    const savedAdminSession = readAdminSession();
-    if (savedAdminSession === adminCredentials.username) {
-      showAdminProfile("Admin profile restored.");
-    } else {
-      clearAdminSession();
-      setAdminMessage("Admin access is locked.");
-    }
+    resetAdminAccess();
+    setAdminMessage("Admin access is locked.");
 
     renderHeroLatest();
     renderTeams();
