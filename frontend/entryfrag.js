@@ -1386,9 +1386,7 @@
       await tryAdminLogin(username, password);
     });
     adminLogout.addEventListener("click", () => {
-      resetAdminAccess();
-      setAdminMessage("Admin access is locked.");
-      adminUsernameInput.focus({ preventScroll: true });
+      hideAdminModal();
     });
     document.addEventListener("click", (event) => {
       if (!event.target.closest(".header-panel-top")) {
@@ -1581,7 +1579,15 @@
     syncPaymentOption();
     updateSearchClearVisibility();
     resetAdminAccess();
+    body.classList.remove("admin-open");
+    syncSurfaceState();
     setAdminMessage("Admin access is locked.");
+    window.addEventListener("pageshow", () => {
+      body.classList.remove("admin-open");
+      resetAdminAccess();
+      syncSurfaceState();
+      setAdminMessage("Admin access is locked.");
+    });
 
     renderHeroLatest();
     renderTeams();

@@ -751,14 +751,14 @@
       <button class="close" id="closeAdminModal" type="button">×</button>
     </div>
     <div class="admin-modal-body">
-      <form class="admin-login" id="adminLoginForm">
+      <form class="admin-login" id="adminLoginForm" autocomplete="off">
         <label class="admin-field">
           <span>Admin name</span>
-          <input id="adminUsername" name="adminUsername" type="text" placeholder="ENTRYFRAGADMIN" autocomplete="username" required>
+          <input id="adminUsername" name="adminUsername" type="text" placeholder="ENTRYFRAGADMIN" autocomplete="off" required>
         </label>
         <label class="admin-field">
           <span>Password</span>
-          <input id="adminPassword" name="adminPassword" type="password" placeholder="Enter admin password" autocomplete="current-password" required>
+          <input id="adminPassword" name="adminPassword" type="password" placeholder="Enter admin password" autocomplete="off" required>
         </label>
         <button class="admin-submit" id="adminLoginButton" type="submit">Open admin profile</button>
       </form>
