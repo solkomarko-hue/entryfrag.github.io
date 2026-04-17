@@ -104,12 +104,9 @@
     const adminLoginButton = document.getElementById("adminLoginButton");
     const adminLoginMessage = document.getElementById("adminLoginMessage");
     const adminPanel = document.getElementById("adminPanel");
-    const adminOrderCount = document.getElementById("adminOrderCount");
-    const adminRevenue = document.getElementById("adminRevenue");
-    const adminLastOrder = document.getElementById("adminLastOrder");
-    const adminRefresh = document.getElementById("adminRefresh");
+    const adminProfileName = document.getElementById("adminProfileName");
+    const adminProfileStatus = document.getElementById("adminProfileStatus");
     const adminLogout = document.getElementById("adminLogout");
-    const adminOrders = document.getElementById("adminOrders");
     const checkoutForm = document.getElementById("checkoutForm");
     const checkoutScroll = checkoutForm.querySelector(".checkout-scroll");
     const checkoutOrderNumber = document.getElementById("checkoutOrderNumber");
@@ -309,22 +306,10 @@
     const apiBaseUrl = (window.ENTRYFRAG_API_URL || "").trim().replace(/\/$/, "");
     const isHostedSite = location.protocol.startsWith("http") && !["localhost", "127.0.0.1"].includes(location.hostname);
     const orderLoggerUrl = apiBaseUrl ? `${apiBaseUrl}/api/orders` : "/api/orders";
-    const adminSessionKey = "entryfrag-admin-auth";
-    const escapeHtml = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#39;"
-    }[character]));
-    const formatAdminDate = (value) => {
-      if (!value) return "No timestamp";
-      const date = new Date(value);
-      if (Number.isNaN(date.getTime())) return "No timestamp";
-      return new Intl.DateTimeFormat("uk-UA", {
-        dateStyle: "medium",
-        timeStyle: "short"
-      }).format(date);
+    const adminSessionKey = "entryfrag-admin-session";
+    const adminCredentials = {
+      username: "ENTRYFRAGADMIN",
+      password: "efs1mpleg0at@"
     };
     const setAdminMessage = (text, tone = "") => {
       if (!adminLoginMessage) return;
@@ -341,12 +326,9 @@
       adminLoginButton.disabled = busy;
       adminUsernameInput.disabled = busy;
       adminPasswordInput.disabled = busy;
-      adminRefresh.disabled = busy;
       adminLogout.disabled = busy;
       adminLoginButton.textContent = busy ? "Checking..." : "Open admin profile";
-      adminRefresh.textContent = busy && !adminPanel.hidden ? "Refreshing..." : "Refresh orders";
     };
-    const encodeAdminAuth = (username, password) => `Basic ${window.btoa(`${username}:${password}`)}`;
     const readAdminSession = () => {
       try {
         return sessionStorage.getItem(adminSessionKey) || "";
@@ -364,84 +346,26 @@
         sessionStorage.removeItem(adminSessionKey);
       } catch {}
     };
-    const renderAdminOrders = (orders = []) => {
-      const totalOrders = orders.length;
-      const totalRevenue = orders.reduce((sum, order) => sum + Number(order.total || 0), 0);
-      const latestOrder = orders[0] || null;
-      adminOrderCount.textContent = String(totalOrders);
-      adminRevenue.textContent = money(totalRevenue);
-      adminLastOrder.textContent = latestOrder ? `${latestOrder.orderNumber || "ENTRYFRAG"} | ${formatAdminDate(latestOrder.receivedAt)}` : "No orders yet";
-
-      if (!totalOrders) {
-        adminOrders.innerHTML = '<div class="admin-empty">No orders have been placed yet.</div>';
-        return;
-      }
-
-      adminOrders.innerHTML = orders.map((order) => {
-        const items = Array.isArray(order.items) ? order.items : [];
-        const itemsMarkup = items.length
-          ? `<ul>${items.map((item) => `<li>${escapeHtml(item.name || "Item")} | ${escapeHtml(item.size || "-")} | Qty ${escapeHtml(item.qty || 0)}${item.option ? ` | ${escapeHtml(item.option)}` : ""}</li>`).join("")}</ul>`
-          : "<span>No items captured.</span>";
-        return `
-          <article class="admin-order">
-            <div class="admin-order-head">
-              <div>
-                <strong>${escapeHtml(order.orderNumber || "ENTRYFRAG")}</strong>
-                <div class="admin-order-date">${escapeHtml(formatAdminDate(order.receivedAt))}</div>
-              </div>
-              <strong>${money(Number(order.total || 0))}</strong>
-            </div>
-            <div class="admin-order-customer">
-              <span>${escapeHtml(order.customerName || "Customer")} | ${escapeHtml(order.phone || "No phone")}</span>
-              <span>${escapeHtml(order.city || "No city")} | ${escapeHtml(order.branch || "No branch")}</span>
-              <span>Telegram: ${escapeHtml(order.telegramNick || "Not provided")}</span>
-            </div>
-            <div class="admin-order-summary">
-              <span>Payment: ${escapeHtml(order.paymentOptionLabel || order.paymentOption || "Not set")}</span>
-              <span>Promo: ${escapeHtml(order.promo || "none")}</span>
-              <span>Status: ${escapeHtml(order.status || "sent")}</span>
-            </div>
-            <div class="admin-order-items">
-              <strong>Items</strong>
-              ${itemsMarkup}
-            </div>
-          </article>
-        `;
-      }).join("");
+    const showAdminProfile = (message = "Admin profile unlocked.") => {
+      adminProfileName.textContent = adminCredentials.username;
+      adminProfileStatus.textContent = message;
+      setAdminLoggedIn(true);
+      setAdminMessage(message, "success");
+      adminPasswordInput.value = "";
+      adminUsernameInput.value = adminCredentials.username;
     };
-    const fetchAdminOrders = async (authHeader) => {
-      const response = await fetch(orderLoggerUrl, {
-        headers: authHeader ? { Authorization: authHeader } : {}
-      });
-      let result = {};
-      try {
-        result = await response.json();
-      } catch {}
-      if (!response.ok) {
-        if (response.status === 401) throw new Error("admin_auth_required");
-        throw new Error(result?.error || "admin_orders_failed");
-      }
-      return Array.isArray(result.orders) ? result.orders : [];
-    };
-    const loadAdminOrders = async (authHeader, successMessage = "Admin profile unlocked.") => {
+    const tryAdminLogin = async (username, password) => {
       setAdminBusy(true);
       try {
-        const orders = await fetchAdminOrders(authHeader);
-        saveAdminSession(authHeader);
-        renderAdminOrders(orders);
-        setAdminLoggedIn(true);
-        setAdminMessage(successMessage, "success");
-        adminPasswordInput.value = "";
-      } catch (error) {
-        clearAdminSession();
-        setAdminLoggedIn(false);
-        renderAdminOrders([]);
-        if (String(error.message).includes("admin_auth_required")) {
+        if (username !== adminCredentials.username || password !== adminCredentials.password) {
+          clearAdminSession();
+          setAdminLoggedIn(false);
           setAdminMessage("Wrong admin name or password.", "error");
-        } else {
-          setAdminMessage("Could not load admin orders right now.", "error");
+          return false;
         }
-        throw error;
+        saveAdminSession(adminCredentials.username);
+        showAdminProfile();
+        return true;
       } finally {
         setAdminBusy(false);
       }
@@ -1469,25 +1393,10 @@
         return;
       }
       setAdminMessage("Checking admin access...");
-      try {
-        await loadAdminOrders(encodeAdminAuth(username, password));
-      } catch {}
-    });
-    adminRefresh.addEventListener("click", async () => {
-      const authHeader = readAdminSession();
-      if (!authHeader) {
-        setAdminLoggedIn(false);
-        setAdminMessage("Log in again to refresh orders.", "error");
-        return;
-      }
-      setAdminMessage("Refreshing orders...");
-      try {
-        await loadAdminOrders(authHeader, "Orders updated.");
-      } catch {}
+      await tryAdminLogin(username, password);
     });
     adminLogout.addEventListener("click", () => {
       clearAdminSession();
-      renderAdminOrders([]);
       setAdminLoggedIn(false);
       adminLoginForm.reset();
       setAdminMessage("Admin access is locked.");
@@ -1684,12 +1593,11 @@
     syncPaymentOption();
     updateSearchClearVisibility();
     setAdminLoggedIn(false);
-    renderAdminOrders([]);
     const savedAdminSession = readAdminSession();
-    if (savedAdminSession) {
-      setAdminMessage("Restoring admin session...");
-      loadAdminOrders(savedAdminSession, "Admin profile restored.").catch(() => {});
+    if (savedAdminSession === adminCredentials.username) {
+      showAdminProfile("Admin profile restored.");
     } else {
+      clearAdminSession();
       setAdminMessage("Admin access is locked.");
     }
 
