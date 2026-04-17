@@ -4,12 +4,15 @@
   const logoutButton = document.getElementById("adminLogoutPage");
   const statusNode = document.getElementById("adminStatus");
   const viewSwitch = document.getElementById("viewSwitch");
+  const syncOrdersButton = document.getElementById("syncOrdersButton");
   const selectedPeriodLabel = document.getElementById("selectedPeriodLabel");
   const selectedRevenueValue = document.getElementById("selectedRevenueValue");
   const selectedRevenueCopy = document.getElementById("selectedRevenueCopy");
   const selectedOrderCount = document.getElementById("selectedOrderCount");
   const selectedAverageValue = document.getElementById("selectedAverageValue");
   const totalRevenueValue = document.getElementById("totalRevenueValue");
+  const earningsGraph = document.getElementById("earningsGraph");
+  const earningsGraphNote = document.getElementById("earningsGraphNote");
   const revenueBreakdown = document.getElementById("revenueBreakdown");
   const revenueBreakdownNote = document.getElementById("revenueBreakdownNote");
   const topItemsList = document.getElementById("topItemsList");
@@ -21,6 +24,7 @@
   const locale = "uk-UA";
   let currentView = "day";
   let allOrders = [];
+  let isSyncing = false;
 
   const clearAdminAccess = () => {
     try {
@@ -96,6 +100,11 @@
     if (view === "month") return `Revenue for the current month from ${count} order${count === 1 ? "" : "s"}.`;
     return `Revenue for today from ${count} order${count === 1 ? "" : "s"}.`;
   };
+  const getGraphNote = (view) => {
+    if (view === "year") return "Year-by-year revenue trend";
+    if (view === "month") return "Month-by-month revenue trend";
+    return "Day-by-day revenue trend";
+  };
 
   const buildRevenueGroups = (orders, view) => {
     const groups = new Map();
@@ -163,6 +172,46 @@
         </div>
       </article>
     `).join("");
+  };
+
+  const renderEarningsGraph = (orders, view) => {
+    const groups = buildRevenueGroups(orders, view).slice(0, 8).reverse();
+    earningsGraphNote.textContent = groups.length ? getGraphNote(view) : "No saved order data yet";
+
+    if (!groups.length) {
+      earningsGraph.innerHTML = '<div class="graph-empty">No earnings graph yet. Once orders exist, the revenue trend will appear here.</div>';
+      return;
+    }
+
+    const width = 760;
+    const height = 260;
+    const padding = { top: 24, right: 16, bottom: 54, left: 24 };
+    const innerWidth = width - padding.left - padding.right;
+    const innerHeight = height - padding.top - padding.bottom;
+    const maxValue = Math.max(...groups.map((group) => group.total), 1);
+    const stepX = groups.length > 1 ? innerWidth / (groups.length - 1) : 0;
+
+    const points = groups.map((group, index) => {
+      const x = padding.left + (groups.length === 1 ? innerWidth / 2 : stepX * index);
+      const y = padding.top + innerHeight - ((group.total / maxValue) * innerHeight);
+      return { ...group, x, y };
+    });
+
+    const linePath = points.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(2)} ${point.y.toFixed(2)}`).join(" ");
+    const areaPath = `${linePath} L ${points[points.length - 1].x.toFixed(2)} ${(padding.top + innerHeight).toFixed(2)} L ${points[0].x.toFixed(2)} ${(padding.top + innerHeight).toFixed(2)} Z`;
+
+    earningsGraph.innerHTML = `
+      <svg class="graph-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Earnings graph">
+        <line class="graph-axis" x1="${padding.left}" y1="${padding.top + innerHeight}" x2="${width - padding.right}" y2="${padding.top + innerHeight}"></line>
+        <path class="graph-area" d="${areaPath}"></path>
+        <path class="graph-line" d="${linePath}"></path>
+        ${points.map((point) => `
+          <circle class="graph-point" cx="${point.x}" cy="${point.y}" r="5"></circle>
+          <text class="graph-value" x="${point.x}" y="${Math.max(point.y - 12, 14)}" text-anchor="middle">${escapeHtml(money(point.total))}</text>
+          <text class="graph-label" x="${point.x}" y="${height - 18}" text-anchor="middle">${escapeHtml(point.label)}</text>
+        `).join("")}
+      </svg>
+    `;
   };
 
   const renderTopItems = (orders) => {
@@ -243,6 +292,7 @@
 
   const renderDashboard = () => {
     renderRevenueSummary(allOrders, currentView);
+    renderEarningsGraph(allOrders, currentView);
     renderRevenueBreakdown(allOrders, currentView);
     renderTopItems(allOrders);
     renderOrders(allOrders);
@@ -256,6 +306,7 @@
       button.setAttribute("aria-pressed", String(active));
     });
     renderRevenueSummary(allOrders, currentView);
+    renderEarningsGraph(allOrders, currentView);
     renderRevenueBreakdown(allOrders, currentView);
   };
 
@@ -277,20 +328,26 @@
     return Array.isArray(payload.orders) ? payload.orders : [];
   };
 
-  const initializeDashboard = async () => {
+  const initializeDashboard = async ({ manual = false } = {}) => {
+    if (isSyncing) return;
     const session = readSession();
     if (!session.hasAccess || !session.authHeader) {
       redirectHome();
       return;
     }
 
-    setStatus("Loading admin dashboard...");
+    isSyncing = true;
+    if (syncOrdersButton) {
+      syncOrdersButton.disabled = true;
+      syncOrdersButton.textContent = manual ? "Syncing..." : "Sync orders";
+    }
+    setStatus(manual ? "Synchronizing all saved orders..." : "Loading admin dashboard...");
 
     try {
       const orders = await fetchOrders(session.authHeader);
       allOrders = orders.sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime());
       renderDashboard();
-      setStatus(`Dashboard updated from ${allOrders.length} saved order${allOrders.length === 1 ? "" : "s"}.`, "success");
+      setStatus(`Dashboard synchronized from ${allOrders.length} saved order${allOrders.length === 1 ? "" : "s"}.`, "success");
     } catch (error) {
       clearAdminAccess();
       if (String(error.message).includes("admin_auth_required")) {
@@ -298,6 +355,12 @@
         return;
       }
       setStatus("Could not load order data for the admin dashboard.", "error");
+    } finally {
+      isSyncing = false;
+      if (syncOrdersButton) {
+        syncOrdersButton.disabled = false;
+        syncOrdersButton.textContent = "Sync orders";
+      }
     }
   };
 
@@ -310,6 +373,10 @@
     const button = event.target.closest("[data-view]");
     if (!button) return;
     setActiveView(button.dataset.view);
+  });
+
+  syncOrdersButton?.addEventListener("click", () => {
+    initializeDashboard({ manual: true });
   });
 
   window.addEventListener("pageshow", () => {

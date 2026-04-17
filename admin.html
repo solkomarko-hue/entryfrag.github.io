@@ -34,10 +34,13 @@
           <span class="admin-tag">Revenue</span>
           <h2 id="revenueDashboardTitle">Revenue by period</h2>
         </div>
-        <div class="view-switch" id="viewSwitch" role="tablist" aria-label="Revenue period">
-          <button class="view-switch-button is-active" type="button" data-view="day" aria-pressed="true">Day</button>
-          <button class="view-switch-button" type="button" data-view="month" aria-pressed="false">Month</button>
-          <button class="view-switch-button" type="button" data-view="year" aria-pressed="false">Year</button>
+        <div class="section-actions">
+          <button class="sync-button" id="syncOrdersButton" type="button">Sync orders</button>
+          <div class="view-switch" id="viewSwitch" role="tablist" aria-label="Revenue period">
+            <button class="view-switch-button is-active" type="button" data-view="day" aria-pressed="true">Day</button>
+            <button class="view-switch-button" type="button" data-view="month" aria-pressed="false">Month</button>
+            <button class="view-switch-button" type="button" data-view="year" aria-pressed="false">Year</button>
+          </div>
         </div>
       </div>
 
@@ -65,6 +68,16 @@
       </div>
 
       <div class="dashboard-grid">
+        <section class="panel-card" aria-labelledby="earningsGraphTitle">
+          <div class="panel-head">
+            <h3 id="earningsGraphTitle">Earnings graph</h3>
+            <span class="panel-note" id="earningsGraphNote">Revenue trend for selected view</span>
+          </div>
+          <div class="graph-shell">
+            <div class="earnings-graph" id="earningsGraph"></div>
+          </div>
+        </section>
+
         <section class="panel-card" aria-labelledby="revenueBreakdownTitle">
           <div class="panel-head">
             <h3 id="revenueBreakdownTitle">Revenue breakdown</h3>

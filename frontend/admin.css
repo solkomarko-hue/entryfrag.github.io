@@ -141,6 +141,14 @@ button{font:inherit;border:none;cursor:pointer}
   align-items:flex-end;
 }
 
+.section-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  justify-content:flex-end;
+}
+
 .section-head h2{
   font-size:clamp(1.45rem,4vw,2.25rem);
   line-height:1.04;
@@ -162,10 +170,26 @@ button{font:inherit;border:none;cursor:pointer}
   gap:8px;
 }
 
+.sync-button,
 .view-switch-button{
   background:rgba(255,255,255,.82);
   border:1px solid var(--line);
   font-weight:800;
+}
+
+.sync-button{
+  min-height:44px;
+  padding:10px 18px;
+  border-radius:var(--radius-pill);
+}
+
+.sync-button:hover{
+  background:#fff;
+}
+
+.sync-button:disabled{
+  opacity:.65;
+  cursor:wait;
 }
 
 .view-switch-button.is-active{
@@ -227,6 +251,69 @@ button{font:inherit;border:none;cursor:pointer}
   padding:18px;
   display:grid;
   gap:16px;
+}
+
+.graph-shell{
+  display:grid;
+  gap:12px;
+}
+
+.earnings-graph{
+  min-height:260px;
+  padding:12px;
+  border-radius:var(--radius-md);
+  background:var(--cream);
+  border:1px solid var(--line);
+}
+
+.graph-empty{
+  min-height:220px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  color:var(--muted);
+  line-height:1.6;
+}
+
+.graph-svg{
+  width:100%;
+  height:auto;
+  display:block;
+}
+
+.graph-axis{
+  stroke:rgba(18,18,18,.12);
+  stroke-width:1;
+}
+
+.graph-line{
+  fill:none;
+  stroke:var(--red);
+  stroke-width:4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+
+.graph-area{
+  fill:rgba(235,32,39,.12);
+}
+
+.graph-point{
+  fill:#fff;
+  stroke:var(--red);
+  stroke-width:3;
+}
+
+.graph-label{
+  fill:#7d7368;
+  font-size:12px;
+  font-weight:700;
+}
+
+.graph-value{
+  fill:#1f1b18;
+  font-size:12px;
+  font-weight:800;
 }
 
 .breakdown-list,
@@ -371,5 +458,10 @@ button{font:inherit;border:none;cursor:pointer}
   .order-card-head{
     align-items:flex-start;
     flex-direction:column;
+  }
+
+  .section-actions{
+    width:100%;
+    justify-content:flex-start;
   }
 }
