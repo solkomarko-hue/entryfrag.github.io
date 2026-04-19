@@ -17,6 +17,7 @@
   const revenueBreakdownNote = document.getElementById("revenueBreakdownNote");
   const topItemsList = document.getElementById("topItemsList");
   const ordersRecord = document.getElementById("ordersRecord");
+  const ordersSearchInput = document.getElementById("ordersSearchInput");
   const orderEditorForm = document.getElementById("orderEditorForm");
   const orderEditorEmpty = document.getElementById("orderEditorEmpty");
   const orderEditorNote = document.getElementById("orderEditorNote");
@@ -46,6 +47,7 @@
   let editingOrderNumber = "";
   let autoSyncTimer = 0;
   let lastOrdersSnapshot = "";
+  let ordersSearchQuery = "";
 
   const clearAdminAccess = () => {
     try {
@@ -94,6 +96,19 @@
   };
   const sortOrders = (orders) => orders.sort((a, b) => toSafeTimestamp(b.receivedAt) - toSafeTimestamp(a.receivedAt));
   const createOrdersSnapshot = (orders) => JSON.stringify(Array.isArray(orders) ? orders : []);
+  const normalizeSearchValue = (value) => String(value ?? "").trim().toLocaleLowerCase(locale);
+
+  const getFilteredOrders = (orders = allOrders) => {
+    if (!ordersSearchQuery) return orders;
+    return orders.filter((order) => {
+      const haystack = [
+        order?.orderNumber,
+        order?.telegramNick,
+        order?.customerTelegram
+      ].map((value) => normalizeSearchValue(value)).join(" ");
+      return haystack.includes(ordersSearchQuery);
+    });
+  };
 
   const formatOrderDate = (value) => {
     const date = new Date(value);
@@ -374,7 +389,10 @@
 
   const renderOrders = (orders) => {
     if (!orders.length) {
-      ordersRecord.innerHTML = '<div class="empty-state">No orders saved yet. Once customers place orders, every record will appear here.</div>';
+      const emptyMessage = ordersSearchQuery
+        ? "No orders match this search yet. Try an order number or Telegram name."
+        : "No orders saved yet. Once customers place orders, every record will appear here.";
+      ordersRecord.innerHTML = `<div class="empty-state">${emptyMessage}</div>`;
       return;
     }
 
@@ -475,7 +493,7 @@
     renderEarningsGraph(allOrders, currentView);
     renderRevenueBreakdown(allOrders, currentView);
     renderTopItems(allOrders);
-    renderOrders(allOrders);
+    renderOrders(getFilteredOrders(allOrders));
   };
 
   const setActiveView = (view) => {
@@ -655,6 +673,11 @@
     initializeDashboard({ manual: true });
   });
 
+  ordersSearchInput?.addEventListener("input", (event) => {
+    ordersSearchQuery = normalizeSearchValue(event.target.value);
+    renderOrders(getFilteredOrders(allOrders));
+  });
+
   ordersRecord?.addEventListener("click", async (event) => {
     const editButton = event.target.closest("[data-edit-order]");
     if (editButton) {
@@ -684,8 +707,10 @@
 
     try {
       await deleteOrder(session.authHeader, orderNumber);
-      allOrders = allOrders.filter((order) => String(order.orderNumber || "") !== String(orderNumber));
-      renderDashboard();
+      applyOrders(allOrders.filter((order) => String(order.orderNumber || "") !== String(orderNumber)), {
+        keepEditorSelection: String(editingOrderNumber) !== String(orderNumber),
+        scrollEditor: false
+      });
       if (String(editingOrderNumber) === String(orderNumber)) {
         resetEditor();
       }
