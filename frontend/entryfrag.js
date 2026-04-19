@@ -4,9 +4,6 @@
     try {
       localStorage.removeItem("entryfrag-current-account");
       localStorage.removeItem("entryfrag-users");
-      Object.keys(localStorage)
-        .filter((key) => key.startsWith("entryfrag-orders-"))
-        .forEach((key) => localStorage.removeItem(key));
     } catch {}
     const cartBtn = document.getElementById("cartBtn");
     const menuToggle = document.getElementById("menuToggle");
@@ -331,11 +328,7 @@
       adminLogout.disabled = busy;
       adminLoginButton.textContent = busy ? "Checking..." : "Open admin profile";
     };
-    const resetAdminAccess = () => {
-      try {
-        sessionStorage.removeItem(adminAccessKey);
-        sessionStorage.removeItem(adminAuthKey);
-      } catch {}
+    const setAdminLockedUi = () => {
       setAdminLoggedIn(false);
       adminLoginForm.reset();
       adminUsernameInput.value = "";
@@ -344,6 +337,40 @@
       adminPasswordToggle.setAttribute("aria-label", "Show password");
       adminPasswordToggle.setAttribute("aria-pressed", "false");
       adminPasswordToggle.innerHTML = "&#128065;";
+      adminProfileName.textContent = "Manager";
+      adminProfileStatus.textContent = "Locked";
+    };
+    const readAdminAccess = () => {
+      try {
+        return {
+          hasAccess: sessionStorage.getItem(adminAccessKey) === "granted",
+          authHeader: sessionStorage.getItem(adminAuthKey) || ""
+        };
+      } catch {
+        return { hasAccess: false, authHeader: "" };
+      }
+    };
+    const syncAdminAccessUi = () => {
+      const session = readAdminAccess();
+      const isLoggedIn = session.hasAccess && Boolean(session.authHeader);
+      if (!isLoggedIn) {
+        setAdminLockedUi();
+        setAdminMessage("Admin access is locked.");
+        return false;
+      }
+
+      setAdminLoggedIn(true);
+      adminProfileName.textContent = adminCredentials.username;
+      adminProfileStatus.textContent = "Unlocked in this tab";
+      setAdminMessage("Admin access is unlocked.", "success");
+      return true;
+    };
+    const resetAdminAccess = () => {
+      try {
+        sessionStorage.removeItem(adminAccessKey);
+        sessionStorage.removeItem(adminAuthKey);
+      } catch {}
+      setAdminLockedUi();
     };
     const tryAdminLogin = async (username, password) => {
       setAdminBusy(true);
@@ -357,6 +384,7 @@
           sessionStorage.setItem(adminAccessKey, "granted");
           sessionStorage.setItem(adminAuthKey, `Basic ${window.btoa(`${username}:${password}`)}`);
         } catch {}
+        syncAdminAccessUi();
         setAdminMessage("Opening admin page...", "success");
         window.location.assign("./admin.html");
         return true;
@@ -923,17 +951,14 @@
     const openAdminModal = (returnFocus = document.activeElement) => {
       rememberSurfaceFocus("admin", returnFocus);
       closeHeaderMenu();
-      resetAdminAccess();
-      setAdminMessage("Admin access is locked.");
+      const hasAccess = syncAdminAccessUi();
       body.classList.add("admin-open");
       syncSurfaceState();
-      focusSurface(adminModal, adminUsernameInput);
+      focusSurface(adminModal, hasAccess ? adminLogout : adminUsernameInput);
     };
 
     const hideAdminModal = (restoreFocus = true) => {
       body.classList.remove("admin-open");
-      resetAdminAccess();
-      setAdminMessage("Admin access is locked.");
       syncSurfaceState();
       if (restoreFocus) restoreSurfaceFocus("admin");
     };
@@ -1413,6 +1438,8 @@
       adminPasswordInput.focus({ preventScroll: true });
     });
     adminLogout.addEventListener("click", () => {
+      resetAdminAccess();
+      setAdminMessage("Admin access is locked.");
       hideAdminModal();
     });
     document.addEventListener("click", (event) => {
@@ -1605,15 +1632,13 @@
     syncHeaderMenu();
     syncPaymentOption();
     updateSearchClearVisibility();
-    resetAdminAccess();
+    syncAdminAccessUi();
     body.classList.remove("admin-open");
     syncSurfaceState();
-    setAdminMessage("Admin access is locked.");
     window.addEventListener("pageshow", () => {
       body.classList.remove("admin-open");
-      resetAdminAccess();
       syncSurfaceState();
-      setAdminMessage("Admin access is locked.");
+      syncAdminAccessUi();
     });
 
     renderHeroLatest();

@@ -38,11 +38,14 @@
   const apiBaseUrl = (window.ENTRYFRAG_API_URL || "").trim().replace(/\/$/, "");
   const orderHistoryUrl = apiBaseUrl ? `${apiBaseUrl}/api/orders` : "/api/orders";
   const locale = "uk-UA";
+  const autoSyncIntervalMs = 30_000;
   let currentView = "day";
   let allOrders = [];
   let isSyncing = false;
   let isSavingOrder = false;
   let editingOrderNumber = "";
+  let autoSyncTimer = 0;
+  let lastOrdersSnapshot = "";
 
   const clearAdminAccess = () => {
     try {
@@ -90,6 +93,7 @@
     return Number.isNaN(date.getTime()) ? 0 : date.getTime();
   };
   const sortOrders = (orders) => orders.sort((a, b) => toSafeTimestamp(b.receivedAt) - toSafeTimestamp(a.receivedAt));
+  const createOrdersSnapshot = (orders) => JSON.stringify(Array.isArray(orders) ? orders : []);
 
   const formatOrderDate = (value) => {
     const date = new Date(value);
@@ -430,7 +434,7 @@
     }
   };
 
-  const startEditingOrder = (orderNumber) => {
+  const startEditingOrder = (orderNumber, { scroll = true } = {}) => {
     const order = allOrders.find((entry) => String(entry.orderNumber || "") === String(orderNumber || ""));
     if (!order) {
       setStatus("Could not open that order for editing.", "error");
@@ -463,7 +467,7 @@
     if (orderEditorForm) orderEditorForm.hidden = false;
     if (orderEditorEmpty) orderEditorEmpty.hidden = true;
     if (orderEditorNote) orderEditorNote.textContent = `Adjusting prices for order ${order.orderNumber || "ENTRYFRAG"}`;
-    orderEditorForm?.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (scroll) orderEditorForm?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const renderDashboard = () => {
@@ -550,8 +554,28 @@
     return payload;
   };
 
-  const initializeDashboard = async ({ manual = false } = {}) => {
-    if (isSyncing) return;
+  const applyOrders = (orders, { keepEditorSelection = true, scrollEditor = false } = {}) => {
+    const sortedOrders = sortOrders([...(Array.isArray(orders) ? orders : [])]);
+    allOrders = sortedOrders;
+    lastOrdersSnapshot = createOrdersSnapshot(sortedOrders);
+    renderDashboard();
+
+    if (!keepEditorSelection || !editingOrderNumber) {
+      resetEditor();
+      return;
+    }
+
+    const hasEditedOrder = allOrders.some((order) => String(order.orderNumber || "") === String(editingOrderNumber || ""));
+    if (!hasEditedOrder) {
+      resetEditor();
+      return;
+    }
+
+    startEditingOrder(editingOrderNumber, { scroll: scrollEditor });
+  };
+
+  const initializeDashboard = async ({ manual = false, silent = false } = {}) => {
+    if (isSyncing || isSavingOrder) return;
     const session = readSession();
     if (!session.hasAccess || !session.authHeader) {
       redirectHome();
@@ -559,32 +583,61 @@
     }
 
     isSyncing = true;
-    if (syncOrdersButton) {
+    if (syncOrdersButton && !silent) {
       syncOrdersButton.disabled = true;
       syncOrdersButton.textContent = manual ? "Syncing..." : "Sync orders";
     }
-    setStatus(manual ? "Synchronizing all saved orders..." : "Loading admin dashboard...");
+    if (!silent) {
+      setStatus(manual ? "Synchronizing all saved orders..." : "Loading admin dashboard...");
+    }
 
     try {
       const orders = await fetchOrders(session.authHeader);
-      allOrders = sortOrders(orders);
-      renderDashboard();
-      resetEditor();
-      setStatus(`Dashboard synchronized from ${allOrders.length} saved order${allOrders.length === 1 ? "" : "s"}.`, "success");
+      const sortedOrders = sortOrders([...(Array.isArray(orders) ? orders : [])]);
+      const nextSnapshot = createOrdersSnapshot(sortedOrders);
+      const hasChanged = nextSnapshot !== lastOrdersSnapshot;
+
+      if (hasChanged) {
+        applyOrders(sortedOrders, { keepEditorSelection: true, scrollEditor: false });
+      } else if (!allOrders.length) {
+        applyOrders(sortedOrders, { keepEditorSelection: false, scrollEditor: false });
+      }
+
+      if (manual || !silent) {
+        setStatus(`Dashboard synchronized from ${sortedOrders.length} saved order${sortedOrders.length === 1 ? "" : "s"}.`, "success");
+      } else if (hasChanged) {
+        setStatus(`Dashboard updated with ${sortedOrders.length} saved order${sortedOrders.length === 1 ? "" : "s"}.`, "success");
+      }
     } catch (error) {
-      clearAdminAccess();
       if (String(error.message).includes("admin_auth_required")) {
+        clearAdminAccess();
         redirectHome();
         return;
       }
-      setStatus("Could not load order data for the admin dashboard.", "error");
+      if (!silent || !allOrders.length) {
+        setStatus("Could not load order data for the admin dashboard.", "error");
+      }
     } finally {
       isSyncing = false;
-      if (syncOrdersButton) {
+      if (syncOrdersButton && !silent) {
         syncOrdersButton.disabled = false;
         syncOrdersButton.textContent = "Sync orders";
       }
     }
+  };
+
+  const startAutoSync = () => {
+    if (autoSyncTimer) return;
+    autoSyncTimer = window.setInterval(() => {
+      if (document.hidden) return;
+      initializeDashboard({ silent: true });
+    }, autoSyncIntervalMs);
+  };
+
+  const stopAutoSync = () => {
+    if (!autoSyncTimer) return;
+    window.clearInterval(autoSyncTimer);
+    autoSyncTimer = 0;
   };
 
   logoutButton?.addEventListener("click", () => {
@@ -706,11 +759,9 @@
     try {
       const payload = await updateOrder(session.authHeader, originalOrderNumber, updatedOrder);
       const savedOrder = payload?.order ? payload.order : updatedOrder;
-      allOrders = sortOrders(allOrders.map((order) => (
+      applyOrders(allOrders.map((order) => (
         String(order.orderNumber || "") === originalOrderNumber ? savedOrder : order
-      )));
-      renderDashboard();
-      startEditingOrder(savedOrder.orderNumber || originalOrderNumber);
+      )), { keepEditorSelection: true, scrollEditor: true });
       setStatus(`Prices updated for order ${savedOrder.orderNumber || originalOrderNumber}.`, "success");
     } catch (error) {
       if (String(error.message).includes("admin_auth_required")) {
@@ -733,11 +784,23 @@
     }
   });
 
-  window.addEventListener("pageshow", () => {
-    const session = readSession();
-    if (!session.hasAccess || !session.authHeader) redirectHome();
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) initializeDashboard({ silent: true });
+  });
+
+  window.addEventListener("focus", () => {
+    initializeDashboard({ silent: true });
+  });
+
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) initializeDashboard({ silent: true });
+  });
+
+  window.addEventListener("beforeunload", () => {
+    stopAutoSync();
   });
 
   resetEditor();
   initializeDashboard();
+  startAutoSync();
 })();

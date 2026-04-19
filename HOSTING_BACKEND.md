@@ -8,6 +8,15 @@
 - `entryfrag-config.js` - frontend API config
 - `entryfrag-config.example.js` - example for separate frontend/backend deploy
 
+## Storage modes
+
+The hosted backend now supports two order-storage modes:
+
+- `DATABASE_URL` set: orders are stored in Postgres
+- no `DATABASE_URL`: orders fall back to local `orders.json`
+
+For Render, use Postgres. Free Render web services have an ephemeral filesystem, so file storage will eventually lose old orders after a restart or redeploy.
+
 ## Deploy options
 
 ### Option 1: one deploy for both frontend and backend
@@ -19,6 +28,8 @@ Use the whole project as a Node app.
 3. Fill:
    - `TELEGRAM_BOT_TOKEN`
    - `TELEGRAM_CHAT_ID`
+   - `DATABASE_URL`
+   - optional: `DATABASE_SSL=require`
 4. Run:
    - `npm start`
 
@@ -32,6 +43,8 @@ The site will open from the same server and frontend will use `/api/orders` auto
    - `TELEGRAM_CHAT_ID`
    - `PORT`
    - `CORS_ORIGIN`
+   - `DATABASE_URL`
+   - optional: `DATABASE_SSL=require`
 3. In frontend, set `entryfrag-config.js` like:
 
 ```js
@@ -39,6 +52,20 @@ window.ENTRYFRAG_API_URL = "https://your-backend-url.onrender.com";
 ```
 
 4. Publish frontend files to GitHub Pages
+
+## Render free setup
+
+If you want to keep the app on Render without paying for a disk:
+
+1. Create a free Postgres database outside the web service, such as Neon
+2. Copy the connection string into Render as `DATABASE_URL`
+3. Redeploy the backend
+
+On startup, the backend creates the `orders` table automatically. If the database is empty and a local `orders.json` file exists, it imports those legacy orders once.
+
+## Local fallback
+
+If you run the project locally without `DATABASE_URL`, the backend still uses `orders.json`. This keeps the local QA scripts and simple local testing working.
 
 ## Telegram chat id
 
