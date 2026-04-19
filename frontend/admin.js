@@ -433,6 +433,29 @@
     }).join("");
   };
 
+  const syncEditorWithVisibleOrders = (visibleOrders) => {
+    if (!ordersSearchQuery) {
+      const editedOrderStillExists = allOrders.some((order) => String(order.orderNumber || "") === String(editingOrderNumber || ""));
+      if (editingOrderNumber && !editedOrderStillExists) {
+        resetEditor();
+      }
+      return;
+    }
+
+    if (!visibleOrders.length) {
+      resetEditor();
+      return;
+    }
+
+    const currentMatch = visibleOrders.find((order) => String(order.orderNumber || "") === String(editingOrderNumber || ""));
+    if (currentMatch) {
+      startEditingOrder(currentMatch.orderNumber, { scroll: false });
+      return;
+    }
+
+    startEditingOrder(visibleOrders[0].orderNumber, { scroll: false });
+  };
+
   const resetEditor = () => {
     editingOrderNumber = "";
     orderEditorForm?.reset();
@@ -489,11 +512,13 @@
   };
 
   const renderDashboard = () => {
+    const filteredOrders = getFilteredOrders(allOrders);
     renderRevenueSummary(allOrders, currentView);
     renderEarningsGraph(allOrders, currentView);
     renderRevenueBreakdown(allOrders, currentView);
     renderTopItems(allOrders);
-    renderOrders(getFilteredOrders(allOrders));
+    renderOrders(filteredOrders);
+    syncEditorWithVisibleOrders(filteredOrders);
   };
 
   const setActiveView = (view) => {
@@ -675,7 +700,9 @@
 
   ordersSearchInput?.addEventListener("input", (event) => {
     ordersSearchQuery = normalizeSearchValue(event.target.value);
-    renderOrders(getFilteredOrders(allOrders));
+    const filteredOrders = getFilteredOrders(allOrders);
+    renderOrders(filteredOrders);
+    syncEditorWithVisibleOrders(filteredOrders);
   });
 
   ordersRecord?.addEventListener("click", async (event) => {
