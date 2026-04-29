@@ -124,6 +124,7 @@
     const promoDiscountPercent = 0.05;
     const optionPriceDelta = 100;
     const featuredLatestProductIds = [
+      "bcgame-s1mple-jersey",
       "fut-black-jersey",
       "fut-black-grey-jersey",
       "g2-red-jersey",
@@ -719,6 +720,7 @@
     const getActiveOption = () => productOptions.querySelector(".option-chip.active")?.dataset.option || "";
     const inferTeam = (name) => {
       const normalized = name.toLowerCase();
+      if (normalized.includes("bc.game") || normalized.includes("bc game") || normalized.includes("bcgame")) return "BC.GAME";
       if (normalized.includes("natus vincere") || normalized.includes("navi")) return "NaVi";
       if (normalized.includes("falcons")) return "Falcons";
       if (normalized.includes("faze")) return "Faze Clan";
@@ -737,6 +739,7 @@
       return "\u0406\u043D\u0448\u0435";
     };
     const teamLogos = new Map([
+      ["BC.GAME", "bcgamelogo.png"],
       ["Astralis", "astralislogo.jpg"],
       ["Aurora", "auroralogo.png"],
       ["Cloud9", "cloud9logo.jpg"],
