@@ -124,6 +124,7 @@
     const promoDiscountPercent = 0.05;
     const optionPriceDelta = 100;
     const featuredLatestProductIds = [
+      "navi-2026-jersey",
       "bcgame-s1mple-jersey",
       "fut-black-jersey",
       "fut-black-grey-jersey",
