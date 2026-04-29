@@ -723,7 +723,7 @@
       const normalized = name.toLowerCase();
       if (normalized.includes("bc.game") || normalized.includes("bc game") || normalized.includes("bcgame")) return "BC.GAME";
       if (normalized.includes("natus vincere") || normalized.includes("navi")) return "NaVi";
-      if (normalized.includes("falcons")) return "Falcons";
+      if (normalized.includes("falcons") || normalized.includes("faclons")) return "Falcons";
       if (normalized.includes("faze")) return "Faze Clan";
       if (normalized.includes("liquid")) return "Team Liquid";
       if (normalized.includes("mongolz")) return "The MongolZ";
