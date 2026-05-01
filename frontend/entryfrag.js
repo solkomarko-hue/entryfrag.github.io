@@ -22,7 +22,7 @@
     const menuSearchInput = document.createElement("input");
     menuSearchInput.id = "menuSearchInput";
     menuSearchInput.type = "search";
-    menuSearchInput.placeholder = "Search jerseys, zip-ups, teams";
+    menuSearchInput.placeholder = "Search jerseys, zip-ups, caps, teams";
     menuSearchInput.autocomplete = "off";
     const menuSearchClear = document.createElement("button");
     menuSearchClear.className = "menu-search-clear";
@@ -124,6 +124,7 @@
     const promoDiscountPercent = 0.05;
     const optionPriceDelta = 100;
     const featuredLatestProductIds = [
+      "navi-s1mple-cap",
       "navi-2026-jersey",
       "bcgame-s1mple-jersey",
       "fut-black-jersey",
@@ -142,7 +143,7 @@
     let promoApplied = false;
     let currentOrderNumber = "";
     let cachedCities = [];
-    const sortableSectionIds = new Set(["jerseys", "zipups", "pants"]);
+    const sortableSectionIds = new Set(["jerseys", "zipups", "pants", "caps"]);
     const surfaceRootIds = new Set(["overlay", "drawer", "productOverlay", "productModal", "sizeChartModal", "teamModal", "checkoutModal", "adminModal", "successModal", "toast"]);
     const backgroundRoots = [...body.children].filter((node) => node instanceof HTMLElement && !surfaceRootIds.has(node.id) && node.tagName !== "SCRIPT");
     const surfaceReturnFocus = new Map();
@@ -533,6 +534,36 @@
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/\s+/g, " ")
       .trim();
+    const defaultPrepaymentSummaryParts = [
+      "\u0414\u043B\u044F \u0434\u0436\u0435\u0440\u0441\u0456 \u0442\u0430 \u043A\u0435\u043F\u043E\u043A \u043F\u0435\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430 \u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C 200 \u0433\u0440\u043D.",
+      "\u0414\u043B\u044F \u0448\u0442\u0430\u043D\u0456\u0432 \u0456 \u0437\u0456\u043F\u043E\u043A \u043F\u0435\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430 \u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C 400 \u0433\u0440\u043D."
+    ];
+    const getPrepaymentSummaryParts = () => {
+      const items = [...cart.values()];
+      if (!items.length) return [...defaultPrepaymentSummaryParts];
+
+      const hasKeywordInCategories = (keywords) => items.some((item) => {
+        const normalizedCategory = normalizeSearchText(item.category);
+        return keywords.some((keyword) => normalizedCategory.includes(keyword));
+      });
+
+      const parts = [];
+      if (hasKeywordInCategories(["\u0434\u0436\u0435\u0440\u0441", "\u043A\u0435\u043F"])) {
+        parts.push(defaultPrepaymentSummaryParts[0]);
+      }
+      if (hasKeywordInCategories(["\u0448\u0442\u0430\u043D", "\u0437\u0456\u043F", "\u0437\u0438\u043F"])) {
+        parts.push(defaultPrepaymentSummaryParts[1]);
+      }
+      return parts.length ? parts : [...defaultPrepaymentSummaryParts];
+    };
+    const getPrepaymentSummary = () => getPrepaymentSummaryParts().join(" ");
+    const getPrepaymentSummaryLabel = () => getPrepaymentSummaryParts()
+      .map((part, index) => (index ? part : part.charAt(0).toLowerCase() + part.slice(1)))
+      .join(" ");
+    const updatePrepaymentNote = () => {
+      const noteText = prepaymentNote?.querySelector("p");
+      if (noteText) noteText.textContent = getPrepaymentSummary();
+    };
     const updateSearchClearVisibility = () => {
       menuSearchClear.hidden = !menuSearchInput.value.trim();
     };
@@ -761,6 +792,7 @@
     const getSelectedPaymentOption = () => paymentOptions.find((input) => input.checked)?.value || "full_card";
     const paymentOptionLabel = (value) => value === "predoplata" ? "\u041F\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430" : "\u041F\u043E\u0432\u043D\u0430 \u043E\u043F\u043B\u0430\u0442\u0430 \u043D\u0430 \u043A\u0430\u0440\u0442\u043A\u0443";
     const syncPaymentOption = () => {
+      updatePrepaymentNote();
       prepaymentNote.hidden = getSelectedPaymentOption() !== "predoplata";
     };
     const syncProductPrice = () => {
@@ -1135,6 +1167,7 @@
         ${promoApplied ? `<small><span>\u0417\u043D\u0438\u0436\u043A\u0430</span><span>-${money(discount)}</span></small>` : ""}
       ` : "";
       promoNote.textContent = promoApplied ? "\u041F\u0440\u043E\u043C\u043E\u043A\u043E\u0434 SIGNA \u0430\u043A\u0442\u0438\u0432\u043D\u0438\u0439. \u0417\u043D\u0438\u0436\u043A\u0430 -5% \u0432\u0436\u0435 \u0437\u0430\u0441\u0442\u043E\u0441\u043E\u0432\u0430\u043D\u0430." : "";
+      updatePrepaymentNote();
 
       if (!items.length) {
         cartItems.innerHTML = "<div class='empty'>\u041A\u043E\u0448\u0438\u043A \u043F\u043E\u043A\u0438 \u043F\u043E\u0440\u043E\u0436\u043D\u0456\u0439. \u0414\u043E\u0434\u0430\u0439\u0442\u0435 \u0442\u043E\u0432\u0430\u0440 \u0456 \u0432\u0456\u043D \u0437'\u044F\u0432\u0438\u0442\u044C\u0441\u044F \u0442\u0443\u0442.</div>";
@@ -1235,6 +1268,9 @@
         sizeChart: button.dataset.sizeChart || "",
         options: parseOptions(button)
       };
+
+      button.textContent = "\u0414\u043E\u0434\u0430\u0442\u0438 \u0432 \u043A\u043E\u0448\u0438\u043A";
+      if (price) price.textContent = money(product.price);
 
       products.set(product.id, product);
       card.dataset.productId = product.id;
@@ -1525,7 +1561,7 @@
         `\u041C\u0456\u0441\u0442\u043E: ${novaPoshtaCity.value}`,
         `\u0412\u0456\u0434\u0434\u0456\u043B\u0435\u043D\u043D\u044F \u041D\u041F: ${form.get("novaPoshtaBranch")}`,
         `\u041E\u043F\u043B\u0430\u0442\u0430: ${paymentOptionLabel(paymentOption)}`,
-        ...(paymentOption === "predoplata" ? ["\u041F\u0435\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430: 200 \u0433\u0440\u043D \u0437\u0430 \u0434\u0436\u0435\u0440\u0441\u0456, 400 \u0433\u0440\u043D \u0437\u0430 \u0448\u0442\u0430\u043D\u0438 \u0442\u0430 \u0437\u0456\u043F\u043A\u0438"] : []),
+        ...(paymentOption === "predoplata" ? [`\u041F\u0435\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430: ${getPrepaymentSummaryLabel()}`] : []),
         ``,
         `\u0422\u043E\u0432\u0430\u0440\u0438:`,
         `${orderItems}`,
