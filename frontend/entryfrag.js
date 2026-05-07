@@ -81,6 +81,7 @@
     const sizeChartModal = document.getElementById("sizeChartModal");
     const sizeChartTitle = document.getElementById("sizeChartTitle");
     const sizeChartShot = document.getElementById("sizeChartShot");
+    const sizeChartThumbs = document.getElementById("sizeChartThumbs");
     const closeSizeChart = document.getElementById("closeSizeChart");
     const teamModal = document.getElementById("teamModal");
     const teamModalTitle = document.getElementById("teamModalTitle");
@@ -536,7 +537,7 @@
       .trim();
     const defaultPrepaymentSummaryParts = [
       "\u0414\u043B\u044F \u0434\u0436\u0435\u0440\u0441\u0456 \u0442\u0430 \u043A\u0435\u043F\u043E\u043A \u043F\u0435\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430 \u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C 200 \u0433\u0440\u043D.",
-      "\u0414\u043B\u044F \u0448\u0442\u0430\u043D\u0456\u0432 \u0456 \u0437\u0456\u043F\u043E\u043A \u043F\u0435\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430 \u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C 400 \u0433\u0440\u043D."
+      "\u0414\u043B\u044F \u0448\u0442\u0430\u043D\u0456\u0432, \u0437\u0456\u043F\u043E\u043A \u0456 \u043B\u0456\u0442\u043D\u0456\u0445 \u0441\u0435\u0442\u0456\u0432 \u043F\u0435\u0440\u0435\u0434\u043E\u043F\u043B\u0430\u0442\u0430 \u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u044C 400 \u0433\u0440\u043D."
     ];
     const getPrepaymentSummaryParts = () => {
       const items = [...cart.values()];
@@ -551,7 +552,7 @@
       if (hasKeywordInCategories(["\u0434\u0436\u0435\u0440\u0441", "\u043A\u0435\u043F"])) {
         parts.push(defaultPrepaymentSummaryParts[0]);
       }
-      if (hasKeywordInCategories(["\u0448\u0442\u0430\u043D", "\u0437\u0456\u043F", "\u0437\u0438\u043F"])) {
+      if (hasKeywordInCategories(["\u0448\u0442\u0430\u043D", "\u0437\u0456\u043F", "\u0437\u0438\u043F", "\u043B\u0456\u0442\u043D", "\u0441\u0435\u0442"])) {
         parts.push(defaultPrepaymentSummaryParts[1]);
       }
       return parts.length ? parts : [...defaultPrepaymentSummaryParts];
@@ -747,6 +748,7 @@
       });
     };
     const parseSizes = (button, description) => button.dataset.sizes ? button.dataset.sizes.split(",").map((size) => size.trim()).filter(Boolean) : description.includes("S-M-L") ? [...defaultSizes] : [...defaultSizes];
+    const parseAssetList = (value) => String(value || "").split(",").map((item) => item.trim()).filter(Boolean);
     const parseOptions = (button) => button.dataset.options ? button.dataset.options.split(",").map((option) => option.trim()).filter(Boolean) : [];
     const getActiveSize = () => productSizes.querySelector(".size-chip.active")?.dataset.size || "";
     const getActiveOption = () => productOptions.querySelector(".option-chip.active")?.dataset.option || "";
@@ -900,11 +902,28 @@
       if (restoreFocus) restoreSurfaceFocus("cart");
     };
 
+    const setSizeChartImage = (src, activeIndex = 0) => {
+      if (!src) return;
+      sizeChartShot.style.backgroundImage = `url('${src}')`;
+      sizeChartThumbs?.querySelectorAll(".product-thumb").forEach((thumb, thumbIndex) => {
+        thumb.classList.toggle("active", thumbIndex === activeIndex);
+      });
+    };
+
     const openSizeChart = (product, returnFocus = document.activeElement) => {
-      if (!product?.sizeChart) return;
+      const sizeCharts = parseAssetList(product?.sizeChart).map((src) => resolveDetailImage(src));
+      if (!sizeCharts.length) return;
       rememberSurfaceFocus("sizechart", returnFocus);
       sizeChartTitle.textContent = `${product.name} \u2014 \u0440\u043E\u0437\u043C\u0456\u0440\u043D\u0430 \u0441\u0456\u0442\u043A\u0430`;
-      sizeChartShot.style.backgroundImage = `url('${product.sizeChart}')`;
+      if (sizeChartThumbs) {
+        sizeChartThumbs.hidden = sizeCharts.length < 2;
+        sizeChartThumbs.innerHTML = sizeCharts.map((src, index) => `
+        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" data-image-src="${src}" type="button" aria-label="Size chart ${index + 1}">
+          <img src="${src}" alt="" decoding="async" loading="lazy">
+        </button>
+      `).join("");
+      }
+      setSizeChartImage(sizeCharts[0], 0);
       sizeChartModal.scrollTop = 0;
       body.classList.add("sizechart-open");
       syncSurfaceState();
@@ -1065,7 +1084,7 @@
       productTitle.textContent = product.name;
       productPrice.textContent = money(product.price);
       productDescription.textContent = product.description;
-      productSizeChart.hidden = !product.sizeChart;
+      productSizeChart.hidden = !parseAssetList(product.sizeChart).length;
       productMainShot.innerHTML = `<img src="" alt="" decoding="async" loading="eager">`;
       productMainShot.style.backgroundImage = "";
       productThumbs.innerHTML = product.images.map((image, index) => {
@@ -1402,6 +1421,11 @@
       const product = products.get(activeProductId);
       productSizeChart.blur();
       openSizeChart(product);
+    });
+    sizeChartThumbs?.addEventListener("click", (event) => {
+      const thumb = event.target.closest(".product-thumb");
+      if (!thumb) return;
+      setSizeChartImage(thumb.dataset.imageSrc || "", Number(thumb.dataset.imageIndex) || 0);
     });
 
     cartItems.addEventListener("click", (event) => {

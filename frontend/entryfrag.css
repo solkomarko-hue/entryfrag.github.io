@@ -1280,7 +1280,7 @@ body.product-open .product-modal{opacity:1;visibility:visible;transform:translat
   box-shadow:none;
   border-radius:0;
   display:grid;
-  grid-template-rows:auto 1fr;
+  grid-template-rows:auto 1fr auto;
   gap:12px;
   transform:translateY(100%);
   opacity:0;
@@ -1303,6 +1303,11 @@ body.sizechart-open .sizechart-modal{opacity:1;visibility:visible;transform:tran
   background:#fff center/contain no-repeat;
   border:1px solid var(--line);
   padding:12px;
+}
+
+.sizechart-thumbs{
+  padding-top:0;
+  justify-content:center;
 }
 
 .product-head{
