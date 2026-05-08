@@ -18,18 +18,18 @@
     const menuSearchLabel = document.createElement("label");
     menuSearchLabel.className = "visually-hidden";
     menuSearchLabel.htmlFor = "menuSearchInput";
-    menuSearchLabel.textContent = "Search products";
+    menuSearchLabel.textContent = "Пошук товарів";
     const menuSearchInput = document.createElement("input");
     menuSearchInput.id = "menuSearchInput";
     menuSearchInput.type = "search";
-    menuSearchInput.placeholder = "Search jerseys, zip-ups, caps, teams";
+    menuSearchInput.placeholder = "Пошук джерсі, команд, зіпок, кепок";
     menuSearchInput.autocomplete = "off";
     const menuSearchClear = document.createElement("button");
     menuSearchClear.className = "menu-search-clear";
     menuSearchClear.id = "menuSearchClear";
     menuSearchClear.type = "button";
     menuSearchClear.hidden = true;
-    menuSearchClear.textContent = "Clear";
+    menuSearchClear.textContent = "Очистити";
     const menuSearchStatus = document.createElement("p");
     menuSearchStatus.className = "menu-search-status";
     menuSearchStatus.id = "menuSearchStatus";
@@ -254,13 +254,13 @@
     };
 
     [
-      [drawer, "Shopping cart"],
-      [productModal, "Product details"],
-      [sizeChartModal, "Size chart"],
-      [teamModal, "Team products"],
-      [checkoutModal, "Checkout"],
-      [adminModal, "Admin login"],
-      [successModal, "Order status"]
+      [drawer, "Кошик"],
+      [productModal, "Деталі товару"],
+      [sizeChartModal, "Розмірна сітка"],
+      [teamModal, "Товари команди"],
+      [checkoutModal, "Оформлення замовлення"],
+      [adminModal, "Вхід адміністратора"],
+      [successModal, "Статус замовлення"]
     ].forEach(([root, label]) => {
       root.setAttribute("role", "dialog");
       root.setAttribute("aria-modal", "true");
@@ -274,7 +274,7 @@
       const isMenuOpen = body.classList.contains("menu-open");
       headerPanel.setAttribute("aria-hidden", String(!isDesktop && !isMenuOpen));
       menuToggle.setAttribute("aria-expanded", String(!isDesktop && isMenuOpen));
-      menuToggle.setAttribute("aria-label", isMenuOpen && !isDesktop ? "Close menu" : "Open menu");
+      menuToggle.setAttribute("aria-label", isMenuOpen && !isDesktop ? "Закрити меню" : "Відкрити меню");
     };
 
     const openHeaderMenu = () => {
@@ -575,11 +575,11 @@
         return;
       }
       if (!matchCount) {
-        menuSearchStatus.textContent = `No matches for "${menuSearchInput.value.trim()}"`;
+        menuSearchStatus.textContent = `Нічого не знайдено за запитом "${menuSearchInput.value.trim()}"`;
         menuSearchStatus.dataset.state = "empty";
         return;
       }
-      menuSearchStatus.textContent = `${matchCount} result${matchCount === 1 ? "" : "s"} for "${menuSearchInput.value.trim()}"`;
+      menuSearchStatus.textContent = `Знайдено: ${matchCount} для "${menuSearchInput.value.trim()}"`;
       delete menuSearchStatus.dataset.state;
     };
     const isNoNameOption = (option) => {
@@ -624,7 +624,7 @@
 
       if (!matches.length) {
         menuSearchResults.hidden = false;
-        menuSearchResults.innerHTML = `<div class="menu-search-empty">No matching items found.</div>`;
+        menuSearchResults.innerHTML = `<div class="menu-search-empty">Схожих товарів не знайдено.</div>`;
         return;
       }
 
@@ -1461,7 +1461,7 @@
       event.preventDefault();
       const matchCount = applyCatalogSearch(menuSearchInput.value, { scrollIntoView: true });
       if (normalizeSearchText(menuSearchInput.value) && !matchCount) {
-        showToast(`No products found for "${menuSearchInput.value.trim()}"`);
+        showToast(`За запитом "${menuSearchInput.value.trim()}" товари не знайдені`);
       }
     });
     menuSearchInput.addEventListener("input", () => {

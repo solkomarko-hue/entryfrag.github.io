@@ -32,65 +32,94 @@
 
   <main id="home">
     <section class="hero wrap">
-      <div class="hero-grid">
-        <div class="hero-main">
-          <span class="eyebrow">ENTRYFRAG Store</span>
-          <h1>ENTRY FIRST. FRAG HARD.</h1>
-          <p>Репліки джерсі команд CS2 з точним дизайном і швидкою доставкою по Україні та Європі.</p>
-          <div class="actions">
-            <a class="btn primary" href="#jerseys">Дивитися джерсі</a>
-            <a class="btn secondary" href="#zipups">Перейти до зіпок</a>
+      <div class="hero-shell">
+        <div class="hero-grid">
+          <div class="hero-main">
+            <span class="eyebrow">Репліки джерсі CS2</span>
+            <p class="hero-kicker">Преміум магазин для фанатів кіберспорту</p>
+            <h1>ENTRY FIRST.<br><span class="hero-highlight">FRAG HARD.</span></h1>
+            <p>Преміум репліки джерсі топ-команд CS2 з точним дизайном, комфортними матеріалами і швидкою доставкою по Україні та Європі.</p>
+            <div class="actions">
+              <a class="btn primary" href="#jerseys">Дивитися джерсі</a>
+              <a class="btn secondary" href="#categories">Категорії</a>
+            </div>
+            <div class="hero-summary">
+              <strong id="heroProductCount">0</strong>
+              <span>позицій уже доступно в каталозі</span>
+            </div>
           </div>
-          <div class="hero-summary">
-            <strong id="heroProductCount">0</strong>
-            <span>загальна кількість товарів у каталозі</span>
-          </div>
+          <aside class="hero-side">
+            <div class="hero-art">
+              <span class="hero-art-badge">CS2 Jersey Shop</span>
+              <img src="mobile-previews/image.jpg" alt="ENTRYFRAG CS2 Jersey Shop" width="720" height="720" decoding="async">
+            </div>
+            <div class="hero-note">
+              <span class="tag">Новинки</span>
+              <h2>Останні додані товари</h2>
+              <div class="hero-latest" id="heroLatest"></div>
+            </div>
+          </aside>
         </div>
-        <aside class="hero-side">
-          <img src="mobile-previews/image.jpg" alt="ENTRYFRAG CS2 Jersey Shop" width="720" height="720" decoding="async">
-          <div class="hero-note">
-            <span class="tag">Новинки</span>
-            <h2>Останні додані товари</h2>
-            <div class="hero-latest" id="heroLatest"></div>
-          </div>
-        </aside>
+        <div class="hero-metrics" aria-label="Переваги магазину">
+          <article class="metric">
+            <strong>1000+</strong>
+            <span>задоволених клієнтів</span>
+          </article>
+          <article class="metric">
+            <strong>150+</strong>
+            <span>моделей у каталозі</span>
+          </article>
+          <article class="metric">
+            <strong>1:1</strong>
+            <span>якість реплік і деталей</span>
+          </article>
+          <article class="metric">
+            <strong>UA + EU</strong>
+            <span>доставка по Україні та Європі</span>
+          </article>
+          <article class="metric">
+            <strong>Secure</strong>
+            <span>зручне та безпечне замовлення</span>
+          </article>
+        </div>
       </div>
     </section>
 
     <section class="block wrap" id="categories">
-      <div class="section-head">
-        <div><span class="tag">Категорії</span><h2>Що є в магазині</h2></div>
+      <div class="section-head section-head-split">
+        <div><span class="tag">Категорії</span><h2>Популярні категорії</h2></div>
+        <a class="section-link" href="#jerseys">Переглянути весь каталог</a>
       </div>
       <div class="categories">
-        <a class="category" href="#jerseys" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9)),linear-gradient(135deg,#ef3a40,#121212)">
+        <a class="category" href="#jerseys" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.88)),linear-gradient(135deg,#121812,#6ea600)">
           <img class="category-photo photo-a" src="mobile-previews/falcons1.1.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
           <img class="category-photo photo-b" src="mobile-previews/navi3.1.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
-          <div><h3>Джерсі</h3></div>
+          <div><h3>Джерсі</h3><p>Переглянути</p></div>
         </a>
-        <a class="category" href="#zipups" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9)),linear-gradient(135deg,#121212,#5a5a5a)">
+        <a class="category" href="#zipups" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.88)),linear-gradient(135deg,#121212,#293221)">
           <img class="category-photo photo-a" src="mobile-previews/falconszip1.1.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
           <img class="category-photo photo-b" src="mobile-previews/fazezip1.2.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
-          <div><h3>Зіпки</h3></div>
+          <div><h3>Зіпки</h3><p>Переглянути</p></div>
         </a>
-        <a class="category" href="#pants" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9)),linear-gradient(135deg,#2c2c2c,#8c8c8c)">
+        <a class="category" href="#pants" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.88)),linear-gradient(135deg,#141414,#3a481f)">
           <img class="category-photo photo-a" src="mobile-previews/falconspants1.1.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
           <img class="category-photo photo-b" src="mobile-previews/falconspants1.3.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
-          <div><h3>Штани</h3></div>
+          <div><h3>Штани</h3><p>Переглянути</p></div>
         </a>
-        <a class="category" href="#caps" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9)),linear-gradient(135deg,#f2c94c,#121212)">
+        <a class="category" href="#caps" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.88)),linear-gradient(135deg,#171717,#5d6718)">
           <img class="category-photo photo-a" src="mobile-previews/navicap1.1.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
           <img class="category-photo photo-b" src="mobile-previews/navicap1.2.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
-          <div><h3>&#1050;&#1077;&#1087;&#1082;&#1080;</h3></div>
+          <div><h3>&#1050;&#1077;&#1087;&#1082;&#1080;</h3><p>Переглянути</p></div>
         </a>
-        <a class="category" href="#summer-set" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.86)),linear-gradient(135deg,#f6b73c,#ef6c2f)">
+        <a class="category" href="#summer-set" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.88)),linear-gradient(135deg,#1a1a14,#7d7a19)">
           <img class="category-photo photo-a" src="mobile-previews/naviset1.1.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
           <img class="category-photo photo-b" src="mobile-previews/fazeclanset1.1.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
-          <div><h3>&#1051;&#1110;&#1090;&#1085;&#1110;&#1081; &#1089;&#1077;&#1090;</h3></div>
+          <div><h3>&#1051;&#1110;&#1090;&#1085;&#1110;&#1081; &#1089;&#1077;&#1090;</h3><p>Переглянути</p></div>
         </a>
-        <a class="category category-logos" href="#teams" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.15),rgba(0,0,0,.9)),linear-gradient(135deg,#6a1014,#121212)">
+        <a class="category category-logos" href="#teams" style="--bg-art:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.88)),linear-gradient(135deg,#181818,#384416)">
           <img class="category-photo photo-a is-logo" src="falconslogo.jpg" alt="" aria-hidden="true" loading="lazy" decoding="async">
           <img class="category-photo photo-b is-logo" src="teamliquidlogo.png" alt="" aria-hidden="true" loading="lazy" decoding="async">
-          <div><h3>Товари по командах</h3></div>
+          <div><h3>Товари по командах</h3><p>Переглянути</p></div>
         </a>
       </div>
     </section>
