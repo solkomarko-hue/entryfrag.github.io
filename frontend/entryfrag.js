@@ -126,6 +126,7 @@
     const optionPriceDelta = 100;
     const featuredLatestProductIds = [
       "navi-s1mple-cap",
+      "furia-2026-jersey",
       "navi-2026-jersey",
       "bcgame-s1mple-jersey",
       "fut-black-jersey",
