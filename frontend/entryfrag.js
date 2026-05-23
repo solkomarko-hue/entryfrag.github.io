@@ -126,6 +126,7 @@
     const optionPriceDelta = 100;
     const featuredLatestProductIds = [
       "navi-s1mple-cap",
+      "faze-black-zip",
       "vitality-2026-zip",
       "furia-2026-jersey",
       "navi-2026-jersey",
