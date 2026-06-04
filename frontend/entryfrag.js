@@ -766,10 +766,8 @@
       if (normalized.includes("mongolz")) return "The MongolZ";
       if (normalized.includes("furia")) return "Furia";
       if (normalized.includes("vitality")) return "Vitality";
-      if (normalized.includes("spirit")) return "Team Spirit";
       if (normalized.includes("g2")) return "G2";
       if (normalized.includes("eternal fire")) return "Eternal Fire";
-      if (normalized.includes("aurora")) return "Aurora";
       if (normalized.includes("astralis")) return "Astralis";
       if (normalized.includes("virtus")) return "Virtus Pro";
       if (normalized.includes("cloud9")) return "Cloud9";
@@ -779,7 +777,6 @@
     const teamLogos = new Map([
       ["BC.GAME", "bcgamelogo.png"],
       ["Astralis", "astralislogo.jpg"],
-      ["Aurora", "auroralogo.png"],
       ["Cloud9", "cloud9logo.jpg"],
       ["Eternal Fire", "eternalfirelogo.png"],
       ["Falcons", "falconslogo.jpg"],
@@ -789,7 +786,6 @@
       ["G2", "g2logo.jpg"],
       ["NaVi", "navilogo.jpg"],
       ["Team Liquid", "teamliquidlogo.png"],
-      ["Team Spirit", "teamspiritlogo.png"],
       ["The MongolZ", "themongolzlogo.jpg"],
       ["Virtus Pro", "virtusprologo.png"],
       ["Vitality", "vitalitylogo.webp"]
