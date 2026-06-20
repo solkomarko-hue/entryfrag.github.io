@@ -770,6 +770,7 @@
       if (normalized.includes("eternal fire")) return "Eternal Fire";
       if (normalized.includes("astralis")) return "Astralis";
       if (normalized.includes("virtus")) return "Virtus Pro";
+      if (normalized.includes("tyloo")) return "Tyloo";
       if (normalized.includes("cloud9")) return "Cloud9";
       if (normalized.includes("fut")) return "FUT";
       return "\u0406\u043D\u0448\u0435";
@@ -787,6 +788,7 @@
       ["NaVi", "navilogo.jpg"],
       ["Team Liquid", "teamliquidlogo.png"],
       ["The MongolZ", "themongolzlogo.jpg"],
+      ["Tyloo", "tyloologo.png"],
       ["Virtus Pro", "virtusprologo.png"],
       ["Vitality", "vitalitylogo.webp"]
     ]);
