@@ -788,7 +788,7 @@
       ["NaVi", "navilogo.jpg"],
       ["Team Liquid", "teamliquidlogo.png"],
       ["The MongolZ", "themongolzlogo.jpg"],
-      ["Tyloo", "tyloologo.png"],
+      ["Tyloo", "tyloo1.1.jpg"],
       ["Virtus Pro", "virtusprologo.png"],
       ["Vitality", "vitalitylogo.webp"]
     ]);
