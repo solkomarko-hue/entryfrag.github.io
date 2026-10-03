@@ -679,6 +679,7 @@ body.menu-open .header-panel{
   background:linear-gradient(180deg,rgba(18,24,16,.96),rgba(13,18,12,.96));
   box-shadow:none;
   border:1px solid var(--line);
+  color:var(--ink);
   cursor:pointer;
   -webkit-tap-highlight-color:transparent;
   transition:transform var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-med) var(--ease-standard);
@@ -687,7 +688,7 @@ body.menu-open .header-panel{
 
 .hero-latest-item:hover{transform:translateY(-1px);border-color:rgba(184,255,26,.28);box-shadow:0 12px 24px rgba(0,0,0,.18)}
 .hero-latest-shot{height:52px;border-radius:14px;background:#0b1008 center/cover no-repeat}
-.hero-latest-copy strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.92rem;line-height:1.15}
+.hero-latest-copy strong{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ink);font-size:.92rem;line-height:1.15}
 .hero-latest-copy span{display:block;margin-top:4px;color:var(--muted);font-size:.8rem}
 .tag{background:rgba(184,255,26,.12);color:#efffc4}
 .hero-note p,.section-head p,.meta p,.info p{margin-top:10px;color:var(--muted);line-height:1.65}
@@ -870,6 +871,7 @@ section.block{padding:var(--section-pad-y) 0}
   background:var(--card);
   border:1px solid rgba(184,255,26,.12);
   box-shadow:var(--shadow);
+  color:var(--ink);
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
   gap:12px;
@@ -916,7 +918,7 @@ section.block{padding:var(--section-pad-y) 0}
 
 .team-card-copy{min-width:0}
 .team-card:hover{transform:translateY(-2px);border-color:rgba(184,255,26,.22);box-shadow:0 16px 30px rgba(0,0,0,.24)}
-.team-card h3{font-size:.98rem;text-transform:uppercase;line-height:1.08}
+.team-card h3{color:var(--ink);font-size:.98rem;text-transform:uppercase;line-height:1.08}
 .team-count{margin-top:4px;font-size:.8rem;color:var(--muted);font-weight:700}
 .team-open{font-size:.78rem;color:#dbff83;font-weight:800;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
 
