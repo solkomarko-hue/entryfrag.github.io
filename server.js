@@ -3,6 +3,7 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 const { URL } = require("url");
+const { createProductCatalog } = require("./product-catalog.cjs");
 
 const rootDir = __dirname;
 const managerChatFile = path.join(rootDir, "telegram-manager-chat.txt");
@@ -25,6 +26,12 @@ const ordersFile = configuredOrdersFile
     : defaultOrdersFile;
 let databasePool = null;
 let storageMode = databaseUrl ? "database" : "file";
+const productSettingsFile = path.join(path.dirname(ordersFile), ".entryfrag-products.json");
+const productCatalog = createProductCatalog({
+  html: fs.readFileSync(path.join(rootDir, "index.html"), "utf8"),
+  getPool: getDatabasePool,
+  settingsFile: productSettingsFile
+});
 
 function loadEnv(filePath) {
   if (!fs.existsSync(filePath)) return {};
@@ -378,6 +385,15 @@ function sendAdminUnauthorized(res) {
 }
 
 function sendFile(res, filePath) {
+  const relative = path.relative(rootDir, filePath);
+  const publicFile = ["index.html", "admin.html", "entryfrag-config.js"].includes(relative)
+    || /^frontend[/\\][a-z0-9-]+\.(?:js|css)$/i.test(relative)
+    || /^mobile-previews[/\\][^/\\]+\.(?:png|jpe?g|webp|gif)$/i.test(relative)
+    || /^[^/\\]+\.(?:png|jpe?g|webp|gif|svg|ico|woff2?|ttf)$/i.test(relative);
+  if (!publicFile) {
+    sendJson(res, 404, { error: "not_found" });
+    return;
+  }
   if (!fs.existsSync(filePath) || fs.statSync(filePath).isDirectory()) {
     sendJson(res, 404, { error: "not_found" });
     return;
@@ -478,6 +494,7 @@ async function handleOrderRequest(req, res) {
       sendJson(res, 400, { error: "missing_order_number" });
       return;
     }
+    await productCatalog.checkOrderItems(order.items);
 
     if (telegram && telegram.message) {
       await telegramRequest("sendMessage", {
@@ -504,7 +521,7 @@ async function handleOrderRequest(req, res) {
       payload_too_large: 413,
       ECONNREFUSED: 503
     };
-    const code = knownStatus[error.message] || 500;
+    const code = knownStatus[error.message] || error.status || 500;
     sendJson(res, code, { error: error.message || "internal" });
   }
 }
@@ -584,6 +601,46 @@ const server = http.createServer(async (req, res) => {
 
   if (req.method === "GET" && requestUrl.pathname === "/api/health") {
     sendJson(res, 200, { status: "ok", storage: storageMode });
+    return;
+  }
+
+  if (requestUrl.pathname === "/api/products" || requestUrl.pathname === "/api/admin/products"
+    || requestUrl.pathname === "/api/admin/products/update") {
+    const isPublic = requestUrl.pathname === "/api/products";
+    if (!isPublic && !hasAdminAccess(req)) {
+      sendAdminUnauthorized(res);
+      return;
+    }
+    res.setHeader("Cache-Control", "no-store");
+    try {
+      if (req.method === "GET" && requestUrl.pathname !== "/api/admin/products/update") {
+        sendJson(res, 200, { products: await productCatalog.list(!isPublic) });
+      } else if (req.method === "POST" && requestUrl.pathname === "/api/admin/products/update") {
+        if (!/^application\/json(?:;\s*charset=utf-8)?$/i.test(req.headers["content-type"] || "")) {
+          sendJson(res, 415, { error: "json_required" });
+          return;
+        }
+        const origin = req.headers.origin;
+        const allowedOrigin = corsOrigin === "*" ? null : corsOrigin;
+        if (origin && origin !== allowedOrigin && origin !== new URL(req.url, `http://${req.headers.host}`).origin
+          && origin !== `https://${req.headers.host}`) {
+          sendJson(res, 403, { error: "forbidden" });
+          return;
+        }
+        const input = JSON.parse(await readRequestBody(req));
+        if (!input || typeof input !== "object" || Array.isArray(input)
+          || Object.keys(input).some(key => !["id", "patch", "expectedVersion"].includes(key))) {
+          sendJson(res, 400, { error: "invalid_product_request" });
+          return;
+        }
+        sendJson(res, 200, { product: await productCatalog.update(input.id, input.patch, input.expectedVersion) });
+      } else {
+        sendJson(res, 405, { error: "method_not_allowed" });
+      }
+    } catch (error) {
+      sendJson(res, error instanceof SyntaxError ? 400 : error.status || 503,
+        { error: error instanceof SyntaxError ? "invalid_json" : error.status ? error.message : "product_storage_unavailable" });
+    }
     return;
   }
 

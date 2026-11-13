@@ -4,3 +4,5 @@ telegram-bot-offset.txt
 telegram-manager-chat.txt
 order-logger.out.txt
 order-logger.err.txt
+.entryfrag-products.json
+.entryfrag-products.json.*.tmp

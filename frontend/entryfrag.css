@@ -3369,3 +3369,6 @@ body::after{
     padding:24px;
   }
 }
+
+.catalog-loading .products{visibility:hidden}
+.catalog-load-error{padding:20px;color:#a71920;background:#fff4f2;border-radius:16px}

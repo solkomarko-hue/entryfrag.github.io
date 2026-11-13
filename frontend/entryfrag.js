@@ -1,3 +1,8 @@
+(async () => {
+    await window.entryfragCatalogReady;
+    const escapeCatalogHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[char]));
     const cart = new Map();
     const products = new Map();
     const body = document.body;
@@ -314,10 +319,6 @@
     const orderLoggerUrl = apiBaseUrl ? `${apiBaseUrl}/api/orders` : "/api/orders";
     const adminAccessKey = "entryfrag-admin-access";
     const adminAuthKey = "entryfrag-admin-auth";
-    const adminCredentials = {
-      username: "ENTRYFRAGADMIN",
-      password: "efs1mpleg0at@"
-    };
     const setAdminMessage = (text, tone = "") => {
       if (!adminLoginMessage) return;
       adminLoginMessage.textContent = text;
@@ -368,7 +369,7 @@
       }
 
       setAdminLoggedIn(true);
-      adminProfileName.textContent = adminCredentials.username;
+      adminProfileName.textContent = "Administrator";
       adminProfileStatus.textContent = "Unlocked in this tab";
       setAdminMessage("Admin access is unlocked.", "success");
       return true;
@@ -383,19 +384,25 @@
     const tryAdminLogin = async (username, password) => {
       setAdminBusy(true);
       try {
-        if (username !== adminCredentials.username || password !== adminCredentials.password) {
+        const authHeader = `Basic ${window.btoa(`${username}:${password}`)}`;
+        const response = await fetch(orderLoggerUrl, { headers: { Authorization: authHeader }, cache: "no-store" });
+        if (!response.ok) {
           resetAdminAccess();
           setAdminMessage("Wrong admin name or password.", "error");
           return false;
         }
         try {
           sessionStorage.setItem(adminAccessKey, "granted");
-          sessionStorage.setItem(adminAuthKey, `Basic ${window.btoa(`${username}:${password}`)}`);
+          sessionStorage.setItem(adminAuthKey, authHeader);
         } catch {}
         syncAdminAccessUi();
         setAdminMessage("Opening admin page...", "success");
         window.location.assign("./admin.html");
         return true;
+      } catch {
+        resetAdminAccess();
+        setAdminMessage("Could not verify admin access. Check the backend connection.", "error");
+        return false;
       } finally {
         setAdminBusy(false);
       }
@@ -641,14 +648,15 @@
           <button class="menu-search-result" data-product-id="${product.id}" type="button">
             <img class="menu-search-thumb" src="${previewImage}" alt="" loading="lazy" decoding="async">
             <span class="menu-search-copy">
-              <strong>${product.name}</strong>
-              <span>${product.category} вЂў ${money(product.price)}</span>
+              <strong>${escapeCatalogHtml(product.name)}</strong>
+              <span>${escapeCatalogHtml(product.category)} вЂў ${money(product.price)}</span>
             </span>
           </button>
         `;
       }).join("");
     };
     const toPreviewSrc = (src) => {
+      if (window.entryfragOriginalImages && !window.entryfragOriginalImages.has(src)) return src;
       const key = previewImageKey(src);
       const ext = previewImageExt(src);
       return key ? `mobile-previews/${key}.${ext}` : src;
@@ -733,7 +741,7 @@
 
       if (useGalleryLayout) {
         visual.dataset.shotCount = String(product.images.length);
-        visual.innerHTML = `${product.images.map(() => '<div class="gallery-shot" aria-hidden="true"></div>').join("")}<span class="tag">${product.category}</span>`;
+        visual.innerHTML = `${product.images.map(() => '<div class="gallery-shot" aria-hidden="true"></div>').join("")}<span class="tag">${escapeCatalogHtml(product.category)}</span>`;
         [...visual.querySelectorAll(".gallery-shot")].forEach((shot, index) => {
           clearDeferredBackground(shot);
           queueDeferredBackground(shot, resolveCatalogImage(product.images[index]), "contain", cardIndex < eagerCardLimit && index < 2);
@@ -742,7 +750,7 @@
       }
 
       delete visual.dataset.shotCount;
-      visual.innerHTML = `<span class="tag">${product.category}</span>`;
+      visual.innerHTML = `<span class="tag">${escapeCatalogHtml(product.category)}</span>`;
       queueDeferredBackground(visual, resolveCatalogImage(product.images[0]), "visual", cardIndex < eagerCardLimit);
     };
     const rerenderProductCards = () => {
@@ -951,11 +959,11 @@
             <article class="card">
               <div class="visual">
                 <img class="visual-preview" src="${resolveCatalogImage(item.images[0] || "image.png.png")}" alt="" loading="eager" decoding="sync">
-                <span class="tag">${item.category}</span>
+                <span class="tag">${escapeCatalogHtml(item.category)}</span>
               </div>
               <div class="meta">
-                <h3>${item.name}</h3>
-                <p>${item.description}</p>
+                <h3>${escapeCatalogHtml(item.name)}</h3>
+                <p>${escapeCatalogHtml(item.description)}</p>
                 <div class="row">
                   <div class="price-block"><span class="old-price">${money(item.price + 200)}</span><span class="price">${money(item.price)}</span></div>
                   <div class="actions-group">
@@ -1092,17 +1100,17 @@
       productThumbs.innerHTML = product.images.map((image, index) => {
         const resolvedImage = resolveDetailImage(image);
         return `
-        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" data-image-src="${resolvedImage}" type="button" aria-label="Image ${index + 1}">
-          <img src="${resolvedImage}" alt="" decoding="async" loading="eager">
+        <button class="product-thumb${index === 0 ? " active" : ""}" data-image-index="${index}" data-image-src="${escapeCatalogHtml(resolvedImage)}" type="button" aria-label="Image ${index + 1}">
+          <img src="${escapeCatalogHtml(resolvedImage)}" alt="" decoding="async" loading="eager">
         </button>
       `;
       }).join("");
       productSizes.innerHTML = product.sizes.map((size) => `
-        <button class="size-chip" data-size="${size}" type="button">${size}</button>
+        <button class="size-chip" data-size="${escapeCatalogHtml(size)}" type="button">${escapeCatalogHtml(size)}</button>
       `).join("");
       productOptionsWrap.hidden = !product.options.length;
       productOptions.innerHTML = product.options.map((option) => `
-        <button class="option-chip" data-option="${option}" type="button">${option}</button>
+        <button class="option-chip" data-option="${escapeCatalogHtml(option)}" type="button">${escapeCatalogHtml(option)}</button>
       `).join("");
       syncProductPrice();
       setProductImage(0);
@@ -1198,14 +1206,14 @@
       cartItems.innerHTML = items.map((item) => `
         <article class="item">
           <div class="top">
-            <div><small>${item.category} \u2022 \u0420\u043E\u0437\u043C\u0456\u0440 ${item.size}${item.option ? ` \u2022 ${item.option}` : ""}</small><strong>${item.name}</strong></div>
+            <div><small>${escapeCatalogHtml(item.category)} \u2022 \u0420\u043E\u0437\u043C\u0456\u0440 ${escapeCatalogHtml(item.size)}${item.option ? ` \u2022 ${escapeCatalogHtml(item.option)}` : ""}</small><strong>${escapeCatalogHtml(item.name)}</strong></div>
             <span>${money(item.price)}</span>
           </div>
           <div class="bottom">
             <div class="qty">
-              <button type="button" data-id="${item.id}" data-step="-1">\u2212</button>
+              <button type="button" data-id="${escapeCatalogHtml(item.id)}" data-step="-1">\u2212</button>
               <span>${item.qty}</span>
-              <button type="button" data-id="${item.id}" data-step="1">+</button>
+              <button type="button" data-id="${escapeCatalogHtml(item.id)}" data-step="1">+</button>
             </div>
             <strong>${money(item.qty * item.price)}</strong>
           </div>
@@ -1229,8 +1237,8 @@
         <button class="hero-latest-item" data-product-id="${product.id}" type="button">
           <div class="hero-latest-shot" data-bg="${resolveCatalogImage(product.images[0] || "image.png.png")}"></div>
           <div class="hero-latest-copy">
-            <strong>${product.name}</strong>
-            <span>${product.category} \u2022 ${money(product.price)}</span>
+            <strong>${escapeCatalogHtml(product.name)}</strong>
+            <span>${escapeCatalogHtml(product.category)} \u2022 ${money(product.price)}</span>
           </div>
         </button>
       `).join("");
@@ -1604,6 +1612,7 @@
         branch: form.get("novaPoshtaBranch"),
         telegramNick: form.get("customerTelegram"),
         items: [...cart.values()].map((item) => ({
+          id: item.productId,
           name: item.name,
           size: item.size,
           option: item.option || null,
@@ -1638,7 +1647,9 @@
         }
       } catch (error) {
         console.error("order submit failed", error);
-        if (String(error.message).includes("backend_not_configured")) {
+        if (String(error.message).includes("product_unavailable")) {
+          showToast("Товар більше не доступний. Оновіть сторінку та перевірте кошик.");
+        } else if (String(error.message).includes("backend_not_configured")) {
           showToast("Backend \u043D\u0435 \u043F\u0456\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0439. \u0417\u0430\u043F\u043E\u0432\u043D\u0438 ENTRYFRAG_API_URL \u0443 config")
         } else if (String(error.message).includes("telegram_send_failed") || String(error.message).includes("telegram_not_configured")) {
           showToast("\u0411\u043E\u0442 \u043D\u0435 \u043F\u0440\u0438\u0432'\u044F\u0437\u0430\u043D\u0438\u0439 \u0434\u043E Telegram. \u041D\u0430\u043F\u0438\u0448\u0456\u0442\u044C /start \u0430\u0431\u043E /bindmanager \u0443 \u0431\u043E\u0442")
@@ -1714,3 +1725,4 @@
     if (location.hash.startsWith("#product-")) openProduct(location.hash.replace("#product-", ""), false);
     renderCart();
 
+})();
