@@ -605,17 +605,18 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (requestUrl.pathname === "/api/products" || requestUrl.pathname === "/api/admin/products"
-    || requestUrl.pathname === "/api/admin/products/update") {
+    || requestUrl.pathname === "/api/admin/products/update" || requestUrl.pathname === "/api/admin/categories/update") {
     const isPublic = requestUrl.pathname === "/api/products";
+    const categoryUpdate = requestUrl.pathname === "/api/admin/categories/update";
     if (!isPublic && !hasAdminAccess(req)) {
       sendAdminUnauthorized(res);
       return;
     }
     res.setHeader("Cache-Control", "no-store");
     try {
-      if (req.method === "GET" && requestUrl.pathname !== "/api/admin/products/update") {
-        sendJson(res, 200, { products: await productCatalog.list(!isPublic) });
-      } else if (req.method === "POST" && requestUrl.pathname === "/api/admin/products/update") {
+      if (req.method === "GET" && !requestUrl.pathname.endsWith("/update")) {
+        sendJson(res, 200, await productCatalog.snapshot(!isPublic));
+      } else if (req.method === "POST" && requestUrl.pathname.endsWith("/update")) {
         if (!/^application\/json(?:;\s*charset=utf-8)?$/i.test(req.headers["content-type"] || "")) {
           sendJson(res, 415, { error: "json_required" });
           return;
@@ -629,11 +630,15 @@ const server = http.createServer(async (req, res) => {
         }
         const input = JSON.parse(await readRequestBody(req));
         if (!input || typeof input !== "object" || Array.isArray(input)
-          || Object.keys(input).some(key => !["id", "patch", "expectedVersion"].includes(key))) {
+          || Object.keys(input).some(key => !(categoryUpdate ? ["id", "visible", "expectedVersion"] : ["id", "patch", "expectedVersion"]).includes(key))) {
           sendJson(res, 400, { error: "invalid_product_request" });
           return;
         }
-        sendJson(res, 200, { product: await productCatalog.update(input.id, input.patch, input.expectedVersion) });
+        if (categoryUpdate) {
+          sendJson(res, 200, { category: await productCatalog.updateCategory(input.id, input.visible, input.expectedVersion) });
+        } else {
+          sendJson(res, 200, { product: await productCatalog.update(input.id, input.patch, input.expectedVersion) });
+        }
       } else {
         sendJson(res, 405, { error: "method_not_allowed" });
       }

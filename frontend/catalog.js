@@ -14,6 +14,14 @@
       if (!response.ok) throw new Error("catalog_unavailable");
       const payload = await response.json();
       if (!Array.isArray(payload.products)) throw new Error("catalog_unavailable");
+      if (Array.isArray(payload.categories)) {
+        const visibleCategories = new Set(payload.categories.map(category => category.id));
+        for (const section of document.querySelectorAll("section[id]")) {
+          if (!section.querySelector(".products") || visibleCategories.has(section.id)) continue;
+          for (const link of document.querySelectorAll('a[href="#' + section.id + '"]')) link.remove();
+          section.remove();
+        }
+      }
       const visible = new Map(payload.products.map(product => [product.id, product]));
       for (const card of cards) {
         const button = card.querySelector(".add-btn");

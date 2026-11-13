@@ -18,7 +18,16 @@ function decode(value) {
 function attributes(markup) {
   return Object.fromEntries([...markup.matchAll(/([\w-]+)="([^"]*)"/g)].map(match => [match[1], decode(match[2])]));
 }
+function readCategories(html) {
+  return [...html.matchAll(/<section\b([^>]*)>([\s\S]*?)<\/section>/g)].flatMap(match => {
+    const id = attributes(match[1]).id;
+    if (!id || !/^[a-z0-9-]+$/.test(id) || !/<div\b[^>]*class="products"/.test(match[2])) return [];
+    const name = decode(/<h2\b[^>]*>([\s\S]*?)<\/h2>/.exec(match[2])?.[1]?.replace(/<[^>]*>/g, '') ?? id);
+    return [{ id, name, productIds: [...match[2].matchAll(/data-id="([^"]+)"/g)].map(item => decode(item[1])) }];
+  });
+}
 function readCatalog(html) {
+  const memberships = new Map(readCategories(html).flatMap(category => category.productIds.map(id => [id, category.id])));
   const products = [];
   for (const match of html.matchAll(/<article\b[^>]*class="card"[^>]*>([\s\S]*?)<\/article>/g)) {
     const card = match[1];
@@ -30,6 +39,7 @@ function readCatalog(html) {
     const images = [...card.matchAll(/data-bg="([^"]+)"/g)].map(match => decode(match[1]));
     products.push({
       id: button['data-id'], name: button['data-name'], category: button['data-category'],
+      categoryId: memberships.get(button['data-id']) ?? null,
       price: Number(button['data-price']), description: text(/<p>([\s\S]*?)<\/p>/.exec(card)?.[1]),
       sizes: list(button['data-sizes']), options: list(button['data-options']), images,
       sizeChart: list(button['data-size-chart']), visible: true, version: 0
@@ -52,7 +62,7 @@ function asset(value) {
 }
 function validatePatch(input, source = false) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) failure('invalid_product');
-  const allowed = source ? [...editable, 'id', 'version'] : editable;
+  const allowed = source ? [...editable, 'id', 'version', 'categoryId'] : editable;
   for (const key of Object.keys(input)) if (!allowed.includes(key)) failure('invalid_product_field');
   const result = {};
   for (const key of editable) {
@@ -79,6 +89,8 @@ function validatePatch(input, source = false) {
 function createProductCatalog({ html, getPool, settingsFile }) {
   const baseline = readCatalog(html);
   const byId = new Map(baseline.map(product => [product.id, product]));
+  const categories = readCategories(html);
+  const categoryKey = id => 'category:' + id;
   let tableReady;
   let fileQueue = Promise.resolve();
   async function poolReady() {
@@ -104,64 +116,91 @@ function createProductCatalog({ html, getPool, settingsFile }) {
     if (!Number.isSafeInteger(stored.version) || stored.version < 1) failure('invalid_product_storage', 503);
     return { ...base, ...validatePatch(stored.settings), version: stored.version };
   }
-  async function list(includeHidden = false) {
+  function categoryRecord(category, stored) {
+    if (stored && (!Number.isSafeInteger(stored.version) || stored.version < 1
+      || typeof stored.settings?.visible !== 'boolean')) failure('invalid_category_storage', 503);
+    return { id: category.id, name: category.name, visible: stored?.settings.visible ?? true,
+      version: stored?.version ?? 0, productCount: category.productIds.length };
+  }
+  async function snapshot(includeHidden = false) {
     const pool = await poolReady();
     const stored = pool
       ? Object.fromEntries((await pool.query('SELECT product_id,settings,version FROM entryfrag_product_settings')).rows
         .map(row => [row.product_id, row]))
       : readFile();
     const products = baseline.map(base => apply(base, stored[base.id]));
-    return includeHidden ? products : products.filter(product => product.visible);
+    const categoryList = categories.map(category => categoryRecord(category, stored[categoryKey(category.id)]));
+    const hidden = new Set(categoryList.filter(category => !category.visible).map(category => category.id));
+    return { products: includeHidden ? products : products.filter(product => product.visible && !hidden.has(product.categoryId)),
+      categories: includeHidden ? categoryList : categoryList.filter(category => category.visible) };
   }
   async function update(id, patch, expectedVersion) {
     const base = byId.get(id);
     if (!base) failure('product_not_found', 404);
     const safe = validatePatch(patch);
+    const stored = await saveSettings(id, expectedVersion, previous => {
+      const current = apply(base, previous);
+      return Object.fromEntries(editable.map(key => [key, Object.hasOwn(safe, key) ? safe[key] : current[key]]));
+    });
+    return apply(base, stored);
+  }
+  async function updateCategory(id, visible, expectedVersion) {
+    const category = categories.find(category => category.id === id);
+    if (!category) failure('category_not_found', 404);
+    if (typeof visible !== 'boolean') failure('invalid_category_visibility');
+    const stored = await saveSettings(categoryKey(id), expectedVersion, previous => {
+      categoryRecord(category, previous);
+      return { visible };
+    });
+    return categoryRecord(category, stored);
+  }
+  async function saveSettings(id, expectedVersion, build) {
     if (!Number.isSafeInteger(expectedVersion) || expectedVersion < 0) failure('invalid_product_version');
     const pool = await poolReady();
     if (pool) {
       const previous = await pool.query('SELECT settings,version FROM entryfrag_product_settings WHERE product_id=$1', [id]);
-      const current = apply(base, previous.rows[0]);
-      if (current.version !== expectedVersion) failure('product_version_conflict', 409);
-      const settings = Object.fromEntries(editable.map(key => [key, Object.hasOwn(safe, key) ? safe[key] : current[key]]));
+      if ((previous.rows[0]?.version ?? 0) !== expectedVersion) failure('product_version_conflict', 409);
+      const settings = build(previous.rows[0]);
       if (expectedVersion === 0) {
         const result = await pool.query('INSERT INTO entryfrag_product_settings (product_id,settings,version) VALUES ($1,$2::jsonb,1)'
           + ' ON CONFLICT (product_id) DO NOTHING RETURNING settings,version', [id, JSON.stringify(settings)]);
         if (!result.rowCount) failure('product_version_conflict', 409);
-        return apply(base, result.rows[0]);
+        return result.rows[0];
       }
       const updated = await pool.query('UPDATE entryfrag_product_settings SET settings=$2::jsonb,version=version+1,'
         + 'updated_at=clock_timestamp() WHERE product_id=$1 AND version=$3 RETURNING settings,version',
       [id, JSON.stringify(settings), expectedVersion]);
       if (!updated.rowCount) failure('product_version_conflict', 409);
-      return apply(base, updated.rows[0]);
+      return updated.rows[0];
     }
     const operation = fileQueue.then(() => {
       const records = readFile();
-      const current = apply(base, records[id]);
-      if (current.version !== expectedVersion) failure('product_version_conflict', 409);
-      const settings = Object.fromEntries(editable.map(key => [key, Object.hasOwn(safe, key) ? safe[key] : current[key]]));
-      records[id] = { settings, version: current.version + 1 };
+      const version = records[id]?.version ?? 0;
+      if (version !== expectedVersion) failure('product_version_conflict', 409);
+      const settings = build(records[id]);
+      records[id] = { settings, version: version + 1 };
       fs.mkdirSync(path.dirname(settingsFile), { recursive: true });
       const temporary = settingsFile + '.' + randomUUID() + '.tmp';
       try {
         fs.writeFileSync(temporary, JSON.stringify(records), { flag: 'wx', mode: 0o600 });
         fs.renameSync(temporary, settingsFile);
       } finally { if (fs.existsSync(temporary)) fs.unlinkSync(temporary); }
-      return apply(base, records[id]);
+      return records[id];
     });
     fileQueue = operation.catch(() => {});
     return operation;
   }
   async function checkOrderItems(items) {
     if (!Array.isArray(items)) return;
-    const all = await list(true);
+    const { products: all, categories } = await snapshot(true);
+    const hidden = new Set(categories.filter(category => !category.visible).map(category => category.id));
     for (const item of items) {
       const product = item.id ? all.find(product => product.id === item.id)
         : all.find(product => product.name === item.name || byId.get(product.id).name === item.name);
-      if (product && !product.visible) failure('product_unavailable', 409);
+      if (product && (!product.visible || hidden.has(product.categoryId))) failure('product_unavailable', 409);
     }
   }
-  return { list, update, checkOrderItems };
+  return { list: async (includeHidden = false) => (await snapshot(includeHidden)).products,
+    snapshot, update, updateCategory, checkOrderItems };
 }
 module.exports = { readCatalog, createProductCatalog, validatePatch };

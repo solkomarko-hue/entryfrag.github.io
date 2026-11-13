@@ -787,3 +787,11 @@ button{font:inherit;border:none;cursor:pointer}
  .product-badge{grid-column:1;grid-row:2;align-self:start;padding:5px}
  .product-editor-dialog{padding:18px}.product-edit-full{grid-column:1}
 }
+
+.category-controls{padding:20px;border:1px solid var(--line);border-radius:var(--radius-md);background:#fff;margin-bottom:22px}
+.category-controls>.panel-note{display:block;line-height:1.6;margin:8px 0 16px;text-transform:none}
+.category-controls-list{display:grid;gap:10px}
+.admin-category-row{display:grid;grid-template-columns:minmax(0,1fr) auto 210px;gap:14px;align-items:center;padding:12px;border-radius:12px;background:var(--cream)}
+.admin-category-row h4{margin-bottom:4px}
+.admin-product-row>.product-badge{overflow-wrap:anywhere}
+@media(max-width:767px){.admin-category-row{grid-template-columns:1fr auto}.admin-category-row>.product-toggle{grid-column:1/-1}}

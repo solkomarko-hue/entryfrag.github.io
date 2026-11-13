@@ -87,6 +87,67 @@ test('product edits persist after reopening without changing source HTML or prod
   assert.deepEqual(readCatalog(html), original);
   assert.deepEqual((await reopened.list()).slice(1), original.slice(1));
 });
+
+test('category hiding excludes its products publicly and checkout while preserving individual visibility', async t => {
+  const { catalog } = storage(t);
+  const first = original[0];
+  const category = (await catalog.snapshot(true)).categories.find(item => item.id === first.categoryId);
+  assert.ok(category.productCount > 1);
+  await catalog.update(first.id, { visible: false }, 0);
+  const hidden = await catalog.updateCategory(category.id, false, 0);
+  assert.equal(hidden.visible, false);
+  const publicState = await catalog.snapshot();
+  assert.ok(publicState.categories.every(item => item.id !== category.id));
+  assert.ok(publicState.products.every(item => item.categoryId !== category.id));
+  const adminState = await catalog.snapshot(true);
+  assert.equal(adminState.products.length, original.length);
+  assert.equal(adminState.products.find(item => item.id === first.id).visible, false);
+  const other = original.find(item => item.categoryId === category.id && item.id !== first.id);
+  assert.equal(adminState.products.find(item => item.id === other.id).visible, true);
+  await assert.rejects(catalog.checkOrderItems([{ id: other.id }]), { message: 'product_unavailable' });
+  await assert.rejects(catalog.checkOrderItems([{ name: other.name }]), { message: 'product_unavailable' });
+  await catalog.updateCategory(category.id, true, 1);
+  const restored = await catalog.list();
+  assert.ok(restored.some(item => item.id === other.id));
+  assert.ok(restored.every(item => item.id !== first.id));
+});
+test('category changes survive reopen and remain independent of product edits and label changes', async t => {
+  const { catalog, directory } = storage(t);
+  const product = original[0];
+  await catalog.updateCategory(product.categoryId, false, 0);
+  await catalog.update(product.id, { name: 'Synthetic renamed jersey', category: 'Synthetic new label' }, 0);
+  const reopened = createProductCatalog({ html, getPool: () => null, settingsFile: path.join(directory, 'products.json') });
+  assert.ok((await reopened.list()).every(item => item.id !== product.id));
+  assert.equal((await reopened.snapshot(true)).categories.find(item => item.id === product.categoryId).visible, false);
+  await reopened.updateCategory(product.categoryId, true, 1);
+  assert.equal((await reopened.list()).find(item => item.id === product.id).name, 'Synthetic renamed jersey');
+});
+test('concurrent category toggles enforce versions and invalid categories fail closed', async t => {
+  const { catalog } = storage(t);
+  const id = original[0].categoryId;
+  const results = await Promise.allSettled([catalog.updateCategory(id, false, 0), catalog.updateCategory(id, true, 0)]);
+  assert.equal(results.filter(item => item.status === 'fulfilled').length, 1);
+  assert.equal(results.find(item => item.status === 'rejected').reason.status, 409);
+  await assert.rejects(catalog.updateCategory('missing', false, 0), { status: 404 });
+  await assert.rejects(catalog.updateCategory(id, 'false', 1), { status: 400 });
+});
+test('storefront loader removes hidden category sections and every matching navigation link', async () => {
+  const removed = new Set();
+  const sections = ['jerseys', 'mvp-medals'].map(id => ({ id, querySelector: () => ({}), remove: () => removed.add(id) }));
+  const links = [{ remove: () => removed.add('category-card') }, { remove: () => removed.add('navigation-link') }];
+  const context = {
+    window: {}, location: { protocol: 'http:' }, AbortSignal: { timeout: () => undefined },
+    fetch: async () => ({ ok: true, status: 200, json: async () => ({ products: [], categories: [{ id: 'mvp-medals' }] }) }),
+    document: {
+      documentElement: { classList: { add() {}, remove() {} } },
+      querySelectorAll: selector => selector === '.products .card' ? [] : selector === 'section[id]' ? sections
+        : selector === 'a[href="#jerseys"]' ? links : []
+    }
+  };
+  vm.runInNewContext(fs.readFileSync(path.join(root, 'frontend/catalog.js'), 'utf8'), context);
+  await context.window.entryfragCatalogReady;
+  assert.deepEqual([...removed].sort(), ['category-card', 'jerseys', 'navigation-link']);
+});
 test('hidden products remain editable, disappear publicly and reject checkout until shown', async t => {
   const { catalog } = storage(t);
   const id = original[0].id;
@@ -181,6 +242,19 @@ test('HTTP routes enforce auth, persistence, visibility, conflicts and private-f
   assert.equal(saved.body.product.visible, false);
   assert.equal((await request('/api/products', null, false)).body.products.length, original.length - 1);
   assert.equal((await request('/api/admin/products')).body.products.length, original.length);
+  const category = listed.body.categories.find(item => item.id === original[0].categoryId);
+  const categoryMutation = { id: category.id, visible: false, expectedVersion: 0 };
+  assert.equal((await request('/api/admin/categories/update', categoryMutation, false)).status, 401);
+  assert.equal((await request('/api/admin/categories/update', categoryMutation, true, { Origin: 'https://foreign.invalid' })).status, 403);
+  assert.equal((await request('/api/admin/categories/update', categoryMutation)).status, 200);
+  assert.equal((await request('/api/admin/categories/update', categoryMutation)).status, 409);
+  const hiddenCategory = await request('/api/products', null, false);
+  assert.ok(hiddenCategory.body.categories.every(item => item.id !== category.id));
+  assert.ok(hiddenCategory.body.products.every(item => item.categoryId !== category.id));
+  const categoryItem = original.find(item => item.categoryId === category.id && item.id !== original[0].id);
+  assert.equal((await request('/api/orders', { orderNumber: 'SYNTHETIC-CATEGORY-ONLY', items: [{ id: categoryItem.id }] }, false)).status, 409);
+  assert.equal((await request('/api/admin/categories/update', { id: category.id, visible: true, expectedVersion: 1 })).status, 200);
+  assert.equal((await request('/api/products', null, false)).body.products.length, original.length - 1);
   assert.equal((await request('/api/admin/products/update', mutation)).status, 409);
   const unavailable = await request('/api/orders', { orderNumber: 'SYNTHETIC-ONLY', items: [{ id: original[0].id }] }, false);
   assert.equal(unavailable.status, 409);
