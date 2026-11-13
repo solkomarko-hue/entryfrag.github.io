@@ -782,6 +782,7 @@
       if (normalized.includes("cloud9")) return "Cloud9";
       if (normalized.includes("fut")) return "FUT";
       if (normalized.includes("imperial")) return "Imperial";
+      if (/\bsk\s*gaming\b/.test(normalized)) return "SK Gaming";
       return "\u0406\u043D\u0448\u0435";
     };
     const teamLogos = new Map([
@@ -796,6 +797,7 @@
       ["G2", "g2logo.jpg"],
       ["Imperial", "imperiallogo.png"],
       ["NaVi", "navilogo.jpg"],
+      ["SK Gaming", "skgaminglogo.jpg"],
       ["Team Liquid", "teamliquidlogo.png"],
       ["The MongolZ", "themongolzlogo.jpg"],
       ["Tyloo", "tyloologo.jpeg"],
@@ -953,9 +955,8 @@
       rememberSurfaceFocus("team", returnFocus);
       closeHeaderMenu();
       const items = [...products.values()].filter((product) => inferTeam(product.name) === team);
-      if (!items.length) return;
       teamModalTitle.textContent = team;
-      teamProducts.innerHTML = `
+      teamProducts.innerHTML = items.length ? `
         <div class="products">
           ${items.map((item) => `
             <article class="card">
@@ -976,7 +977,7 @@
             </article>
           `).join("")}
         </div>
-      `;
+      ` : '<p class="empty">Товари цієї команди незабаром з’являться.</p>';
       teamModal.scrollTop = 0;
       teamModalBody.scrollTop = 0;
       body.classList.add("team-open");
@@ -1250,7 +1251,7 @@
     }
 
     function renderTeams() {
-      const grouped = new Map();
+      const grouped = new Map([["SK Gaming", []]]);
       [...products.values()].forEach((product) => {
         const team = inferTeam(product.name);
         if (!grouped.has(team)) grouped.set(team, []);
