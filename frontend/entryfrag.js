@@ -784,6 +784,7 @@
       if (normalized.includes("imperial")) return "Imperial";
       if (/\bsk\s*gaming\b/.test(normalized)) return "SK Gaming";
       if (normalized.includes("heroic")) return "Heroic";
+      if (normalized.includes("spirit")) return "Team Spirit";
       return "\u0406\u043D\u0448\u0435";
     };
     const teamLogos = new Map([
@@ -801,6 +802,7 @@
       ["NaVi", "navilogo.jpg"],
       ["SK Gaming", "skgaminglogo.jpg"],
       ["Team Liquid", "teamliquidlogo.png"],
+      ["Team Spirit", "teamspiritlogo.png"],
       ["The MongolZ", "themongolzlogo.jpg"],
       ["Tyloo", "tyloologo.jpeg"],
       ["Virtus Pro", "virtusprologo.png"],
