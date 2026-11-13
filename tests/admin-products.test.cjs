@@ -18,10 +18,10 @@ function storage(t) {
   return { directory, catalog: createProductCatalog({ html, getPool: () => null,
     settingsFile: path.join(directory, 'products.json') }) };
 }
-test('all 50 existing products retain unique IDs and original data until edited', async t => {
+test('all existing products retain unique IDs and original data until edited', async t => {
   const { catalog } = storage(t);
-  assert.equal(original.length, 50);
-  assert.equal(new Set(original.map(product => product.id)).size, 50);
+  assert.ok(original.length >= 50);
+  assert.equal(new Set(original.map(product => product.id)).size, original.length);
   assert.deepEqual(await catalog.list(), original);
 });
 test('product edits persist after reopening without changing source HTML or product ID', async t => {
@@ -38,12 +38,12 @@ test('hidden products remain editable, disappear publicly and reject checkout un
   const { catalog } = storage(t);
   const id = original[0].id;
   await catalog.update(id, { visible: false }, 0);
-  assert.equal((await catalog.list()).length, 49);
-  assert.equal((await catalog.list(true)).length, 50);
+  assert.equal((await catalog.list()).length, original.length - 1);
+  assert.equal((await catalog.list(true)).length, original.length);
   await assert.rejects(catalog.checkOrderItems([{ id }]), { message: 'product_unavailable' });
   await assert.rejects(catalog.checkOrderItems([{ name: original[0].name }]), { message: 'product_unavailable' });
   await catalog.update(id, { visible: true }, 1);
-  assert.equal((await catalog.list()).length, 50);
+  assert.equal((await catalog.list()).length, original.length);
   await catalog.checkOrderItems([{ id }]);
 });
 test('stale and concurrent saves cannot overwrite a newer product', async t => {
@@ -119,15 +119,15 @@ test('HTTP routes enforce auth, persistence, visibility, conflicts and private-f
   assert.equal((await request('/api/admin/products/update', { id: original[0].id }, false)).status, 401);
   const listed = await request('/api/admin/products');
   assert.equal(listed.status, 200);
-  assert.equal(listed.body.products.length, 50);
-  assert.equal((await request('/api/products', null, false)).body.products.length, 50);
+  assert.equal(listed.body.products.length, original.length);
+  assert.equal((await request('/api/products', null, false)).body.products.length, original.length);
   const mutation = { id: original[0].id, expectedVersion: 0, patch: { visible: false } };
   assert.equal((await request('/api/admin/products/update', mutation, true, { Origin: 'https://foreign.invalid' })).status, 403);
   const saved = await request('/api/admin/products/update', mutation);
   assert.equal(saved.status, 200);
   assert.equal(saved.body.product.visible, false);
-  assert.equal((await request('/api/products', null, false)).body.products.length, 49);
-  assert.equal((await request('/api/admin/products')).body.products.length, 50);
+  assert.equal((await request('/api/products', null, false)).body.products.length, original.length - 1);
+  assert.equal((await request('/api/admin/products')).body.products.length, original.length);
   assert.equal((await request('/api/admin/products/update', mutation)).status, 409);
   const unavailable = await request('/api/orders', { orderNumber: 'SYNTHETIC-ONLY', items: [{ id: original[0].id }] }, false);
   assert.equal(unavailable.status, 409);

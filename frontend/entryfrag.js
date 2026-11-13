@@ -781,6 +781,7 @@
       if (normalized.includes("tyloo")) return "Tyloo";
       if (normalized.includes("cloud9")) return "Cloud9";
       if (normalized.includes("fut")) return "FUT";
+      if (normalized.includes("imperial")) return "Imperial";
       return "\u0406\u043D\u0448\u0435";
     };
     const teamLogos = new Map([
@@ -793,6 +794,7 @@
       ["Furia", "furialogo.png"],
       ["FUT", "futlogo.png"],
       ["G2", "g2logo.jpg"],
+      ["Imperial", "imperiallogo.png"],
       ["NaVi", "navilogo.jpg"],
       ["Team Liquid", "teamliquidlogo.png"],
       ["The MongolZ", "themongolzlogo.jpg"],
