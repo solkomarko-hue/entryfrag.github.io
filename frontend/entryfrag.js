@@ -783,6 +783,7 @@
       if (normalized.includes("fut")) return "FUT";
       if (normalized.includes("imperial")) return "Imperial";
       if (/\bsk\s*gaming\b/.test(normalized)) return "SK Gaming";
+      if (normalized.includes("heroic")) return "Heroic";
       return "\u0406\u043D\u0448\u0435";
     };
     const teamLogos = new Map([
@@ -795,6 +796,7 @@
       ["Furia", "furialogo.png"],
       ["FUT", "futlogo.png"],
       ["G2", "g2logo.jpg"],
+      ["Heroic", "heroiclogo.jpg"],
       ["Imperial", "imperiallogo.png"],
       ["NaVi", "navilogo.jpg"],
       ["SK Gaming", "skgaminglogo.jpg"],
@@ -1251,7 +1253,7 @@
     }
 
     function renderTeams() {
-      const grouped = new Map([["SK Gaming", []]]);
+      const grouped = new Map([["SK Gaming", []], ["Heroic", []]]);
       [...products.values()].forEach((product) => {
         const team = inferTeam(product.name);
         if (!grouped.has(team)) grouped.set(team, []);
