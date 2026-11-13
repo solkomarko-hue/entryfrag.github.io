@@ -63,7 +63,7 @@ function validatePatch(input, source = false) {
     } else if (key === 'price') {
       if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1 || value > 10000000) failure('invalid_product_price');
     } else if (['sizes', 'options', 'images', 'sizeChart'].includes(key)) {
-      if (!Array.isArray(value) || value.length > 40 || (['sizes', 'images'].includes(key) && !value.length)
+      if (!Array.isArray(value) || value.length > 40 || (key === 'images' && !value.length)
         || value.some(item => typeof item !== 'string' || !item.trim() || item.length > (['images', 'sizeChart'].includes(key) ? 2048 : 100)
           || /[\u0000-\u001f]/.test(item)) || new Set(value).size !== value.length) failure('invalid_product_list');
       if (['sizes', 'options'].includes(key) && value.some(item => item.includes(','))) failure('invalid_product_list');

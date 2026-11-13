@@ -12,6 +12,59 @@ const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const original = readCatalog(html);
 
+test('MVP medal has no size, options or chart and can be added to the cart without selecting a size', async t => {
+  const { catalog } = storage(t);
+  const medal = (await catalog.list()).find(product => product.id === 'mvp-medal');
+  assert.ok(medal);
+  assert.equal(medal.price, 799);
+  assert.deepEqual(medal.sizes, []);
+  assert.deepEqual(medal.options, []);
+  assert.deepEqual(medal.sizeChart, []);
+  const saved = await catalog.update(medal.id, { sizes: [], options: [], sizeChart: [] }, 0);
+  assert.deepEqual(saved.sizes, []);
+
+  const source = fs.readFileSync(path.join(root, 'frontend/entryfrag.js'), 'utf8');
+  const start = source.indexOf('const parseSizes =');
+  const end = source.indexOf('const parseAssetList', start);
+  const context = { defaultSizes: ['S', 'M', 'L'], result: null };
+  vm.createContext(context);
+  context.button = { hasAttribute: () => true, dataset: { sizes: '' } };
+  vm.runInContext(source.slice(start, end) + ';result = parseSizes(button);', context);
+  assert.equal(context.result.length, 0);
+  context.button.dataset.sizes = 'M,L,XL';
+  vm.runInContext('result = parseSizes(button);', context);
+  assert.equal(context.result.join(','), 'M,L,XL');
+
+  let handler;
+  let added = 0;
+  const sizesPanel = { hidden: false };
+  const ui = {
+    products: new Map([[medal.id, medal]]), activeProductId: medal.id,
+    productAddToCart: { addEventListener: (_event, callback) => { handler = callback; } },
+    getActiveSize: () => '', getActiveOption: () => '',
+    showToast: () => assert.fail('A sizeless medal must not require a selection'),
+    addToCart: (product, size, option) => { assert.equal(product.id, medal.id); assert.equal(size, ''); assert.equal(option, ''); added++; },
+    productCategory: {}, productTitle: {}, productPrice: {}, productDescription: {},
+    productSizeChart: {}, productMainShot: { style: {} }, productThumbs: {},
+    productSizes: { closest: () => sizesPanel }, productOptionsWrap: {}, productOptions: {},
+    money: String, escapeCatalogHtml: String, resolveDetailImage: value => value,
+    parseAssetList: value => String(value || '').split(',').filter(Boolean),
+    syncProductPrice() {}, setProductImage() {}
+  };
+  vm.createContext(ui);
+  const renderStart = source.indexOf('function renderProduct(');
+  const renderEnd = source.indexOf('const snapProductViewport', renderStart);
+  vm.runInContext(source.slice(renderStart, renderEnd) + ';renderProduct(activeProductId);', ui);
+  assert.equal(sizesPanel.hidden, true);
+  assert.equal(ui.productOptionsWrap.hidden, true);
+  assert.equal(ui.productSizeChart.hidden, true);
+  const clickStart = source.indexOf('productAddToCart.addEventListener("click"');
+  const clickEnd = source.indexOf('productSizeChart.addEventListener', clickStart);
+  vm.runInContext(source.slice(clickStart, clickEnd), ui);
+  handler();
+  assert.equal(added, 1);
+});
+
 function storage(t) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'entryfrag-product-test-'));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
@@ -59,7 +112,7 @@ test('stale and concurrent saves cannot overwrite a newer product', async t => {
 test('invalid IDs, prices, image schemes and unexpected fields fail before saving', async t => {
   const { catalog } = storage(t);
   for (const patch of [{ id: 'replace-id' }, { price: -1 }, { price: 1.5 }, { visible: 'false' },
-    { images: ['javascript:alert(1)'] }, { images: ['../secret'] }, { sizes: [] }, { options: ['bad,option'] }]) {
+    { images: ['javascript:alert(1)'] }, { images: ['../secret'] }, { sizes: [''] }, { options: ['bad,option'] }]) {
     await assert.rejects(catalog.update(original[0].id, patch, 0));
   }
   await assert.rejects(catalog.update('missing', { visible: false }, 0), { status: 404 });

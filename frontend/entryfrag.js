@@ -153,7 +153,7 @@
     let promoApplied = false;
     let currentOrderNumber = "";
     let cachedCities = [];
-    const sortableSectionIds = new Set(["jerseys", "zipups", "pants", "caps"]);
+    const sortableSectionIds = new Set(["jerseys", "zipups", "pants", "caps", "mvp-medals", "trophies"]);
     const surfaceRootIds = new Set(["overlay", "drawer", "productOverlay", "productModal", "sizeChartModal", "teamModal", "checkoutModal", "adminModal", "successModal", "toast"]);
     const backgroundRoots = [...body.children].filter((node) => node instanceof HTMLElement && !surfaceRootIds.has(node.id) && node.tagName !== "SCRIPT");
     const surfaceReturnFocus = new Map();
@@ -759,7 +759,7 @@
         if (product) renderCardVisual(visual, product, cardIndex);
       });
     };
-    const parseSizes = (button, description) => button.dataset.sizes ? button.dataset.sizes.split(",").map((size) => size.trim()).filter(Boolean) : description.includes("S-M-L") ? [...defaultSizes] : [...defaultSizes];
+    const parseSizes = (button) => button.hasAttribute("data-sizes") ? button.dataset.sizes.split(",").map((size) => size.trim()).filter(Boolean) : [...defaultSizes];
     const parseAssetList = (value) => String(value || "").split(",").map((item) => item.trim()).filter(Boolean);
     const parseOptions = (button) => button.dataset.options ? button.dataset.options.split(",").map((option) => option.trim()).filter(Boolean) : [];
     const getActiveSize = () => productSizes.querySelector(".size-chip.active")?.dataset.size || "";
@@ -1112,6 +1112,7 @@
         </button>
       `;
       }).join("");
+      productSizes.closest(".product-meta").hidden = !product.sizes.length;
       productSizes.innerHTML = product.sizes.map((size) => `
         <button class="size-chip" data-size="${escapeCatalogHtml(size)}" type="button">${escapeCatalogHtml(size)}</button>
       `).join("");
@@ -1186,7 +1187,7 @@
         qty: 1
       });
       renderCart();
-      showToast(`${product.name} (${size}${optionLabel}) \u0434\u043E\u0434\u0430\u043D\u043E \u0432 \u043A\u043E\u0448\u0438\u043A`);
+      showToast(`${product.name}${size || option ? " (" + size + optionLabel + ")" : ""} додано в кошик`);
     }
 
     function renderCart() {
@@ -1213,7 +1214,7 @@
       cartItems.innerHTML = items.map((item) => `
         <article class="item">
           <div class="top">
-            <div><small>${escapeCatalogHtml(item.category)} \u2022 \u0420\u043E\u0437\u043C\u0456\u0440 ${escapeCatalogHtml(item.size)}${item.option ? ` \u2022 ${escapeCatalogHtml(item.option)}` : ""}</small><strong>${escapeCatalogHtml(item.name)}</strong></div>
+            <div><small>${[escapeCatalogHtml(item.category), item.size ? "Розмір " + escapeCatalogHtml(item.size) : "", escapeCatalogHtml(item.option)].filter(Boolean).join(" • ")}</small><strong>${escapeCatalogHtml(item.name)}</strong></div>
             <span>${money(item.price)}</span>
           </div>
           <div class="bottom">
@@ -1257,6 +1258,7 @@
     function renderTeams() {
       const grouped = new Map([["SK Gaming", []], ["Heroic", []]]);
       [...products.values()].forEach((product) => {
+        if (["MVP медалі", "Трофеї"].includes(product.category)) return;
         const team = inferTeam(product.name);
         if (!grouped.has(team)) grouped.set(team, []);
         grouped.get(team).push(product);
@@ -1424,7 +1426,7 @@
       if (!product) return;
       const selectedSize = getActiveSize();
       const selectedOption = getActiveOption();
-      if (!selectedSize) {
+      if (product.sizes.length && !selectedSize) {
         showToast("\u0421\u043F\u043E\u0447\u0430\u0442\u043A\u0443 \u0432\u0438\u0431\u0435\u0440\u0456\u0442\u044C \u0440\u043E\u0437\u043C\u0456\u0440");
         return;
       }
@@ -1592,7 +1594,7 @@
         return;
       }
       const completedOrder = currentOrderNumber || createOrderNumber();
-      const orderItems = [...cart.values()].map((item, index) => `${index + 1}. ${item.name} | \u0420\u043E\u0437\u043C\u0456\u0440: ${item.size}${item.option ? ` | \u041E\u043F\u0446\u0456\u044F: ${item.option}` : ""} | \u041A-\u0441\u0442\u044C: ${item.qty} | \u0421\u0443\u043C\u0430: ${money(item.qty * item.price)}`).join("\n");
+      const orderItems = [...cart.values()].map((item, index) => [`${index + 1}. ${item.name}`, item.size ? "Розмір: " + item.size : "", item.option ? "Опція: " + item.option : "", "К-сть: " + item.qty, "Сума: " + money(item.qty * item.price)].filter(Boolean).join(" | ")).join("\n");
       const telegramMessage = [
         `\u041D\u043E\u0432\u0435 \u0437\u0430\u043C\u043E\u0432\u043B\u0435\u043D\u043D\u044F ${completedOrder}`,
         ``,
